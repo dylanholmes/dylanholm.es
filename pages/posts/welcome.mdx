@@ -1,0 +1,22 @@
+import { withRouter } from 'next/router'
+import BlogPost from '../../components/layouts/blog-post'
+
+export const meta = {
+  published: false,
+  publishedAt: '2020-02-16',
+  title: 'Hello!',
+  summary: 'Rigid Body Physics Series',
+  image: '/static/site-feature.png',
+}
+
+export default withRouter(({ children, router }) => (
+  <BlogPost path={router.pathname} meta={meta}>
+    {children}
+  </BlogPost>
+))
+
+Will be talking about physics, etc.
+
+```bash
+$ ./some-shell-script.sh
+```
