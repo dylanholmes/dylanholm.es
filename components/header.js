@@ -24,8 +24,13 @@ function Header({ path, pageTitle, ogImage }) {
         `}
       </style>
       <style jsx global>
-        {`
-          html {
+        {`    
+        @font-face {
+          font-family: Montserrat;
+          src: url(/static/fonts/Montserrat/Montserrat-ExtraLight.ttf);
+        }
+
+        html {
             margin: 0;
             box-sizing: border-box;
           }
@@ -39,8 +44,9 @@ function Header({ path, pageTitle, ogImage }) {
           body {
             margin: 0;
             font-size: 18px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
               Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+            font-weight: 200 !important;
             color: #333;
             line-height: 1.5;
             background-color: #fff;
@@ -51,7 +57,7 @@ function Header({ path, pageTitle, ogImage }) {
           h3,
           h4 {
             margin-bottom: 0.5rem;
-            font-weight: bold;
+            font-weight: 200 !important;
             color: inherit;
             line-height: 1.25;
           }

@@ -19,22 +19,19 @@ const Title = ({ path }) => (
     )}
     <style jsx>{`
       h1 {
-        margin-top: 0;
-        margin-bottom: 1rem;
-        padding-top: 0;
-        font-size: 1.3em;
-        font-weight: bold;
+        margin: 0;
+        // margin-bottom: 1rem;
+        // padding-top: 0;
+        margin-bottom: 0;
+        font-size: 1em;
         line-height: 1.5;
       }
 
-      a {
-        color: #333;
-        text-decoration: none;
-      }
 
       p {
-        font-size: 1.3em;
-        font-weight: bold;
+        margin: 0;
+        font-size: 1em;
+        line-height: 1.5;
       }
     `}</style>
   </>

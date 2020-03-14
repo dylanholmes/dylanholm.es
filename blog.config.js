@@ -5,9 +5,6 @@ module.exports = {
     image: '/static/site-feature.png',
     description: 'A blog.',
     siteUrl: 'http://dylanholm.es',
-    social: {
-      twitter: '_jolvera',
-    },
     postsPerPage: 5,
   },
 }

@@ -1,0 +1,100 @@
+import { withRouter } from 'next/router'
+import BlogPost from '../../components/layouts/blog-post'
+
+export const meta = {
+  published: false,
+  publishedAt: '2020-02-22',
+  title: 'recursive newton euler algorithm',
+  // title: '[algorithm] recursive newton euler',
+  summary: '',
+  image: '',
+}
+
+export default withRouter(({ children, router }) => (
+  <BlogPost path={router.pathname} meta={meta}>
+    {children}
+  </BlogPost>
+))
+
+
+## overview
+
+The recursive newton euler algorithm is used to compute inverse dynamics of a
+rigidbody system which has a tree structure.
+
+## background
+
+Given a rigidbody system with a tree structure, defined as:
+<BlockMath>
+  {`
+    \\text{Define the system here.}
+  `}
+</BlockMath>
+
+Computing the inverse dynamics means the following:
+<BlockMath>
+  {`
+    \\text{Define inverse dynamics here.}
+  `}
+</BlockMath>
+
+<!--
+What problem the algorithm is solving.
+What the formulation of that problem is.
+What is the input to the algorithm.
+What is the output of the algorithm.
+What is the space/time complexity of the algorithm.
+-->
+
+## formulation
+
+The general formuation of the algorithm is as follows:
+
+1. Compute the velocity and acceleration of each body in the tree.
+2. Compute the forces required to produce these accelerations.
+3. Compute the forces transmitted across the joints from the forces acting on
+the bodies.
+
+<BlockMath>
+  {`
+    % a comment
+    \\begin{aligned}
+    &v_0 = 0 \\\\
+    &a_0 = -a_g \\\\
+    &\\textbf{for } i = 1 \\textbf{ to } N_B \\textbf{ do} \\\\
+    &\\hspace{1.5em} []
+    \\end{aligned}
+  `}
+</BlockMath>
+  
+
+
+<!-- ```
+v_0 = 0
+a_0 = -a_g
+```
+
+##
+Let's get started with unity.
+
+```bash
+$ ./some-shell-script.sh
+$ b.
+$ sss.sh
+``` -->
+<!-- 
+```cs
+public class Main {
+  public static void main(String[] args) {
+    System.out.println("Ahoy!");
+  }
+}
+```
+
+```java
+public class Main {
+  public static void main(String[] args) {
+    System.out.println("Ahoy!");
+  }
+}
+``` -->

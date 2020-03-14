@@ -10,7 +10,7 @@ const Post = ({ title, summary, date, path }) => (
         </Link>
       </h2>
 
-      <PublishedAt link={path} date={date} />
+      <PublishedAt date={date} />
     </header>
     <div className="post-summary">{summary}</div>
     <style jsx>{`

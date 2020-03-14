@@ -1,0 +1,85 @@
+import { withRouter } from 'next/router'
+import BlogPost from '../../components/layouts/blog-post'
+
+export const meta = {
+  published: false,
+  publishedAt: '2020-02-22',
+  title: 'Abstracting Physics in Unity',
+  summary: 'ß',
+  image: '',
+}
+
+export default withRouter(({ children, router }) => (
+  <BlogPost path={router.pathname} meta={meta}>
+    {children}
+  </BlogPost>
+))
+
+
+## Problem
+
+Unity currently comes with two possible physic engine integrations; the default
+PhysX integration and new preview-only Havok integration. Its great to see more
+choices coming out of the box, but the integrations are not seamless. The PhysX
+integration requires a Monobehaviour-centric workflow, while Havok requires
+switching over to the new ECS workflow. This couples the choice of physics
+integration to the project workflow early on as switching later may require you
+to essentially re-write your whole project.
+
+The standard software engineering practice to decouple components in situations
+like this is to use a combination of abstraction and inversion of control. In
+this post we'll look at how we can apply these concepts to abstracting the physics
+in Unity in a way that will allow us to easily swap out our physics integration,
+whether that be between PhysX, Havok, or some custom physics integration. We'll
+also consider the design choices that go into selecting an appropriate abstraction
+(nothing's free).
+
+
+## Designing the Abstraction Layer
+
+Designing an abstraction layer boils down to deciding on a common interface that
+can support all the implemenations you plan on supporting. In our case, the
+implementations (the physics integrations) are already existing and can be
+expected to differ in a non trivial way, for example they may have differing
+settings, or some features may only be available in one or the other. There are
+two common approaches to desiging an interface between existing implenations, the
+choice of which depends on the project goals.
+
+The first choice is to limit the interface to only functionality that is supported
+by all of the implementations. This functionality is the intersection of the
+functionality supported by all implemenations.
+
+The second choice is to expand the interface to all functionality that is supported
+by any of the implemenations. This functionality is the union of the
+functionality supported by all implemenations.
+
+While these choices sound pretty black and white, they are not.
+
+
+<Unity buildJsonPath="/static/2020_02_22_unity_setup/BoxDrop.json" unityLoaderJsPath="/static/2020_02_22_unity_setup/UnityLoader.js"/>
+
+
+##
+Let's get started with unity.
+
+```bash
+$ ./some-shell-script.sh
+$ b.
+$ sss.sh
+```
+
+```cs
+public class Main {
+  public static void main(String[] args) {
+    System.out.println("Ahoy!");
+  }
+}
+```
+
+```java
+public class Main {
+  public static void main(String[] args) {
+    System.out.println("Ahoy!");
+  }
+}
+```

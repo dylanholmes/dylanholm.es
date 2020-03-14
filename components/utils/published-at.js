@@ -1,20 +1,17 @@
 import React from 'react'
-import Link from 'next/link'
 import { parse, format } from 'date-fns'
 
 function PublishedAt(props) {
-  const { link, date } = props
+  const { date } = props
   return (
     <>
-      <Link href={link}>
-        <a href={link} className="u-url" mcolor="#aaa" {...props}>
-          <time className="dt-published">
-            {format(parse(date), 'MMMM DD, YYYY')}
-          </time>
-        </a>
-      </Link>
+      <p mcolor="#aaa" {...props}>
+        <time className="dt-published">
+          {format(parse(date), 'MMMM DD, YYYY')}
+        </time>
+      </p>
       <style jsx>{`
-        a {
+        p {
           color: #555;
           text-decoration: none;
         }

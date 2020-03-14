@@ -1,10 +1,19 @@
 import Link from 'next/link'
 import { siteMeta } from '../../blog.config'
 import Layout from './default'
-import SyntaxHighlight from '../syntax-highlight'
 import PublishedAt from '../utils/published-at'
 import blogposts from '../../posts/index'
 import NextPrevPost from '../next-prev-post'
+import { InlineMath, BlockMath } from 'react-katex';
+import {MDXProvider} from '@mdx-js/react'
+import Unity from '../shortcodes/unity'
+import CodeBlock from '../code-block'
+const components = {
+  code: CodeBlock,
+  InlineMath,
+  BlockMath,
+  Unity
+}
 
 function BlogPost({ path, meta, children }) {
   const currentPostIndex = blogposts
@@ -15,27 +24,15 @@ function BlogPost({ path, meta, children }) {
 
   return (
     <Layout pageTitle={meta.title} ogImage={meta.image}>
-      <SyntaxHighlight />
       <article className="h-entry">
         <header>
           <h1 className="p-name">{meta.title}</h1>
 
           <div>
-            <PublishedAt date={meta.publishedAt} link={path} />
-
-            {/* <Link href="/about">
-              <a
-                color="#aaa"
-                rel="author"
-                className="p-author h-card"
-                href="/about"
-              >
-                {siteMeta.author}
-              </a>
-            </Link> */}
+            <PublishedAt date={meta.publishedAt} />
           </div>
         </header>
-        <div className="e-content">{children}</div>
+        <div className="e-content"><MDXProvider components={components}>{children}</MDXProvider></div>
         <footer>
           {(previousPost || nextPost) && (
             <div className="post-pagination">
