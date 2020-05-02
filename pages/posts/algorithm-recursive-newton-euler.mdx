@@ -18,8 +18,11 @@ export default withRouter(({ children, router }) => (
 
 ## overview
 
-The recursive newton euler algorithm is used to compute inverse dynamics of a
-rigidbody system which has a tree structure. [[1]](#references-1)
+The recursive newton euler algorithm is used to solve inverse dynamics of a
+rigid body system that can be described by a kinematic tree. This algorithm was
+first described in [[1]](#references-1), then later reworked to be simpler, more
+efficient by utilizing a generalized coorderinate representation coupled with
+spatial vector in [[2]](#references-2) 
 
 <!--
 What problem the algorithm is solving.
@@ -31,24 +34,31 @@ What is the space/time complexity of the algorithm.
 
 ## background
 
+We can represent any rigid body system in any configuration as the tuple $(\textit{model},\textit{state})$
 
-Inverse dynamics is the problem of finding the forces required to produce an
-acceleration. For a  given a model and state of a system.
+Given a rigid body system comprised of $N_B$ bodies:
+
+Let $\lambda(1)...\lambda(N_B)$ be the 
+
+
+A rigid body system without closed-loops can be represented as a kinematic tree. One
+way of describing such a system is by the number of bodies $N_B$, a parent body array
+$\lambda(1) ...\lambda(N_B)$,.
+
+The state, $\textit{state}$, is a set of generalized positions $\bm{q}$,
+velocities $\bm{\dot{q}}$, and accelerations $\bm{\ddot{q}}$.
+
+Inverse dynamics is the problem of finding the forces of a rigid body system given its state.
+
 $$
-\bm{\tau} = \text{ID}(\textit{model},\bm{q},\bm{\dot{q}}, \bm{\ddot{q}})
+\bm{\tau} = \text{ID}(\textit{model},\textit{state})
 $$
-
-
-<!-- Given a rigidbody system with a tree structure, defined as:
-$$
-\bm{\tau}: \text{array of torques}
-$$ -->
-
-
-
-
 
 ## formulation
+
+The model of the rigid body a $\textit{model}$ 
+
+
 
 The general formuation of the algorithm is as follows:
 
@@ -68,6 +78,11 @@ $$
 
 ## references
 
+
 <Anchor id="references-1">
-  [1]  R. Featherstone. Rigid Body Dynamics Algorithms. Springer, 2008.
+  [1]  J. Luh, et al. "Resolved-Acceleration Control of Mechanical Manipulators," IEEE Trans. On Auto. Control, Vol. AC-25, No. 3, pp. 468– 474, June 1980.
 </Anchor>
+<Anchor id="references-2">
+  [2]  R. Featherstone. Rigid Body Dynamics Algorithms. Springer, 2008.
+</Anchor>
+
