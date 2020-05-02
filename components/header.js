@@ -135,6 +135,15 @@ function Header({ path, pageTitle, ogImage }) {
             max-width: 100%;
             height: auto;
           }
+
+          /* I don't know where else to put this Katex customization. */
+          .katex-display {
+            text-align: left;
+            padding-left: 1em;
+          }
+          .katex-display > .katex {
+            text-align: left;
+          }
         `}
       </style>
     </>

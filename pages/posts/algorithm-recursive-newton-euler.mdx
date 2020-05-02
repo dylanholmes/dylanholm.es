@@ -2,7 +2,7 @@ import { withRouter } from 'next/router'
 import BlogPost from '../../components/layouts/blog-post'
 
 export const meta = {
-  published: false,
+  published: true,
   publishedAt: '2020-02-22',
   title: 'recursive newton euler algorithm',
   // title: '[algorithm] recursive newton euler',
@@ -15,6 +15,7 @@ export default withRouter(({ children, router }) => (
     {children}
   </BlogPost>
 ))
+
 
 
 ## overview
@@ -61,7 +62,7 @@ the bodies.
     \\begin{aligned}
     &v_0 = 0 \\\\
     &a_0 = -a_g \\\\
-    &\\textbf{for } i = 1 \\textbf{ to } N_B \\textbf{ do} \\\\
+    &\\text{for } i = 1 \\text{ to } N_B \\text{ do} \\\\
     &\\hspace{1.5em} []
     \\end{aligned}
   `}
