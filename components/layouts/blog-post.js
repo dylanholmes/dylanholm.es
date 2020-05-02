@@ -4,14 +4,13 @@ import Layout from './default'
 import PublishedAt from '../utils/published-at'
 import blogposts from '../../posts/index'
 import NextPrevPost from '../next-prev-post'
-import { InlineMath, BlockMath } from 'react-katex';
 import {MDXProvider} from '@mdx-js/react'
+import Anchor from '../shortcodes/anchor'
 import Unity from '../shortcodes/unity'
 import CodeBlock from '../code-block'
 const components = {
+  Anchor,
   code: CodeBlock,
-  InlineMath,
-  BlockMath,
   Unity
 }
 
@@ -26,11 +25,12 @@ function BlogPost({ path, meta, children }) {
     <Layout pageTitle={meta.title} ogImage={meta.image}>
       <article className="h-entry">
         <header>
-          <h1 className="p-name">{meta.title}</h1>
+          {/* <h1 className="p-name">{meta.title}</h1> */}
+          <h1 className="p-name">{path}</h1>
 
-          <div>
+          {/* <div>
             <PublishedAt date={meta.publishedAt} />
-          </div>
+          </div> */}
         </header>
         <div className="e-content"><MDXProvider components={components}>{children}</MDXProvider></div>
         <footer>

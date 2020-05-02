@@ -29,8 +29,9 @@
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-katex": "^2.0.2",
-    "react-unity-webgl": "^7.1.10"
+    "react-unity-webgl": "^7.1.10",
+    "rehype-katex": "^3.0.0",
+    "remark-math": "^2.0.1"
   },
   "devDependencies": {
     "@svgr/webpack": "^4.2.0",

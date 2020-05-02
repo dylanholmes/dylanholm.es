@@ -6,11 +6,11 @@ const Post = ({ title, summary, date, path }) => (
     <header>
       <h2>
         <Link href={path}>
-          <a>{title}</a>
+          <a>{path}</a>
         </Link>
       </h2>
 
-      <PublishedAt date={date} />
+      {/* <PublishedAt date={date} /> */}
     </header>
     <div className="post-summary">{summary}</div>
     <style jsx>{`
@@ -18,8 +18,12 @@ const Post = ({ title, summary, date, path }) => (
         margin-bottom: 2em;
       }
 
-      a {
-        text-decoration: none;
+      // a {
+      //   text-decoration: none;
+      // }
+
+      h2 {
+        font-size: 1em;
       }
 
       .post-summary {

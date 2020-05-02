@@ -16,28 +16,10 @@ export default withRouter(({ children, router }) => (
   </BlogPost>
 ))
 
-
-
 ## overview
 
 The recursive newton euler algorithm is used to compute inverse dynamics of a
-rigidbody system which has a tree structure.
-
-## background
-
-Given a rigidbody system with a tree structure, defined as:
-<BlockMath>
-  {`
-    \\text{Define the system here.}
-  `}
-</BlockMath>
-
-Computing the inverse dynamics means the following:
-<BlockMath>
-  {`
-    \\text{Define inverse dynamics here.}
-  `}
-</BlockMath>
+rigidbody system which has a tree structure.[[1]](#references-1)]
 
 <!--
 What problem the algorithm is solving.
@@ -46,6 +28,25 @@ What is the input to the algorithm.
 What is the output of the algorithm.
 What is the space/time complexity of the algorithm.
 -->
+
+## background
+
+
+Inverse dynamics is the problem of finding the forces required to produce an
+acceleration. For a  given a model and state of a system.
+$$
+\bm{\tau} = \text{ID}(\textit{model},\bm{q},\bm{\dot{q}}, \bm{\ddot{q}})
+$$
+
+
+<!-- Given a rigidbody system with a tree structure, defined as:
+$$
+\bm{\tau}: \text{array of torques}
+$$ -->
+
+
+
+
 
 ## formulation
 
@@ -56,46 +57,17 @@ The general formuation of the algorithm is as follows:
 3. Compute the forces transmitted across the joints from the forces acting on
 the bodies.
 
-<BlockMath>
-  {`
-    % a comment
-    \\begin{aligned}
-    &v_0 = 0 \\\\
-    &a_0 = -a_g \\\\
-    &\\text{for } i = 1 \\text{ to } N_B \\text{ do} \\\\
-    &\\hspace{1.5em} []
-    \\end{aligned}
-  `}
-</BlockMath>
-  
+$$
+\begin{aligned}
+&v_0 = 0 \\
+&a_0 = -a_g \\
+&\text{for } i = 1 \text{ to } N_B \text{ do} \\
+&\hspace{1.5em} []
+\end{aligned}
+$$
 
+## references
 
-<!-- ```
-v_0 = 0
-a_0 = -a_g
-```
-
-##
-Let's get started with unity.
-
-```bash
-$ ./some-shell-script.sh
-$ b.
-$ sss.sh
-``` -->
-<!-- 
-```cs
-public class Main {
-  public static void main(String[] args) {
-    System.out.println("Ahoy!");
-  }
-}
-```
-
-```java
-public class Main {
-  public static void main(String[] args) {
-    System.out.println("Ahoy!");
-  }
-}
-``` -->
+<Anchor id="references-1">
+  [1]  R. Featherstone. Rigid Body Dynamics Algorithms. Springer, 2008.
+</Anchor>
