@@ -1,4 +1,9 @@
 {
-    "presets": ["next/babel"],
-    "plugins": ["preval", "macros"]
+  "env": {
+    "development" : {
+      "compact": false
+    }
+  },
+  "presets": ["next/babel"],
+  "plugins": ["preval", "macros"]
 }
