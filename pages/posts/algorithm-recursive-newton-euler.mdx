@@ -19,9 +19,9 @@ export default withRouter(({ children, router }) => (
 ## overview
 
 The recursive newton euler algorithm solves the inverse dynamics problem for a
-kinematic tree. This document is intended to act as a concise reference to the
-already informed reader. For an introduction to the topic or a deeper
-discussion, refer to [[1]](#references-1).
+kinematic tree of $n$ bodies in $O(n)$ time. This document is intended to act as
+a concise reference to the already informed reader. For an introduction to the
+topic or a deeper discussion, refer to [[1]](#references-1).
 
 ## history
 
@@ -68,18 +68,18 @@ $$
 &a_0 = -a_g \\
 &\text{for } i = 1 \text{ to } N_B \text{ do} \\
 &\hspace{1.5em} [X_J,S_i,v_j,c_j] = \text{jcalc}(\text{jtype}(i),q_i,\dot{q_i}) \\
-&\hspace{1.5em} {}^i\!X_{\lambda(i)} = X_J * X_T(i) \\
+&\hspace{1.5em} {}^i\!X_{\lambda(i)} = X_J X_T(i) \\
 &\hspace{1.5em} \text{if }\lambda(i) \ne 0 \text{ then} \\
 &\hspace{1.5em}\hspace{1.5em}  {}^i\!X_0 = {}^i\!X_{\lambda(i)} {}^{\lambda(i)}\!X_0 \\
 &\hspace{1.5em} \text{end} \\
 &\hspace{1.5em} v_i = {}^i\!X_{\lambda(i)} v_{\lambda(i)} + v_J \\
-&\hspace{1.5em} a_i = {}^i\!X_{\lambda(i)} a_{\lambda(i)} + S_i\ddot(q_i) + c_J + v_i \times v_J \\
+&\hspace{1.5em} a_i = {}^i\!X_{\lambda(i)} a_{\lambda(i)} + S_i\ddot{q_i} + c_J + v_i \times v_J \\
 &\hspace{1.5em} f_i = I_ia_i + v_i \times^{*} I_iv_i - {}^i\!X_0^*f_i^x \\
 &\text{end} \\
 &\text{for } i = N_B \text{ to } 1 \text{ do} \\
 &\hspace{1.5em} \tau_i = S_i^Tf_i \\
 &\hspace{1.5em} \text{if }\lambda(i) \ne 0 \text{ then} \\
-&\hspace{1.5em}\hspace{1.5em} f_{\lambda(i)} = + {}^{\lambda(i)}\!X_i^*f_i \\
+&\hspace{1.5em}\hspace{1.5em} f_{\lambda(i)} = f_{\lambda(i)} + {}^{\lambda(i)}\!X_i^*f_i \\
 &\hspace{1.5em} \text{end} \\
 &\text{end} \\
 \end{aligned}

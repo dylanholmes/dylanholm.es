@@ -137,16 +137,21 @@ function Header({ path, pageTitle, ogImage }) {
           }
 
           /* I don't know where else to put this Katex customization. */
+
+          .katex {
+            font-size: 1.05em;
+          }
+
+          .katex-display {
+            font-size: 1em;
+          }
+
           .katex-display {
             text-align: left;
             padding-left: 1em;
           }
           .katex-display > .katex {
             text-align: left;
-          }
-
-          .katex-display {
-            font-size: 15px;
           }
         `}
       </style>
