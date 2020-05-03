@@ -64,7 +64,6 @@ function Header({ path, pageTitle, ogImage }) {
           h2,
           h3,
           h4 {
-            font-family: "Montserrat", sans-serif;
             margin-bottom: 0.5rem;
             font-weight: 300;
             color: inherit;
