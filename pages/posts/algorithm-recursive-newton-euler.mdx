@@ -18,71 +18,155 @@ export default withRouter(({ children, router }) => (
 
 ## overview
 
-The recursive newton euler algorithm is used to solve inverse dynamics of a
-rigid body system that can be described by a kinematic tree. This algorithm was
-first described in [[1]](#references-1), then later reworked to be simpler, more
-efficient by utilizing a generalized coorderinate representation coupled with
-spatial vector in [[2]](#references-2) 
+The recursive newton euler algorithm solves the inverse dynamics problem for a
+kinematic tree. This document is intended to act as a concise reference to the
+already informed reader. For an introduction to the topic or a deeper
+discussion, refer to [[1]](#references-1).
 
-<!--
-What problem the algorithm is solving.
-What the formulation of that problem is.
-What is the input to the algorithm.
-What is the output of the algorithm.
-What is the space/time complexity of the algorithm.
--->
+## history
 
-## background
+The recursive newton euler algorithm was first described in
+[[2]](#references-2). Classical accerations were replaced with spatial
+accerations in [[3]](#references-3), with the addition of spatial accelerations.
+The version presented in this document is the subsequent reformulation from
+[[1]](#references-1), which introduces the use of generalized coorderinates and
+spatial vector algebra.
 
-We can represent any rigid body system in any configuration as the tuple $(\textit{model},\textit{state})$
+## formulation
 
-Given a rigid body system comprised of $N_B$ bodies:
+A rigid body system in any configuration is described as
+$(\textit{model},\textit{state})$.
 
-Let $\lambda(1)...\lambda(N_B)$ be the 
+For a kinematic tree, the $\textit{model}$ is a set of parent body indices
+$\lambda$, joint types $\text{jtype}$, parent transforms $X_T$, and inertias
+$I$.
 
+The $\textit{state}$ is a set of generalized positions $\bm{q}$, velocities
+$\bm{\dot{q}}$, and accelerations $\bm{\ddot{q}}$.
 
-A rigid body system without closed-loops can be represented as a kinematic tree. One
-way of describing such a system is by the number of bodies $N_B$, a parent body array
-$\lambda(1) ...\lambda(N_B)$,.
-
-The state, $\textit{state}$, is a set of generalized positions $\bm{q}$,
-velocities $\bm{\dot{q}}$, and accelerations $\bm{\ddot{q}}$.
-
-Inverse dynamics is the problem of finding the forces of a rigid body system given its state.
+Inverse dynamics is the problem of finding the forces of a rigid body system
+given its state.
 
 $$
 \bm{\tau} = \text{ID}(\textit{model},\textit{state})
 $$
 
-## formulation
-
-The model of the rigid body a $\textit{model}$ 
-
-
-
-The general formuation of the algorithm is as follows:
+The recursive newton euler algorithm solves the inverse dynamic problem by:
 
 1. Compute the velocity and acceleration of each body in the tree.
 2. Compute the forces required to produce these accelerations.
 3. Compute the forces transmitted across the joints from the forces acting on
 the bodies.
 
+***
+
 $$
+\normalsize \textbf{Recursive Newton Euler Algorithm} \\
+\normalsize \hspace{1.5em} \\
 \begin{aligned}
 &v_0 = 0 \\
 &a_0 = -a_g \\
 &\text{for } i = 1 \text{ to } N_B \text{ do} \\
-&\hspace{1.5em} []
+&\hspace{1.5em} [X_J,S_i,v_j,c_j] = \text{jcalc}(\text{jtype}(i),q_i,\dot{q_i}) \\
+&\hspace{1.5em} {}^i\!X_{\lambda(i)} = X_J * X_T(i) \\
+&\hspace{1.5em} \text{if }\lambda(i) \ne 0 \text{ then} \\
+&\hspace{1.5em}\hspace{1.5em}  {}^i\!X_0 = {}^i\!X_{\lambda(i)} {}^{\lambda(i)}\!X_0 \\
+&\hspace{1.5em} \text{end} \\
+&\hspace{1.5em} v_i = {}^i\!X_{\lambda(i)} v_{\lambda(i)} + v_J \\
+&\hspace{1.5em} a_i = {}^i\!X_{\lambda(i)} a_{\lambda(i)} + S_i\ddot(q_i) + c_J + v_i \times v_J \\
+&\hspace{1.5em} f_i = I_ia_i + v_i \times^{*} I_iv_i - {}^i\!X_0^*f_i^x \\
+&\text{end} \\
+&\text{for } i = N_B \text{ to } 1 \text{ do} \\
+&\hspace{1.5em} \tau_i = S_i^Tf_i \\
+&\hspace{1.5em} \text{if }\lambda(i) \ne 0 \text{ then} \\
+&\hspace{1.5em}\hspace{1.5em} f_{\lambda(i)} = + {}^{\lambda(i)}\!X_i^*f_i \\
+&\hspace{1.5em} \text{end} \\
+&\text{end} \\
 \end{aligned}
 $$
 
+***
+
+$$
+
+\begin{array}{l}
+  \textbf{Joint Model Formulae (jcalc)} \\
+\end{array} \\
+\begin{array}{lllll} \\
+  \textbf{Joint Type}
+    & \textbf{Joint Transform} ({}^s\!X_p)
+    &
+    & \textbf{Motion Subspace}
+    & \textbf{Constraint Force Subspace} \\
+  \textbf{} & \bm{E} & \bm{r} & \bm{S} & \bm{T} \\
+  \\
+  \hline \\
+  \text{revolute}
+    & rz(q_1)
+    & \begin{bmatrix}
+      0 \\
+      0 \\
+      0
+      \end{bmatrix}
+    & \begin{bmatrix}
+      0 \\
+      0 \\
+      0 \\
+      1 \\
+      0 \\
+      0
+      \end{bmatrix}
+    & \begin{bmatrix}
+      1 & 0 & 0 & 0 & 0 \\
+      0 & 1 & 0 & 0 & 0 \\
+      0 & 0 & 0 & 0 & 0 \\
+      0 & 0 & 1 & 0 & 0 \\
+      0 & 0 & 0 & 1 & 0 \\
+      0 & 0 & 0 & 0 & 1
+      \end{bmatrix}
+    \\
+  \\
+  \text{prismatic}
+    & \bm{1}_{3 \times 3}
+    & \begin{bmatrix}
+      0 \\
+      0 \\
+      q_1
+      \end{bmatrix}
+    & \begin{bmatrix}
+      0 \\
+      0 \\
+      0 \\
+      0 \\
+      0 \\
+      1
+      \end{bmatrix}
+    & \begin{bmatrix}
+      1 & 0 & 0 & 0 & 0 \\
+      0 & 1 & 0 & 0 & 0 \\
+      0 & 0 & 1 & 0 & 0 \\
+      0 & 0 & 0 & 1 & 0 \\
+      0 & 0 & 0 & 0 & 1 \\
+      0 & 0 & 0 & 0 & 0
+      \end{bmatrix}
+
+\end{array}
+$$
+
+***
+
 ## references
 
+<!-- TODO: Format correctly to some standard. -->
 
 <Anchor id="references-1">
-  [1]  J. Luh, et al. "Resolved-Acceleration Control of Mechanical Manipulators," IEEE Trans. On Auto. Control, Vol. AC-25, No. 3, pp. 468– 474, June 1980.
+  [1]  R. Featherstone. Rigid Body Dynamics Algorithms. Springer, 2008.
 </Anchor>
 <Anchor id="references-2">
-  [2]  R. Featherstone. Rigid Body Dynamics Algorithms. Springer, 2008.
+  [2]  J. Luh, et al. Resolved-Acceleration Control of Mechanical Manipulators. IEEE Trans. On Auto. Control, Vol. AC-25, No. 3, pp. 468– 474, June 1980.
 </Anchor>
+<Anchor id="references-3">
+  [3]  M. Brady, et al. Robot Motion: Planning and Control. The MIT Press, 1982.
+</Anchor>
+
 

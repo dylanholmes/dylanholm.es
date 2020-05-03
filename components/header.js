@@ -27,7 +27,7 @@ function Header({ path, pageTitle, ogImage }) {
         {`    
         @font-face {
           font-family: Montserrat;
-          src: url(/static/fonts/Montserrat/Montserrat-ExtraLight.ttf);
+          src: url(/static/fonts/Montserrat/Montserrat-Light.ttf);
         }
 
         html {
@@ -143,6 +143,10 @@ function Header({ path, pageTitle, ogImage }) {
           }
           .katex-display > .katex {
             text-align: left;
+          }
+
+          .katex-display {
+            font-size: 15px;
           }
         `}
       </style>
