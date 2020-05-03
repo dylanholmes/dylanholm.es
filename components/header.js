@@ -24,10 +24,19 @@ function Header({ path, pageTitle, ogImage }) {
         `}
       </style>
       <style jsx global>
-        {`    
+        {`
         @font-face {
-          font-family: Montserrat;
-          src: url(/static/fonts/Montserrat/Montserrat-Light.ttf);
+          font-family: 'Montserrat';
+          src: url(/static/fonts/Montserrat/Montserrat-ExtraLight.ttf) format('truetype');
+          font-weight: 200;
+          font-style: normal;
+        }
+
+        @font-face {
+          font-family: 'Montserrat';
+          src: url(/static/fonts/Montserrat/Montserrat-Light.ttf) format('truetype');
+          font-weight: 300;
+          font-style: normal;
         }
 
         html {
@@ -44,9 +53,8 @@ function Header({ path, pageTitle, ogImage }) {
           body {
             margin: 0;
             font-size: 18px;
-            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-              Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-            font-weight: 200 !important;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
             color: #333;
             line-height: 1.5;
             background-color: #fff;
@@ -56,8 +64,9 @@ function Header({ path, pageTitle, ogImage }) {
           h2,
           h3,
           h4 {
+            font-family: "Montserrat", sans-serif;
             margin-bottom: 0.5rem;
-            font-weight: 200 !important;
+            font-weight: 300;
             color: inherit;
             line-height: 1.25;
           }
