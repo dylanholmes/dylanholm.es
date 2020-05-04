@@ -39,6 +39,10 @@ to be served statically.
 
 ```sh
 git subtree split --prefix out -b gh-pages
+git checkout gh-pages
+git lfs pull
+git commit -m "Checking in large files for static hosting."
 git push -f origin gh-pages:gh-pages
+git checkout master
 git branch -D gh-pages
 ```
