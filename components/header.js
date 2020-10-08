@@ -152,12 +152,14 @@ function Header({ path, pageTitle, ogImage }) {
 
           .katex-display {
             font-size: 1em;
+            border-left: 1px #ff9900 solid;
           }
 
           .katex-display {
             text-align: left;
             padding-left: 1em;
           }
+          
           .katex-display > .katex {
             text-align: left;
           }
