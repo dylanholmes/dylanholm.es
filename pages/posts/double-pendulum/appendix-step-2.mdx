@@ -1,0 +1,74 @@
+We have gotten rid of the external forces, but the equation not yet completely
+in terms of the generalized coordiantes $\theta$. We still need to substitute in
+the cartesian accelerations of the point masses using the kinematic equations.
+After the substitution, we can rearrange, to arrive a the following equations of
+motion:
+
+Solving for that thing:
+
+1. Substitue $\ddot{y_b}$ and $\ddot{x_b}$ into eq (B), then rearrange it as a
+linear combination of $\theta$ and its derivatives. 
+
+  $$
+  \begin{alignedat}{1}
+  0 &= c_b\ddot{x_b} +s_b\ddot{y_b} +s_bg \\
+  0 &= 
+    (s_as_b+c_ac_b)l_a\ddot{\theta_a}
+    +(s_b^2+c_b^2)l_b\ddot{\theta_b}
+    +(c_as_b-s_ac_b)l_a\dot{\theta_a}^2
+    +(s_bc_b-s_bc_b)l_b\dot{\theta_b}^2
+    +s_bg \\
+  0 &=
+    c_{a-b}l_a\ddot{\theta_a}
+    +l_b\ddot{\theta_b}
+    +s_{a-b}l_a\dot{\theta_a}^2
+    +s_bg
+  \end{alignedat}
+  $$
+
+<!-- 
+Kinematic equations for reference:
+\ddot{x_b} &= c_al_a\ddot{\theta_a} + c_bl_b\ddot{\theta_b} - s_al_a\dot{\theta_a}^2 - s_bl_b\dot{\theta_b}^2 \\
+\ddot{y_b} &= s_al_a\ddot{\theta_a} + s_bl_b\ddot{\theta_b} + c_al_a\dot{\theta_a}^2 + c_bl_b\dot{\theta_b}^2 \\
+
+0 &= A_b\ddot{\theta_a} + B_b\ddot{\theta_b} + C_b\dot{\theta_a}^2 + D_b \\
+A_b &= c_{a-b}l_a \\
+B_b &= l_b \\
+C_b &= -s_{a-b}l_a \\
+D_b &= s_bg \\
+
+  -->
+
+
+2. Equation for $\ddot{\theta_a}$
+
+  $$
+  \begin{alignedat}{1}
+  0 &= m_ac_a\ddot{x_a} +m_as_a\ddot{y_a} +m_bc_a\ddot{x_b} +m_bs_a\ddot{y_b} +(m_a +m_b)s_ag \\
+  0 &=
+    (m_a +m_b)(c_a^2 +s_a^2)l_a\ddot{\theta_a}
+    +m_b(s_as_b +c_ac_b)l_b\ddot{\theta_b}
+    +(m_a +m_b)(s_ac_a -s_ac_a)l_a\dot{\theta_a}^2 \\
+  &\hphantom{=} 
+    +m_b(s_ac_b -c_as_b)l_b\dot{\theta_b}^2
+    +(m_a +m_b)s_ag \\
+  0 &=
+    (m_a +m_b)l_a\ddot{\theta_a}
+    +m_bc_{a-b}l_b\ddot{\theta_b}
+    +m_bs_{a-b}l_b\dot{\theta_b}^2
+    +(m_a +m_b)s_ag
+  \end{alignedat}
+  $$
+
+
+<!-- 
+Kinematic equations for reference:
+\ddot{x_a} &= c_al_a\ddot{\theta_a} -s_al_a\dot{\theta_a}^2 \\
+\ddot{y_a} &= s_al_a\ddot{\theta_a} +c_al_a\dot{\theta_a}^2 \\
+\ddot{x_b} &= c_al_a\ddot{\theta_a} +c_bl_b\ddot{\theta_b} -s_al_a\dot{\theta_a}^2 -s_bl_b\dot{\theta_b}^2 \\
+\ddot{y_b} &= s_al_a\ddot{\theta_a} +s_bl_b\ddot{\theta_b} +c_al_a\dot{\theta_a}^2 +c_bl_b\dot{\theta_b}^2 \\
+
+c_ac_b + s_as_b = c_{a-b}
+
+s_ac_b -c_as_b = s_{a-b}
+  -->

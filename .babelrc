@@ -5,5 +5,5 @@
     }
   },
   "presets": ["next/babel"],
-  "plugins": ["preval", "macros"]
+  "plugins": ["preval", "macros", "inline-react-svg"]
 }

@@ -1,0 +1,100 @@
+4. Eliminate $\ddot{\theta_b}$ from equation 1 using equation 3 to solve for $\ddot{\theta_a}$.
+
+  $$
+  \begin{alignedat}{1}
+  0 &=
+    (m_a +m_bs_{a-b}^2)l_a(
+      c_{a-b}l_a\ddot{\theta_a}
+      +l_b\ddot{\theta_b}
+      +s_{a-b}l_a\dot{\theta_a}^2
+      +s_bg
+    ) \\
+  &\hphantom{=} 
+    -(
+      (m_a +m_bs_{a-b}^2)l_al_b\ddot{\theta_b}
+     +(m_a +m_b)s_{a-b}l_a^2\dot{\theta_a}^2
+     -m_bs_{a-b}c_{a-b}l_al_b\dot{\theta_b}^2
+     -(m_a +m_b)s_{a-b}c_al_ag
+    ) \\
+  0 &=
+    (m_a +m_bs_{a-b}^2)c_{a-b}l_a^2\ddot{\theta_a}
+    +(m_a +m_bs_{a-b}^2)s_{a-b}l_a^2\dot{\theta_a}^2 \\
+  &\hphantom{=} 
+    -(m_a +m_b)s_{a-b}l_a^2\dot{\theta_a}^2
+    +m_bs_{a-b}c_{a-b}l_al_b\dot{\theta_b}^2
+    +((m_a +m_bs_{a-b}^2)s_b +(m_a +m_b)s_{a-b}c_a)l_ag \\
+  \end{alignedat}
+  $$
+
+<!-- 
+  $$
+  \begin{alignedat}{1}
+  0 &= A_a\ddot{\theta_a} +B_a\ddot{\theta_b} +C_a\dot{\theta_b}^2 + D_a \\
+  0 &= A_a\ddot{\theta_a} +B_a(A_d\dot{\theta_a}^2 +B_d\dot{\theta_b}^2 +C_d) +C_a\dot{\theta_b}^2 + D_a \\
+  0 &= A_a\ddot{\theta_a} +B_aA_d\dot{\theta_a}^2 +(B_aB_d+C_a)\dot{\theta_b}^2 +D_a +B_aC_d \\
+  \ddot{\theta_a} &= -B_aA_dA_a^{-1}\dot{\theta_a}^2 -(B_aB_d+C_a)A_a^{-1}\dot{\theta_b}^2 -(D_a +B_aC_d)A_a^{-1} \\
+  \ddot{\theta_a} &= A_e\dot{\theta_a}^2 +B_e\dot{\theta_b}^2 +C_e \\
+  A_e &= -B_aA_dA_a^{-1} \\
+      &=  \frac{-m_b(s_as_b +c_ac_b)l_b(m_a +m_b)s_{a-b}l_a}{(m_a +m_bs_{a-b}^2)l_b(m_a +m_b)l_a}\\
+      &=  \frac{-m_b(m_a +m_b)(s_as_b +c_ac_b)s_{a-b}}{(m_a +m_b)(m_a +m_bs_{a-b}^2)}\\
+  B_e &= -(B_aB_d+C_a)A_a^{-1} \\
+      &=  -(m_b(s_as_b +c_ac_b)l_b\frac{m_bs_{a-b}c_{a-b}}{m_a +m_bs_{a-b}^2}+m_b(s_ac_b -c_as_b)l_b)\frac{1}{(m_a +m_b)l_a}\\
+      &=  \frac{-m_b(s_as_b +c_ac_b)l_bm_bs_{a-b}c_{a-b}-m_b(s_ac_b -c_as_b)l_b(m_a +m_bs_{a-b}^2)}{(m_a +m_bs_{a-b}^2)(m_a +m_b)l_a} \\
+      &=  \frac{
+        -m_b^2(s_as_b +c_ac_b)l_bs_{a-b}c_{a-b}
+        -m_b(s_ac_b -c_as_b)l_b(m_a +m_bs_{a-b}^2)
+      }{
+        (m_a +m_bs_{a-b}^2)(m_a +m_b)l_a
+      } \\
+  C_e &= -(D_a +B_aC_d)A_a^{-1} \\
+      &= -((m_a +m_b)s_ag +m_b(s_as_b +c_ac_b)l_b\frac{(m_a +m_b)s_{a-b}c_ag}{(m_a +m_bs_{a-b}^2)l_b})\frac{1}{(m_a +m_b)l_a}\\
+  \end{alignedat}
+  $$
+-->
+
+<!--
+
+\ddot{\theta_b} = - \frac{B_c}{A_c}\dot{\theta_b}^2 -\frac{C_c}{A_c} \\
+
+This is what we should end up with:
+\ddot{\theta_b} &=
+\frac{(m_a + m_b)s_{a-b}l_a}{(m_a+m_bs_{a-b}^2)l_b}\dot{\theta_a}^2
++\frac{m_bs_{a-b}c_{a-b}}{(m_a+m_bs_{a-b}^2)}\dot{\theta_b}^2
++\frac{(m_a + m_b)s_{a-b}c_ag}{(m_a+m_bs_{a-b}^2)l_b}
+
+  $$
+  s_a^2 = \frac{1 - c_{2a}}{2} \\
+  s_b^2 = \frac{1 - c_{2b}}{2} \\
+  c_a^2 = \frac{1 + c_{2a}}{2} \\
+  c_b^2 = \frac{1 + c_{2b}}{2} \\
+
+  2s_as_b = c_{a-b} - c_{a+b} \\
+  2c_ac_b = c_{a-b} + c_{a+b} \\
+  2s_ac_b = s_{a+b} + s_{a-b} \\
+  2c_as_b = s_{a+b} - s_{a-b} \\
+
+
+
+  s_ac_{a-b} = \frac{s_{2a+b} + s_{2a-b}}{2}
+
+
+  2s_as_b + c_{a+b} = c_{a-b}
+
+  s_as_b = \frac{c_{a-b} - c_{a+b}}{2} \\
+  c_ac_b = \frac{c_{a-b} + c_{a+b}}{2} \\
+  s_ac_b = \frac{s_{a+b} + s_{a-b}}{2} \\
+  c_as_b = \frac{s_{a+b} - s_{a-b}}{2} \\
+
+
+ 1-c_{2(a-b)} = 2c_{a-b}^2
+
+ -s_{a-b}
+
+  s_{a-b}c_{a-b} = \frac{s_{2a-2b}}{2}
+
+  2s_ac_a = s_{2a}
+  s_ac_a = \frac{s_{2a}}{2}
+
+  $$
+
+-->

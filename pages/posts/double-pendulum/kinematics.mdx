@@ -1,0 +1,45 @@
+## kinematics
+
+The basics idea of forward kinematics is simple, compute state of a system in
+cartesian coordinates of a point in a system given a set of generalized coordinates.
+
+$$
+\bold{x} = f(\theta)
+$$
+
+We need to find the cartesian kinematic properties of point masses $a$ and $b$
+given their generalized coordinates, $\theta(t)$.
+
+The positions of the point masses can be derived using geometry:
+
+$$
+\begin{alignedat}{3}
+x_a =& &s_al_a& \\
+y_a =& -&c_al_a&  \\
+x_b =& &s_al_a& + s_bl_b \\
+y_b =& -&c_al_a& -c_bl_b 
+\end{alignedat}
+$$
+
+The velocities can then be derived by taking the derivative of the positions
+with respect to time:
+
+$$
+\begin{alignedat}{3}
+\dot{x_a} &= &c_al_a\dot{\theta_a}& \\
+\dot{y_a} &= &s_al_a\dot{\theta_a}& \\
+\dot{x_b} &= &c_al_a\dot{\theta_a}& + c_bl_b\dot{\theta_b} \\
+\dot{y_b} &= &s_al_a\dot{\theta_a}& + s_bl_b\dot{\theta_b}
+\end{alignedat}
+$$
+
+Deriving again with respet to time, we get the accelerations:
+
+$$
+\begin{alignedat}{3}
+\ddot{x_a} &= c_al_a\ddot{\theta_a} - s_al_a\dot{\theta_a}^2 \\
+\ddot{y_a} &= s_al_a\ddot{\theta_a} + c_al_a\dot{\theta_a}^2 \\
+\ddot{x_b} &= c_al_a\ddot{\theta_a} + c_bl_b\ddot{\theta_b} - s_al_a\dot{\theta_a}^2 - s_bl_b\dot{\theta_b}^2 \\
+\ddot{y_b} &= s_al_a\ddot{\theta_a} + s_bl_b\ddot{\theta_b} + c_al_a\dot{\theta_a}^2 + c_bl_b\dot{\theta_b}^2
+\end{alignedat}
+$$

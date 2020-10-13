@@ -1,0 +1,42 @@
+## newtonian dynamics
+
+The direct approach uses the kinematic description of the system coupled with
+newton's second law, $F=ma$ to derive a set of equations that determine the
+system's motion as a function of time.
+
+> TODO: Insert diagram
+
+As depicted in the diagram above, point mass $a$ is being acted on by the
+tension from the massless rods connect it to the origin and $b$.
+
+$$
+\begin{alignedat}{3}
+m_a\ddot{x_a} &= -&T_as_a& + T_bs_b \\
+m_a\ddot{y_a} &= &T_ac_a& - T_bc_b - m_ag \\
+m_b\ddot{x_b} &= -&T_bs_b&  \\
+m_b\ddot{y_b} &= &T_bc_b& - m_bg
+\end{alignedat}
+$$
+
+Now that we have a system of equations that describe the acceleration of the
+system for a given state given the forces acting on the bodies in the system.
+Next, we can combine the
+
+After some heavy algebra (see appendix for details), we can solve for
+$\ddot{\theta}$ using the equations for acceleration along with thosederived
+from newton's second law. The final solution is:
+
+$$
+\begin{alignedat}{1}
+\ddot{\theta_a} &= \frac{
+  -g(2m_a + m_b)s_a -m_bgs_{a-2b} - 2s_{a-b}m_b(\dot{\theta_b}^2l_b + \dot{\theta_a}^2l_ac_{a-b})
+}{
+  l_a(2m_a + m_b - m_bc_{2a-2b})
+} \\
+\\
+\ddot{\theta_b} &=
+  \frac{(m_a + m_b)s_{a-b}l_a}{(m_a+m_bs_{a-b}^2)l_b}\dot{\theta_a}^2 
+  +\frac{m_bs_{a-b}c_{a-b}}{m_a+m_bs_{a-b}^2}\dot{\theta_b}^2
+  +\frac{(m_a + m_b)s_{a-b}c_ag}{(m_a+m_bs_{a-b}^2)l_b} 
+\end{alignedat}
+$$
