@@ -1,14 +1,8 @@
 ## kinematics
 
-The basics idea of forward kinematics is simple, compute state of a system in
-cartesian coordinates of a point in a system given a set of generalized coordinates.
+The kinematic equations of motion describe a system without taking into consideration the forces or energies involved. Thus, we can rely entirely on geometry to derive them. A kinematic description of the system using the generalized coordinates, $\theta_a,\ \theta_b$ is trivial as it is just themselves and their derivatives by definition. This is also not as useful, since cartesian coordinates are needed to draw the system using a computer.
 
-$$
-\bold{x} = f(\theta)
-$$
-
-We need to find the cartesian kinematic properties of point masses $a$ and $b$
-given their generalized coordinates, $\theta(t)$.
+As we'll see, there will be one hell of a lot of sinsoidial functions, so we denote $\sin\theta_x$ and $\cos\theta_x$ as $s_x$ and $c_x$ for convenience.
 
 The positions of the point masses can be derived using geometry:
 
@@ -17,7 +11,7 @@ $$
 x_a =& &s_al_a& \\
 y_a =& -&c_al_a&  \\
 x_b =& &s_al_a& + s_bl_b \\
-y_b =& -&c_al_a& -c_bl_b 
+\tag{3.1c} y_b =& -&c_al_a& -c_bl_b 
 \end{alignedat}
 $$
 
@@ -33,7 +27,7 @@ $$
 \end{alignedat}
 $$
 
-Deriving again with respet to time, we get the accelerations:
+Taking the derivatives once more with respet to time, we get the accelerations:
 
 $$
 \begin{alignedat}{3}

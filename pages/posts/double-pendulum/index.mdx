@@ -1,47 +1,85 @@
 import { withRouter } from "next/router";
-import BlogPost from "../../components/layouts/blog-post";
-import SystemSection from "./double-pendulum/system.mdx";
-import KinematicsSection from "./double-pendulum/kinematics.mdx";
-import NewtonianDynamicsSection from "./double-pendulum/newtonian-dynamics.mdx";
-import LagrangianDynamicsSection from "./double-pendulum/lagrangian-dynamics.mdx";
-import AppendixStep1 from "./double-pendulum/appendix-step-1.mdx";
-import AppendixStep2 from "./double-pendulum/appendix-step-2.mdx";
-import AppendixStep3 from "./double-pendulum/appendix-step-3.mdx";
-import AppendixStep4 from "./double-pendulum/appendix-step-4.mdx";
+import BlogPost from "../../../components/layouts/blog-post";
 
+import SystemSection from "./system.mdx";
+import KinematicsSection from "./kinematics.mdx";
+import NewtonianDynamicsSection from "./newtonian-dynamics.mdx";
+import LagrangianDynamicsSection from "./lagrangian-dynamics.mdx";
+import AppendixStep1 from "./appendix-step-1.mdx";
+import AppendixStep2 from "./appendix-step-2.mdx";
+import AppendixStep3 from "./appendix-step-3.mdx";
+import AppendixStep4 from "./appendix-step-4.mdx";
+
+import Loop from './loop.js';
+import Simulator from './simulator.js';
+import Simulation from './sim.js';
+import SimulationConsumer from './simulation-consumer.js'
+import Viewer from './viewer.js';
+import DoublePendulumViewer from './double-pendulum-viewer.js';
+import FreeBodyViewer from './free-body-viewer.js';
 
 export const meta = {
   published: true,
   publishedAt: "2020-10-05",
   title: "double pendulum",
   summary: "",
-  image: "",
+  image: ""
 };
 
 export default withRouter(({ children, router }) => (
-  <BlogPost path={router.pathname} meta={meta}>
-    {children}
-  </BlogPost>
+    <BlogPost path={router.pathname} meta={meta}>
+      <Simulation>{
+        children}
+      </Simulation>
+    </BlogPost>
 ));
 
 
+<div>
+  <Viewer/>
+  <DoublePendulumViewer/>
+  <FreeBodyViewer/>
+  <style jsx>{`
+    position: fixed;
+    top: 25%;
+    width: 20%;
+    min-width: 20em;
+    height: 50%;
+    max-height: 45em;
+    right: 0;
+  `}</style>
+</div>
+
 ## overview
+
+The double pendulum is a beautiful example of a dynamical system. Its behavior is chaotic, meaning that small changes to its initial conditions will generate wildly different trajectories. In this post, we'll look at the physics behind this contraption so we can simulate and eventually control it.
+
+Now, into the math of madness!
+
+![foo](https://goombastomp.com/wp-content/uploads/2020/01/In-the-Mouth-of-Madness-Anniversary-Review-1000x600.jpg)
+
+<!-- This system is a In this article, we will:
+- newtonian dynamics
+
+dive into the details of this system a
 
 In this post, we take a look at the phyics of a planar double pendulum. After
 defining the details of the system under study using generalized coordinates, we'll derive the kinematics and
 dynamics of the system from a newtonian perspective (using Newton's second law)
 and from a lagrangian perspective (using the Euler-lagrange equations). As we'll
 see, the dynamics of the planar double pendulum are non-linear and not directly
-solveable with respect to time. ...
+solveable with respect to time. ... -->
 
-> **notation**
->
-> - $\sin\theta_x$ and $\cos\theta_x$ will be denoted $s_x$ and $c_x$, respectively
 
 <SystemSection/>
 <KinematicsSection/>
 <NewtonianDynamicsSection/>
+<AppendixStep1/>
+<AppendixStep2/>
+<AppendixStep3/>
+<AppendixStep4/>
 <LagrangianDynamicsSection/>
+
 
 ### numerical integration - euler approach
 
@@ -51,10 +89,7 @@ solveable with respect to time. ...
 
 ### algebra - solving for $\ddot{\theta}$
 
-<AppendixStep1/>
-<AppendixStep2/>
-<AppendixStep3/>
-<AppendixStep4/>
+
 
 
 ### learnings
@@ -87,3 +122,5 @@ https://scienceworld.wolfram.com/physics/DoublePendulum.html
 https://www.myphysicslab.com/pendulum/double-pendulum-en.html
 https://en.wikipedia.org/wiki/Equations_of_motion
 https://en.wikipedia.org/wiki/Double_pendulum
+https://en.wikipedia.org/wiki/Dynamical_system
+https://en.wikipedia.org/wiki/Chaos_theory

@@ -14,14 +14,17 @@ const components = {
   Unity
 }
 
-function BlogPost({ path, meta, children }) {
+function BlogPost(props) {
+  const { path, meta, transclude, children } = props;
   const currentPostIndex = blogposts
     .map(({ title }) => title)
     .indexOf(meta.title)
   const previousPost = blogposts[currentPostIndex + 1]
   const nextPost = blogposts[currentPostIndex - 1]
 
-  return (
+  return transclude
+  ? (<MDXProvider components={components}>{children}</MDXProvider>)
+  : (
     <Layout pageTitle={meta.title} ogImage={meta.image}>
       <article className="h-entry">
         <header>

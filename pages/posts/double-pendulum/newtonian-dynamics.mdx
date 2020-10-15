@@ -1,10 +1,13 @@
+import FreeBodyViewer from "./free-body-viewer.js";
+
+
 ## newtonian dynamics
 
 The direct approach uses the kinematic description of the system coupled with
 newton's second law, $F=ma$ to derive a set of equations that determine the
 system's motion as a function of time.
 
-> TODO: Insert diagram
+<FreeBodyViewer/>
 
 As depicted in the diagram above, point mass $a$ is being acted on by the
 tension from the massless rods connect it to the origin and $b$.
@@ -28,15 +31,13 @@ from newton's second law. The final solution is:
 
 $$
 \begin{alignedat}{1}
-\ddot{\theta_a} &= \frac{
-  -g(2m_a + m_b)s_a -m_bgs_{a-2b} - 2s_{a-b}m_b(\dot{\theta_b}^2l_b + \dot{\theta_a}^2l_ac_{a-b})
-}{
-  l_a(2m_a + m_b - m_bc_{2a-2b})
-} \\
-\\
-\ddot{\theta_b} &=
-  \frac{(m_a + m_b)s_{a-b}l_a}{(m_a+m_bs_{a-b}^2)l_b}\dot{\theta_a}^2 
-  +\frac{m_bs_{a-b}c_{a-b}}{m_a+m_bs_{a-b}^2}\dot{\theta_b}^2
-  +\frac{(m_a + m_b)s_{a-b}c_ag}{(m_a+m_bs_{a-b}^2)l_b} 
+0 &= 2(m_a + m_bs_{a-b}^2)l_a\ddot{\theta_a}
+ +2m_bs_{a-b}c_{a-b}l_a\dot{\theta_a}^2
+ +2m_bs_{a-b}l_b\dot{\theta_b}^2
+ -((2m_a + m_b)s_a +m_bs_{a-2b})g\\
+0 &= (m_a+m_bs_{a-b}^2)l_b\ddot{\theta_b}
+  -(m_a + m_b)s_{a-b}l_a\dot{\theta_a}^2 
+  -m_bs_{a-b}c_{a-b}l_b\dot{\theta_b}^2
+  -(m_a + m_b)s_{a-b}c_ag 
 \end{alignedat}
 $$
