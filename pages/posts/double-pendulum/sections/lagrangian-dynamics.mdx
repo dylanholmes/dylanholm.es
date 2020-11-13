@@ -1,0 +1,343 @@
+## lagrangian mechanics
+
+The Lagrangian approach differs from the Newtownian approach in that it
+derives the equations of motion from energies rather than forces. This is
+somewhat less general, in that it cannot handle non-conservative systems
+(e.g. systems with friction), however it can be more convenient if applicable.
+The cornerstone of Lagrangian dynamics is the Lagrangian, $L$, defined as the difference between the kinetic energy, $E_k$, and potential energy of the system.
+
+$$
+\begin{alignedat}{1}
+0 &= \frac{d}{dt}\left(\frac{\partial L}{\partial\dot{\theta}_k}\right) - \frac{\partial L}{\partial\theta_k}
+\end{alignedat}
+$$
+
+
+To compute the langrangian, first we need to find the potential energy, $E_p$:
+
+$$
+\begin{alignedat}{3}
+E_p &= gm_ay_a + gm_by_b \\
+&= -gm_al_ac_a - gm_b(l_ac_a +l_bc_b) \\
+&= -g(m_a + m_b)l_ac_a -gm_bl_bc_b \\
+\end{alignedat}
+$$
+
+And the kinetic energy, $E_k$:
+
+$$
+\begin{alignedat}{3}
+E_k &= \tfrac{1}{2}m_av_a^2 + \tfrac{1}{2}m_bv_b^2 \\
+&= \tfrac{1}{2}m_a(\dot{x}_a^2 + \dot{y}_a^2) + \tfrac{1}{2}m_b(\dot{x}_b^2 + \dot{y}_b^2) \\
+&= \tfrac{1}{2}m_a((c_al_a\dot{\theta}_a)^2 + (s_al_a\dot{\theta}_a)^2) + \tfrac{1}{2}m_b((c_al_a\dot{\theta}_a + c_bl_b\dot{\theta_b})^2 + (s_al_a\dot{\theta}_a + s_bl_b\dot{\theta}_b)^2) \\
+&= \tfrac{1}{2}m_a(s_a^2 + c_a^2)l_a^2\dot{\theta}_a^2
+  +\tfrac{1}{2}m_b(
+    (s_a^2 + c_a^2)(l_a\dot{\theta}_a)^2
+    +(s_b^2 + c_b^2)(l_b\dot{\theta}_b)^2
+    +2l_al_b(c_ac_b + s_as_b)\dot{\theta}_a\dot{\theta_b}
+  ) \\
+ &= 
+  \tfrac{1}{2}(m_a +m_b)l_a^2\dot{\theta}_a^2
+    +\tfrac{1}{2}m_bl_b^2\dot{\theta}_b^2
+    +m_bl_al_bc_{a-b}\dot{\theta}_a\dot{\theta_b}
+\end{alignedat}
+$$
+
+Lagrangian becomes:
+
+$$
+\begin{alignedat}{1}
+L &= E_k - E_p \\
+&= \tfrac{1}{2}(m_a +m_b)l_a^2\dot{\theta}_a^2
+    +\tfrac{1}{2}m_bl_b^2\dot{\theta}_b^2
+    +m_bl_al_bc_{a-b}\dot{\theta}_a\dot{\theta_b}
+    +g(m_a + m_b)l_ac_a
+    +gm_bl_bc_b
+\end{alignedat}
+$$
+
+Since we are using generalized coordinates all the constraints of the system
+are modelled implicitly and we can use Lagrange's equations of the second kind
+to .....
+
+First equation!
+
+$$
+\begin{alignedat}{1}
+  \frac{\partial L}{\partial\dot{\theta}_a}
+  &=
+  \frac{\partial}{\partial\dot{\theta}_a}\left(
+    \tfrac{1}{2}(m_a +m_b)l_a^2\dot{\theta}_a^2
+    +\tfrac{1}{2}m_bl_b^2\dot{\theta}_b^2
+    +m_bl_al_bc_{a-b}\dot{\theta}_a\dot{\theta_b}
+    +g(m_a + m_b)l_ac_a
+    +gm_bl_bc_b
+  \right)
+  \\
+
+  &=
+  (m_a+m_b)l_a^2\dot{\theta}_a
+  +m_bl_al_bc_{a-b}\dot{\theta_b}
+\end{alignedat}
+$$
+
+$$
+\begin{alignedat}{1}
+\frac{d}{dt}\left(
+  \frac{\partial L}{\partial\dot{\theta}_a}
+\right) &=
+    \frac{d}{dt}\left(
+      (m_a+m_b)l_a^2\dot{\theta}_a
+      +m_bl_al_bc_{a-b}\dot{\theta_b}
+    \right)
+   \\
+&=
+    (m_a+m_b)l_a^2\ddot{\theta}_a
+    +m_bl_al_bc_{a-b}\ddot{\theta}_b
+    -m_bl_al_bs_{a-b}(\dot{\theta}_a -\dot{\theta}_b)\dot{\theta_b}
+   \\
+&=
+    (m_a+m_b)l_a^2\ddot{\theta}_a
+    +m_bl_al_b(c_{a-b}\ddot{\theta}_b-s_{a-b}(\dot{\theta}_a - \dot{\theta}_b)\dot{\theta_b})
+   \\
+\end{alignedat}
+$$
+
+$$
+\begin{alignedat}{1}
+  \frac{\partial L}{\partial\theta_a}
+  &=
+  \frac{\partial}{\partial\theta_a}\left(
+    \tfrac{1}{2}(m_a +m_b)l_a^2\dot{\theta}_a^2
+    +\tfrac{1}{2}m_bl_b^2\dot{\theta}_b^2
+    +m_bl_al_bc_{a-b}\dot{\theta}_a\dot{\theta_b}
+    +g(m_a + m_b)l_ac_a
+    +gm_bl_bc_b
+  \right)
+  \\
+
+  &=
+    -m_bl_al_bs_{a-b}\dot{\theta}_a\dot{\theta_b}
+    -g(m_a + m_b)l_as_a
+\end{alignedat}
+$$
+
+
+$$
+\begin{alignedat}{1}
+0 &=
+  \frac{d}{dt}\left(
+    \frac{\partial L}{\partial\dot{\theta}_a}
+  \right)
+  -\frac{\partial L}{\partial\theta_a}
+  \\
+
+ &= (m_a+m_b)l_a^2\ddot{\theta}_a
+    +m_bl_al_b(c_{a-b}\ddot{\theta}_b-s_{a-b}(\dot{\theta}_a -\dot{\theta}_b)\dot{\theta_b}) 
+  \\ 
+  &\hphantom{=} +m_bl_al_bs_{a-b}\dot{\theta}_a\dot{\theta_b}
+  +g(m_a + m_b)l_as_a
+  \\
+
+ &= (m_a+m_b)l_a^2\ddot{\theta}_a
+    +m_bl_al_bc_{a-b}\ddot{\theta}_b
+    +m_bl_al_bs_{a-b}\dot{\theta}_b^2
+    +g(m_a + m_b)l_as_a
+  \\
+
+ &= (m_a+m_b)l_a\ddot{\theta}_a
+    +m_bl_bc_{a-b}\ddot{\theta}_b
+    +m_bl_bs_{a-b}\dot{\theta}_b^2
+    +g(m_a + m_b)s_a
+\end{alignedat}
+$$
+
+Second Equation!
+
+$$
+\begin{alignedat}{1}
+  \frac{\partial L}{\partial\dot{\theta}_b}
+  &=
+  \frac{\partial}{\partial\dot{\theta}_b}\left(
+    \tfrac{1}{2}(m_a +m_b)l_a^2\dot{\theta}_a^2
+    +\tfrac{1}{2}m_bl_b^2\dot{\theta}_b^2
+    +m_bl_al_bc_{a-b}\dot{\theta}_a\dot{\theta_b}
+    +g(m_a + m_b)l_ac_a
+    +gm_bl_bc_b
+  \right)
+  \\
+
+  &=
+    m_bl_b^2\dot{\theta}_b
+    +m_bl_al_bc_{a-b}\dot{\theta}_a
+\end{alignedat}
+$$
+
+$$
+\begin{alignedat}{1}
+\frac{d}{dt}\left(
+  \frac{\partial L}{\partial\dot{\theta}_b}
+\right) &=
+    \frac{d}{dt}\left(
+      m_bl_b^2\dot{\theta}_b
+      +m_bl_al_bc_{a-b}\dot{\theta}_a
+    \right)
+   \\
+&=
+    m_bl_b^2\ddot{\theta}_b
+    -m_bl_al_bs_{a-b}(\dot{\theta}_a - \dot{\theta}_b)\dot{\theta}_a
+    +m_bl_al_bc_{a-b}\ddot{\theta}_a
+    \\
+
+&=
+    m_bl_b^2\ddot{\theta}_b
+    -m_bl_al_bs_{a-b}\dot{\theta}_a^2
+    +m_bl_al_bs_{a-b}\dot{\theta}_a\dot{\theta}_b
+    +m_bl_al_bc_{a-b}\ddot{\theta}_a
+\end{alignedat}
+$$
+
+$$
+\begin{alignedat}{1}
+  \frac{\partial L}{\partial\theta}_b
+  &=
+  \frac{\partial}{\partial\theta_b}\left(
+    \tfrac{1}{2}(m_a +m_b)l_a^2\dot{\theta}_a^2
+    +\tfrac{1}{2}m_bl_b^2\dot{\theta}_b^2
+    +m_bl_al_bc_{a-b}\dot{\theta}_a\dot{\theta}_b
+    +g(m_a + m_b)l_ac_a
+    +gm_bl_bc_b
+  \right)
+  \\
+
+  &=
+    m_bl_al_bs_{a-b}\dot{\theta}_a\dot{\theta}_b
+    -gm_bl_bs_b
+\end{alignedat}
+$$
+
+$$
+\begin{alignedat}{1}
+0 &=
+  \frac{d}{dt}\left(
+    \frac{\partial L}{\partial\dot{\theta}_b}
+  \right)
+  -\frac{\partial L}{\partial\theta_b}
+  \\
+
+ &= m_bl_b^2\ddot{\theta}_b
+    -m_bl_al_bs_{a-b}\dot{\theta}_a^2
+    +m_bl_al_bs_{a-b}\dot{\theta}_a\dot{\theta}_b
+    +m_bl_al_bc_{a-b}\ddot{\theta}_a
+    -m_bl_al_bs_{a-b}\dot{\theta}_a\dot{\theta}_b
+    +gm_bl_bs_b
+  \\
+  &= l_b\ddot{\theta}_b
+    -l_as_{a-b}\dot{\theta}_a^2
+    +l_as_{a-b}\dot{\theta}_a\dot{\theta}_b
+    +l_ac_{a-b}\ddot{\theta}_a
+    -l_as_{a-b}\dot{\theta}_a\dot{\theta}_b
+    +gs_b
+  \\
+
+ &= l_ac_{a-b}\ddot{\theta}_a
+    +l_b\ddot{\theta}_b
+    -l_as_{a-b}\dot{\theta}_a^2
+    +gs_b
+\end{alignedat}
+$$
+
+Eliminate $\ddot{\theta}_b$ from the first Lagrange equation to solve for
+$\ddot{\theta}_a$. We'll end up with the same result as with the newtonian
+approach (as expected).
+
+$$
+\begin{alignedat}{1}
+0 &=
+   (m_a+m_b)l_a\ddot{\theta}_a
+    +m_bl_bc_{a-b}\ddot{\theta}_b
+    +m_bl_bs_{a-b}\dot{\theta}_b^2
+    +g(m_a + m_b)s_a \\
+&\hphantom{=}
+    -m_bl_ac_{a-b}^2\ddot{\theta}_a
+    -m_bl_bc_{a-b}\ddot{\theta}_b
+    +m_bl_as_{a-b}c_{a-b}\dot{\theta}_a^2
+    -m_bgs_bc_{a-b}
+  \\
+
+  &=
+   l_a(m_a+m_b-m_bc_{a-b}^2)\ddot{\theta}_a
+    +m_bl_as_{a-b}c_{a-b}\dot{\theta}_a^2
+    +m_bl_bs_{a-b}\dot{\theta}_b^2
+    +g(m_a + m_b)s_a -m_bgs_bc_{a-b} \\    
+    
+  &=
+   l_a(m_a +m_bs_{a-b}^2)\ddot{\theta}_a
+    +m_bl_as_{a-b}c_{a-b}\dot{\theta}_a^2
+    +m_bl_bs_{a-b}\dot{\theta}_b^2
+    +g((m_a + m_b)s_a -m_bs_bc_{a-b}) \\   
+    
+\end{alignedat}
+$$
+
+Similarly, eliminate $\ddot{\theta}_a$ from the first Lagrange equation to solve
+for $\ddot{\theta}_b$.
+
+$$
+\begin{alignedat}{1}
+0 &=
+   (m_a+m_b)l_ac_{a-b}\ddot{\theta}_a
+    +m_bl_bc_{a-b}^2\ddot{\theta}_b
+    +m_bl_bs_{a-b}c_{a-b}\dot{\theta}_b^2
+    +g(m_a + m_b)s_ac_{a-b} \\
+&\hphantom{=}
+    -(m_a+m_b)l_ac_{a-b}\ddot{\theta}_a
+    -(m_a+m_b)l_b\ddot{\theta}_b
+    +(m_a+m_b)l_as_{a-b}\dot{\theta}_a^2
+    -(m_a+m_b)gs_b
+  \\
+
+&=
+    -(m_a+m_b-m_bc_{a-b}^2)l_b\ddot{\theta}_b
+    +(m_a+m_b)l_as_{a-b}\dot{\theta}_a^2
+    +m_bl_bs_{a-b}c_{a-b}\dot{\theta}_b^2
+    -g(m_a+m_b)(s_b - c_{a-b}s_a)
+  \\
+
+&=
+    (m_a+m_bs_{a-b}^2)l_b\ddot{\theta}_b
+    -(m_a+m_b)l_as_{a-b}\dot{\theta}_a^2
+    -m_bl_bs_{a-b}c_{a-b}\dot{\theta}_b^2
+    -g(m_a+m_b)s_{a-b}c_a
+  \\    
+\end{alignedat}
+$$
+
+<!-- 
+$$
+\begin{alignedat}{1}
+\frac{d}{dt}\left(
+  \frac{\partial L}{\partial\dot{\theta}_a}
+\right) &=
+    \frac{d}{dt}\left(
+      (m_a+m_b)l_a^2\dot{\theta}_a
+      +m_bl_al_bc_{a-b}\dot{\theta_b}
+    \right)
+   \\
+\frac{d}{dt}\left(
+  \frac{\partial L}{\partial\dot{\theta}_a}
+\right) &=
+    (m_a+m_b)l_a^2\ddot{\theta}_a
+    +m_bl_al_bc_{a-b}\ddot{\theta_b}
+    -m_bl_al_bs_{a-b}(\dot{\theta}_a -\dot{\theta}_b})\dot{\theta_b}
+   \\
+\frac{d}{dt}\left(
+  \frac{\partial L}{\partial\dot{\theta}_a}
+\right) &=
+    (m_a+m_b)l_a^2\ddot{\theta}_a
+    +m_bl_al_bc_{a-b}\ddot{\theta_b}
+    -m_bl_al_bs_{a-b}(\dot{\theta}_a - \dot{\theta}_b})\dot{\theta_b}
+   \\
+\end{alignedat}
+$$ 
+-->

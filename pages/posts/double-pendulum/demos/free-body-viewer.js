@@ -1,7 +1,7 @@
 import React from 'react';
 import katex from 'katex';
 
-import SimulationContext from './simulation-context.js'
+import SimulationContext from './double-pendulum-simulation-context.js'
 
 function polarToCartesian(centerX, centerY, radius, angleInRadians) {
   return {
@@ -57,8 +57,12 @@ function clamp(x, min, max) {
 
 export default function FreeBodyViewer(props) {
   const state = React.useContext(SimulationContext);
-  let theta_a = state.simulationState.theta.a;
-  let theta_b = state.simulationState.theta.b;
+  if (!state || !state.sim) {
+    return (<></>);
+  }
+
+  let theta_a = state.sim.currentState.theta.a;
+  let theta_b = state.sim.currentState.theta.b;
 
   // theta range 0 to pi 
   theta_a %= 2*Math.PI;
@@ -151,7 +155,7 @@ export default function FreeBodyViewer(props) {
   return (
       <svg viewBox="0 0 100 62" xmlns="http://www.w3.org/2000/svg" overflow="visible">
         <defs>
-        <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5"
+        <marker id="fb-arrow" viewBox="0 0 10 10" refX="5" refY="5"
             markerWidth="6" markerHeight="6"
             orient="auto-start-reverse">
           <path d="M 0 0 L 10 5 L 0 10 z" />
@@ -169,11 +173,11 @@ export default function FreeBodyViewer(props) {
           <path name="arc-b" d={describeArc(x_b, y_b, l/2, theta_b_arc_start-Math.PI, theta_b_arc_end-Math.PI)} style={arcStyle} />
           <path name="arc-b" d={describeArc(x_a, y_a, l*.4, theta_b_arc_start, theta_b_arc_end)} style={arcStyle} />
 
-          <line name="line-a-o" x1={x_a} y1={y_a} x2={x_a+oa_4.x} y2={y_a+oa_4.y} style={lineStyle} markerStart="url(#arrow)" markerEnd="url(#arrow)" />
+          <line name="line-a-o" x1={x_a} y1={y_a} x2={x_a+oa_4.x} y2={y_a+oa_4.y} style={lineStyle} markerEnd="url(#fb-arrow)" />
           
-          <line name="line-a-b" x1={x_a} y1={y_a} x2={x_a-ab_4.x} y2={y_a-ab_4.y} style={lineStyle} markerStart="url(#arrow)" markerEnd="url(#arrow)"/>
+          <line name="line-a-b" x1={x_a} y1={y_a} x2={x_a-ab_4.x} y2={y_a-ab_4.y} style={lineStyle} markerEnd="url(#fb-arrow)"/>
 
-          <line name="line-a-b" x1={x_b+ab_4.x} y1={y_b+ab_4.y} x2={x_b} y2={y_b} style={lineStyle} markerStart="url(#arrow)" markerEnd="url(#arrow)"/>
+          <line name="line-a-b" x1={x_b+ab_4.x} y1={y_b+ab_4.y} x2={x_b} y2={y_b} style={lineStyle} markerStart="url(#fb-arrow)"/>
           
           <circle name="point-a" cx={x_a} cy={y_a} r={r} style={pointStyle}/>
           <circle name="point-b" cx={x_b} cy={y_b} r={r} style={pointStyle}/>
@@ -210,10 +214,12 @@ export default function FreeBodyViewer(props) {
             <g name="g-arrow" transform={`translate(${-20}, ${-154})`}>{theta_b_legend}</g>
           </g>  
           
-          {/* <g name="g-arrow" transform={`translate(${37} ${0}) scale(0.15) scale(1 -1)`}>
+          {/*
+          <g name="g-arrow" transform={`translate(${37} ${0}) scale(0.15) scale(1 -1)`}>
             <g name="g-arrow" transform={`translate(${25}, ${-34})`}>{var_g}</g>
             <g name="g-arrow" transform={`rotate(${-90})`}>{var_left_arrow}</g>
-          </g> */}
+          </g>
+          */}
         </g>
       </svg>
   );

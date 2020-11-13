@@ -8,6 +8,7 @@ import {MDXProvider} from '@mdx-js/react'
 import Anchor from '../shortcodes/anchor'
 import Unity from '../shortcodes/unity'
 import CodeBlock from '../code-block'
+import {useEffect} from 'react';
 const components = {
   Anchor,
   code: CodeBlock,
@@ -31,12 +32,15 @@ function BlogPost(props) {
           {/* <h1 className="p-name">{meta.title}</h1> */}
           <h1 className="p-name">{path}</h1>
 
-          {/* <div>
+          {/*
+          <div>
             <PublishedAt date={meta.publishedAt} />
-          </div> */}
+          </div>
+          */}
         </header>
         <div className="e-content"><MDXProvider components={components}>{children}</MDXProvider></div>
         <footer>
+          {/*
           {(previousPost || nextPost) && (
             <div className="post-pagination">
               {previousPost && (
@@ -55,6 +59,7 @@ function BlogPost(props) {
               )}
             </div>
           )}
+          */}
         </footer>
       </article>
       <style jsx>{`

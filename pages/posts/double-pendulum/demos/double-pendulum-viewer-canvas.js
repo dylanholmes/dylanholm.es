@@ -1,4 +1,5 @@
 import React from 'react';
+import DoublePendulumSimulationContext from './double-pendulum-simulation-context.js'
 
 import katex from 'katex';
 
@@ -49,101 +50,35 @@ const var_o = foreignObjectMath(5, 0, "o");
 const var_g = foreignObjectMath(0, 0, "g");
 const var_left_arrow = foreignObjectMath(0, 0, "\\longleftarrow");
 
+const var_x = foreignObjectMath(0, 0, "x");
+const var_y = foreignObjectMath(0, 0, "y");
+
 function clamp(x, min, max) {
   return Math.max(min, Math.min(x, max));
 }
 
-export default function DoublePendulum(props) {
-  const [time, setTime] = React.useState(0)
-  const [dThetaA, setDThetaA] = React.useState(0)
-  const [dThetaB, setDThetaB] = React.useState(0)
-  const [thetaA, setThetaA] = React.useState(0)
-  const [thetaB, setThetaB] = React.useState(0)
-  
-  // Use useRef for mutable variables that we want to persist
-  // without triggering a re-render on their change
-  const requestRef = React.useRef();
-  const previousTimeRef = React.useRef();
-  
-  const animate = time => {
-    if (previousTimeRef.current != undefined) {
-      const deltaTime = time - previousTimeRef.current;
-      
-      // Pass on a function to the setter of the state
-      // to make sure we always have the latest state
-      setTime(prevTime => prevTime + deltaTime+ 50*Math.sin(Math.random()**2));
-      setDThetaA(prevDThetaA => {
-        setThetaA(prevThetaA => prevThetaA + prevDThetaA);
-        const ddThetaA = 0.01*(2*Math.random(-1, 1)-1)**3;
-        return clamp(prevDThetaA + ddThetaA, -0.05, 0.05);
-      });
-
-      setDThetaB(prevDThetaB => {
-        setThetaB(prevThetaB => prevThetaB + prevDThetaB);
-        const ddThetaB = 0.01*(2*Math.random(-1, 1)-1)**3;
-        return clamp(prevDThetaB + ddThetaB, -0.05, 0.05);
-      });
-      // setThetaA(prevThetaA => prevThetaA + dThetaA);
-    }
-    previousTimeRef.current = time;
-    requestRef.current = requestAnimationFrame(animate);
+export default function DoublePendulumViewer(props) {
+  const state = React.useContext(DoublePendulumSimulationContext);
+  if (!state || !state.sim) {
+    return (<></>);
   }
-  
-  React.useEffect(() => {
-    requestRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(requestRef.current);
-  }, []); // Make sure the effect runs only once
 
-  let t = (time) / 1000.0  // seconds
-  const cf = (x) => (Math.cos(x*t)+1)/2;
-  const sf = (x) => (Math.sin(x*t)+1)/2;
-  
-  let theta_a = thetaA; //(2*Math.PI*cf(0.5)*sf(0.5)+Math.PI);
-  
-  let theta_b = thetaB;// 0; //(2*Math.PI*cf(1)*sf(0.5)+Math.PI);
 
-  // theta range 0 to pi 
-  theta_a %= 2*Math.PI;
-  theta_b %= 2*Math.PI;
-  if (theta_a < 0) theta_a += 2*Math.PI;
-  if (theta_b < 0) theta_b += 2*Math.PI;
-
-  // for theta range -pi to pi
-  theta_a -= Math.PI;
-  theta_b -= Math.PI;
+  let theta_a = state.sim.currentState.theta.a;
+  let theta_b = state.sim.currentState.theta.b;
 
   const theta_a_arc_start = 3*Math.PI/2+theta_a;
   const theta_a_arc_end = 3*Math.PI/2;
   const theta_b_arc_start = 3*Math.PI/2+theta_b;
   const theta_b_arc_end = 3*Math.PI/2;
 
-  // // for theta range -pi to pi 
-  // const theta_a_arc_start = 3*Math.PI/2+theta_a;
-  // const theta_a_arc_end = 3*Math.PI/2;
-  // const theta_b_arc_start = 3*Math.PI/2+theta_b;
-  // const theta_b_arc_end = 3*Math.PI/2;
-
-  // const mode = Math.floor(t) % 10;
-
-  // let theta_a = 0;
-  // let theta_b = 0;
-  // if (mode < 8) {
-  //   t /= 8;
-  //   const mx = 2*Math.PI ;
-  //   t = mx * t % mx;
-  //   theta_a += (t) % (2*Math.PI);
-  //   theta_b += (t) % (2*Math.PI);
-  // }
-
   const r = 1;
   const l = 15;
-  const x_a = l * Math.sin(theta_a);
-  const y_a = -l * Math.cos(theta_a);
-  const x_b = l * Math.sin(theta_b) + x_a;
-  const y_b = -l * Math.cos(theta_b) + y_a;
+  const x_a = state.sim.currentState.a.x;
+  const y_a = state.sim.currentState.a.y;
+  const x_b = state.sim.currentState.b.x;
+  const y_b = state.sim.currentState.b.y;
 
-  // const h = 256 *(0.5 + 0.5*Math.sin(time/0.5));
-  // const rainbow = `hsl(${h}, 50%, 70%)`;
   const black = 'black';
   const color = black;
   const fill = color;
@@ -152,6 +87,7 @@ export default function DoublePendulum(props) {
   const dashedStrokeWidth = 0.1;
   const strokeDasharray = 0.4;
   const verticalLineStyle = {stroke, strokeWidth: dashedStrokeWidth, strokeDasharray};
+  const axisLineStyle = {stroke, strokeWidth: dashedStrokeWidth};
   const arcStyle = {fill: "none", stroke, strokeWidth:dashedStrokeWidth, strokeDasharray};
   const lineStyle = {stroke, strokeWidth: 0.25};
   const pointStyle = {fill};
@@ -167,7 +103,32 @@ export default function DoublePendulum(props) {
 
   return (
       <svg viewBox="0 0 100 62" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+        <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5"
+            markerWidth="10" markerHeight="10"
+            orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" />
+        </marker>
+
+        <marker id="dot" viewBox="0 0 10 10" refX="5" refY="5"
+            markerWidth="5" markerHeight="5">
+          <circle cx="5" cy="5" r="5" fill="red" />
+        </marker>
+      </defs>
+
         <g transform="scale(1 -1) translate(45 -30)">
+
+          {/* <g transform="translate(-44 3)">
+          <line x1={0} y1={0} x2={10} y2={0} style={axisLineStyle}  markerEnd="url(#arrow)" />
+          <g name="g-arrow" transform={`translate(${7} ${-3}) scale(0.15) scale(1 -1)`}>
+              <g name="g-arrow" transform={`translate(${25}, ${-34})`}>{var_x}</g>
+            </g>
+          <line x1={0} y1={0} x2={0} y2={10} style={axisLineStyle}  markerEnd="url(#arrow)" />
+          <g name="g-arrow" transform={`translate(${-4.5} ${9.5}) scale(0.15) scale(1 -1)`}>
+              <g name="g-arrow" transform={`translate(${25}, ${-34})`}>{var_y}</g>
+            </g>
+          </g> */}
+
           <line name="vertical-line-a" x1={0} y1={0} x2={0} y2={-l} style={verticalLineStyle}/>
           <line name="vertical-line-b" x1={x_a} y1={y_a} x2={x_a} y2={y_a-l} style={verticalLineStyle}/>
           <path name="arc-a" d={describeArc(0, 0, l/2, theta_a_arc_start, theta_a_arc_end)} style={arcStyle} />
@@ -196,7 +157,7 @@ export default function DoublePendulum(props) {
           <g name="var-b" transform={`translate(${x_b} ${y_b}) scale(0.15) scale(1 -1)`}>{var_b}</g>
           <g name="var-o" transform={`translate(${0} ${0}) scale(0.15) scale(1 -1)`}>{var_o}</g>
           
-          <g name="g-arrow" transform={`translate(${-38} ${-3}) scale(0.15) scale(1 -1)`}>
+          <g name="g-arrow" transform={`translate(${-41} ${-3}) scale(0.15) scale(1 -1)`}>
             <g name="g-arrow" transform={`translate(${-20}, ${-214})`}>{vvv}</g>
             <g name="g-arrow" transform={`translate(${-20}, ${-184})`}>{theta_a_legend}</g>
             <g name="g-arrow" transform={`translate(${-20}, ${-154})`}>{theta_b_legend}</g>

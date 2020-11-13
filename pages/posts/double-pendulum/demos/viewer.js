@@ -1,5 +1,5 @@
 import React from 'react';
-import SimulationContext from './simulation-context.js'
+import SimulationContext from './double-pendulum-simulation-context.js'
 
 class Viewer extends React.Component {
   constructor(props) {
@@ -7,7 +7,7 @@ class Viewer extends React.Component {
   }
 
   render() {
-    const { a, b } = this.context.simulationState.theta;
+    const { a, b } = this.context.sim.theta;
     return (
       <p>a: {a.toFixed(2)}</p>
     );

@@ -1,0 +1,100 @@
+import FreeBodyViewer from "../demos/free-body-viewer.js";
+import FreeBodyEquations from './newtonian-mechanics/free-body-equations.mdx';
+import CartesianNewtonianEquation1 from './newtonian-mechanics/cartesian-newtonian-equation-1.mdx';
+import CartesianNewtonianEquation2 from './newtonian-mechanics/cartesian-newtonian-equation-2.mdx';
+import CartesianNewtonianEquations from './newtonian-mechanics/cartesian-newtonian-equations.mdx';
+import GeneralizedDdaDdb1 from './newtonian-mechanics/generalized-equation-dda-ddb-1.mdx';
+import GeneralizedDdaDdb2 from './newtonian-mechanics/generalized-equation-dda-ddb-2.mdx';
+import GeneralizedDdb from './newtonian-mechanics/generalized-ddb.mdx';
+import GeneralizedDda from './newtonian-mechanics/generalized-dda.mdx';
+
+
+## newtonian mechanics
+
+The newtonian approach to deriving the dynamic equations of motion of a system
+relies on the forces acting on the bodies within the system. In practice, this
+means determining the forces using a free body diagram, then using the 
+kinematic description of the system coupled with
+newton's second law, $F=ma$ to derive a set of equations that determine the
+system's motion as a function of time.
+<!-- 
+<FreeBodyViewer/> -->
+
+As depicted in the diagram above, point mass $a$ is being acted on by the
+tension from the massless rods connect it to the origin and $b$.
+
+<FreeBodyEquations/>
+
+Now that we have a system of equations that describe the acceleration of the
+system for a given state given the forces acting on the bodies in the system.
+Next, we can combine the
+
+<!--
+After some heavy algebra (see appendix for details), we can solve for
+$\ddot{\theta}$ using the equations for acceleration along with thosederived
+from newton's second law. The final solution is:
+
+$$
+\begin{alignedat}{1}
+0 &= 2(m_a + m_bs_{a-b}^2)l_a\ddot{\theta_a}
+ +2m_bs_{a-b}c_{a-b}l_a\dot{\theta_a}^2
+ +2m_bs_{a-b}l_b\dot{\theta_b}^2
+ -((2m_a + m_b)s_a +m_bs_{a-2b})g\\
+0 &= (m_a+m_bs_{a-b}^2)l_b\ddot{\theta_b}
+  -(m_a + m_b)s_{a-b}l_a\dot{\theta_a}^2 
+  -m_bs_{a-b}c_{a-b}l_b\dot{\theta_b}^2
+  -(m_a + m_b)s_{a-b}c_ag 
+\end{alignedat}
+$$
+
+-->
+
+Starting from the kinematic equations for acceleration and the equations derived
+from newton's second law, this section will describe how to solve for the
+generlized accelerations, $\ddot{\theta}$.
+
+We'll start by manipulating the second law equations to eliminate the
+internal forces:
+
+1. Find the first equation of motion by substitution of $T_b$.
+
+  <CartesianNewtonianEquation1/>
+
+
+2. Find the seconds equation of motion by substitution of $T_a$ and $T_b$.
+
+  <CartesianNewtonianEquation2/>
+
+Now we have the following equations of motions that do depend on the internal forces.
+
+<CartesianNewtonianEquations/>
+
+Note that the equations still depend on the cartesian accelerations of the point
+masses. Next, we will use the kinematic equations for acceleration to solve
+these equations for the generalized accelerations $\ddot{\theta}$. To make this easier, let
+$s_x=s_x$ and $c_x=c_x$.
+
+We have gotten rid of the external forces, but the equation not yet completely
+in terms of the generalized coordiantes $\theta$. We still need to substitute in
+the cartesian accelerations of the point masses using the kinematic equations.
+After the substitution, we can rearrange, to arrive a the following equations of
+motion:
+
+Solving for that thing:
+
+1. Form equation 1 from the first equation of motion without the internal forces by substitution of $\ddot{y_b}$
+  and $\ddot{x_b}$. 
+
+  <GeneralizedDdaDdb1/>
+
+2. Form equation 2 from the 2nd equation of motion without the internal forces.
+
+  <GeneralizedDdaDdb2/>
+
+3. Eliminate $\ddot{\theta_a}$ from equation 1 using equation 2 to solve for $\ddot{\theta_b}$.
+
+  <GeneralizedDdb/>
+
+4. Eliminate $\ddot{\theta_b}$ from equation 1 using equation 3 to solve for $\ddot{\theta_a}$.
+
+  <GeneralizedDda/>
