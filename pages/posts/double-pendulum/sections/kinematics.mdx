@@ -1,5 +1,5 @@
 import AnimatedTimeSeriesPlotSvg from "../demos/animated-time-series-plot-svg.js";
-import AnimatedTimeSeriesPlotCanvas from "../demos/animated-time-series-plot-canvas.js";
+import AnimatedTimeSeriesPlotCanvas from "../demos/animated-time-series-plot-canvas-global.js";
 
 ## forward kinematics
 
@@ -123,7 +123,7 @@ $$
     ];
   }}
 /> -->
-
+<!-- 
 <AnimatedTimeSeriesPlotCanvas
   toSequences={({sim:{lowResStates}}) => {
     let foo = toValues => {
@@ -137,6 +137,24 @@ $$
       foo(s => 0.0001* s.a.ddy),
       foo(s => 0.0001* s.b.ddx),
       foo(s => 0.0001* s.b.ddy)
+    ];
+  }}
+/> -->
+
+<AnimatedTimeSeriesPlotCanvas
+  toSequences={({lowResStates}) => {
+    //console.log(lowResStates);
+    let foo = toValues => {
+      return {
+        capacity: lowResStates.length,
+        values: lowResStates.map(toValues)
+      }
+    };
+    return [
+      foo(x => 0.01 * x)
+      // foo(s => 0.0001* s.a.ddy),
+      // foo(s => 0.0001* s.b.ddx),
+      // foo(s => 0.0001* s.b.ddy)
     ];
   }}
 />

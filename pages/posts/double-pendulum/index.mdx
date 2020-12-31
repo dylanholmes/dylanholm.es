@@ -1,8 +1,6 @@
 import { withRouter } from "next/router";
 import BlogPost from "../../../components/layouts/blog-post";
 
-import Example from "./demos/example.js";
-
 import Overview from "./sections/overview.mdx";
 import System from "./sections/system.mdx";
 import Kinematics from "./sections/kinematics.mdx";
@@ -12,7 +10,7 @@ import NumericalIntegration from "./sections/numerical-integration.mdx";
 import Learnings from "./sections/learnings.mdx";
 import References from "./sections/references.mdx";
 
-import DoublePendulumSimulation from './demos/double-pendulum-simulation.js';
+import DoublePendulumModel from './demos/double-pendulum-model2.js'
 
 export const meta = {
   published: true,
@@ -24,13 +22,11 @@ export const meta = {
 
 export default withRouter(({ children, router }) => (
   <BlogPost path={router.pathname} meta={meta}>
-    <DoublePendulumSimulation>
-      {children}
-    </DoublePendulumSimulation>
+    {children}
   </BlogPost>
 ));
 
-<Example/>
+<DoublePendulumModel/>
 
 <Overview/>
 <System/>

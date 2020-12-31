@@ -1,7 +1,5 @@
 import React from 'react';
 
-import DoublePendulumSimulationContext from './double-pendulum-simulation-context.js'
-
 import Worker from './example.worker';
 
 class DoublePendulumModel extends React.Component {
@@ -9,43 +7,49 @@ class DoublePendulumModel extends React.Component {
     super(props);
     this.state = null;
     this.onWorkerMessage = this.onWorkerMessage.bind(this);
+
+    this.animationHandle = null;
+    this.update = this.update.bind(this);
   }
 
   componentDidMount() {
     this.worker = new Worker();
-    // this.worker.postMessage('from Host');
     this.worker.addEventListener('message', this.onWorkerMessage);
-  }
-  componentWillUnmount() {
-    this.worker.terminate();
+
+    this.animationHandle = window.requestAnimationFrame(this.update);
   }
 
   onWorkerMessage(event) {
-    // console.log('Host received:', event.data);
-
     this.state = event.data;
-    // console.log(this.state);
+    if (window) {
+      window.sim = {state: event.data};
+    }
   }
 
-  update(elapsedSinceLastLoop) {
-    this.simUpdate(elapsedSinceLastLoop);
+  update(time) {
+    const delta = this.time ? (time - this.time) : 16;
+    this.time = time;
+     //console.log(delta);
+    //  console.log(window.sim.state)
+    // if (window && window.sim && window.sim.state)
+    //   this.setState({ state: window.sim.state });
+    // this.animate();
+    this.worker.postMessage('message');
+    this.animationHandle = requestAnimationFrame(this.update);
   }
 
-  simUpdate(elapsedSinceLastLoopMs) {
-    // console.log(this.state);
-    let s = this.state;
-    this.setState((state) => {
-      state = s;
-      this.worker.postMessage(elapsedSinceLastLoopMs);
-      this.context.setSim(state);
-      return state;
-    });
+  componentWillUnmount() {
+    window.cancelAnimationFrame(this.animationHandle)
+    this.worker.terminate();
   }
+
+  
+
+  
 
   render() {
     return null;
   }
 }
-DoublePendulumModel.contextType = DoublePendulumSimulationContext
 
 export default DoublePendulumModel;
