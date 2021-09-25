@@ -4,13 +4,13 @@ import BlogPost from "../../../components/layouts/blog-post";
 import Overview from "./sections/overview.mdx";
 import System from "./sections/system.mdx";
 import Kinematics from "./sections/kinematics.mdx";
-import NewtonianMechanics from "./sections/newtonian-mechanics.mdx";
-import LagrangianDynamics from "./sections/lagrangian-dynamics.mdx";
-import NumericalIntegration from "./sections/numerical-integration.mdx";
-import Learnings from "./sections/learnings.mdx";
-import References from "./sections/references.mdx";
+// import NewtonianMechanics from "./sections/newtonian-mechanics.mdx";
+// import LagrangianDynamics from "./sections/lagrangian-dynamics/index.mdx";
+// import NumericalIntegration from "./sections/numerical-integration.mdx";
+// import Learnings from "./sections/learnings.mdx";
+// import References from "./sections/references.mdx";
 
-import DoublePendulumModel from './demos/double-pendulum-model2.js'
+import DoublePendulumSimulation from './demos/double-pendulum-simulation.js';
 
 export const meta = {
   published: true,
@@ -22,20 +22,23 @@ export const meta = {
 
 export default withRouter(({ children, router }) => (
   <BlogPost path={router.pathname} meta={meta}>
-    {children}
+    <DoublePendulumSimulation>
+      {children}
+    </DoublePendulumSimulation>
   </BlogPost>
 ));
-
-<DoublePendulumModel/>
 
 <Overview/>
 <System/>
 <Kinematics/>
+
+<!--
 <NewtonianMechanics/>
 <LagrangianDynamics/>
 <NumericalIntegration/>
 <Learnings/>
 <References/>
+-->
 
 
 This is all very cool, but what if we ...

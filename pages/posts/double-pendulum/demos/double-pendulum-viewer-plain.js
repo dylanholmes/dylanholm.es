@@ -4,11 +4,15 @@ import DoublePendulumSimulationContext from './double-pendulum-simulation-contex
 export default function DoublePendulumViewerPlain(props) {
   const state = React.useContext(DoublePendulumSimulationContext);
 
+  if (!state || !state.simulationState) {
+    return null;
+  }
+
   const r = 1;
-  const x_a = state.sim.currentState.a.x;
-  const y_a = state.sim.currentState.a.y;
-  const x_b = state.sim.currentState.b.x;
-  const y_b = state.sim.currentState.b.y;
+  const x_a = state.simulationState.currentState.a.x;
+  const y_a = state.simulationState.currentState.a.y;
+  const x_b = state.simulationState.currentState.b.x;
+  const y_b = state.simulationState.currentState.b.y;
 
   const black = 'black';
   const color = black;

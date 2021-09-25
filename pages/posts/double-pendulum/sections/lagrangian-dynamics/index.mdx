@@ -1,3 +1,7 @@
+import Equation1 from "./equation-1.mdx";
+import Equation2 from "./equation-2.mdx";
+import Equation3 from "./equation-3.mdx";
+
 ## lagrangian mechanics
 
 The Lagrangian approach differs from the Newtownian approach in that it
@@ -6,42 +10,15 @@ somewhat less general, in that it cannot handle non-conservative systems
 (e.g. systems with friction), however it can be more convenient if applicable.
 The cornerstone of Lagrangian dynamics is the Lagrangian, $L$, defined as the difference between the kinetic energy, $E_k$, and potential energy of the system.
 
-$$
-\begin{alignedat}{1}
-0 &= \frac{d}{dt}\left(\frac{\partial L}{\partial\dot{\theta}_k}\right) - \frac{\partial L}{\partial\theta_k}
-\end{alignedat}
-$$
-
+<Equation1/>
 
 To compute the langrangian, first we need to find the potential energy, $E_p$:
 
-$$
-\begin{alignedat}{3}
-E_p &= gm_ay_a + gm_by_b \\
-&= -gm_al_ac_a - gm_b(l_ac_a +l_bc_b) \\
-&= -g(m_a + m_b)l_ac_a -gm_bl_bc_b \\
-\end{alignedat}
-$$
+<Equation2/>
 
 And the kinetic energy, $E_k$:
 
-$$
-\begin{alignedat}{3}
-E_k &= \tfrac{1}{2}m_av_a^2 + \tfrac{1}{2}m_bv_b^2 \\
-&= \tfrac{1}{2}m_a(\dot{x}_a^2 + \dot{y}_a^2) + \tfrac{1}{2}m_b(\dot{x}_b^2 + \dot{y}_b^2) \\
-&= \tfrac{1}{2}m_a((c_al_a\dot{\theta}_a)^2 + (s_al_a\dot{\theta}_a)^2) + \tfrac{1}{2}m_b((c_al_a\dot{\theta}_a + c_bl_b\dot{\theta_b})^2 + (s_al_a\dot{\theta}_a + s_bl_b\dot{\theta}_b)^2) \\
-&= \tfrac{1}{2}m_a(s_a^2 + c_a^2)l_a^2\dot{\theta}_a^2
-  +\tfrac{1}{2}m_b(
-    (s_a^2 + c_a^2)(l_a\dot{\theta}_a)^2
-    +(s_b^2 + c_b^2)(l_b\dot{\theta}_b)^2
-    +2l_al_b(c_ac_b + s_as_b)\dot{\theta}_a\dot{\theta_b}
-  ) \\
- &= 
-  \tfrac{1}{2}(m_a +m_b)l_a^2\dot{\theta}_a^2
-    +\tfrac{1}{2}m_bl_b^2\dot{\theta}_b^2
-    +m_bl_al_bc_{a-b}\dot{\theta}_a\dot{\theta_b}
-\end{alignedat}
-$$
+<Equation3/>
 
 Lagrangian becomes:
 
@@ -133,8 +110,8 @@ $$
   \\
 
  &= (m_a+m_b)l_a^2\ddot{\theta}_a
-    +m_bl_al_b(c_{a-b}\ddot{\theta}_b-s_{a-b}(\dot{\theta}_a -\dot{\theta}_b)\dot{\theta_b}) 
-  \\ 
+    +m_bl_al_b(c_{a-b}\ddot{\theta}_b-s_{a-b}(\dot{\theta}_a -\dot{\theta}_b)\dot{\theta_b})
+  \\
   &\hphantom{=} +m_bl_al_bs_{a-b}\dot{\theta}_a\dot{\theta_b}
   +g(m_a + m_b)l_as_a
   \\
@@ -269,14 +246,14 @@ $$
    l_a(m_a+m_b-m_bc_{a-b}^2)\ddot{\theta}_a
     +m_bl_as_{a-b}c_{a-b}\dot{\theta}_a^2
     +m_bl_bs_{a-b}\dot{\theta}_b^2
-    +g(m_a + m_b)s_a -m_bgs_bc_{a-b} \\    
-    
+    +g(m_a + m_b)s_a -m_bgs_bc_{a-b} \\
+
   &=
    l_a(m_a +m_bs_{a-b}^2)\ddot{\theta}_a
     +m_bl_as_{a-b}c_{a-b}\dot{\theta}_a^2
     +m_bl_bs_{a-b}\dot{\theta}_b^2
-    +g((m_a + m_b)s_a -m_bs_bc_{a-b}) \\   
-    
+    +g((m_a + m_b)s_a -m_bs_bc_{a-b}) \\
+
 \end{alignedat}
 $$
 
@@ -309,11 +286,11 @@ $$
     -(m_a+m_b)l_as_{a-b}\dot{\theta}_a^2
     -m_bl_bs_{a-b}c_{a-b}\dot{\theta}_b^2
     -g(m_a+m_b)s_{a-b}c_a
-  \\    
+  \\
 \end{alignedat}
 $$
 
-<!-- 
+<!--
 $$
 \begin{alignedat}{1}
 \frac{d}{dt}\left(
@@ -339,5 +316,5 @@ $$
     -m_bl_al_bs_{a-b}(\dot{\theta}_a - \dot{\theta}_b})\dot{\theta_b}
    \\
 \end{alignedat}
-$$ 
+$$
 -->

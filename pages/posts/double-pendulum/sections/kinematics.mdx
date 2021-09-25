@@ -1,6 +1,8 @@
 import AnimatedTimeSeriesPlotSvg from "../demos/animated-time-series-plot-svg.js";
 import AnimatedTimeSeriesPlotCanvas from "../demos/animated-time-series-plot-canvas-global.js";
 
+<!--
+
 ## forward kinematics
 
 In general, the process of computing the position (or related derivatives) of a
@@ -15,35 +17,35 @@ In the case of the double pendulum we have modeled above, this means computing
 cartesian coordinates of the point masses $x_a$, $y_a$, $x_b$ and $y_b$ in terms
 of the joint angles, $\theta_a$ and $\theta_b$. To derive the forward kinematic
 function, $f$, we can rely entirely on geometry as it only depends on
-$\bm{\theta}$. 
+$\bm{\theta}$.
 
-While we could keep the vector notation mentioned by letting  
-$\bold{x} = \begin{bmatrix}x_a& y_a& x_b & y_b \end{bmatrix}^T$, it feels a 
+While we could keep the vector notation mentioned by letting
+$\bold{x} = \begin{bmatrix}x_a& y_a& x_b & y_b \end{bmatrix}^T$, it feels a
 unecessary for our purposes. Also, there will be quite a bit of sinsoidial
 functions, so we denote $\sin\theta_x$ and $\cos\theta_x$ as $s_x$ and $c_x$ for
 convenience.
 
-The positions of the point masses can be derived using geometry by inspection. Plotting the 
+The positions of the point masses can be derived using geometry by inspection. Plotting the
 
 $$
 \begin{alignedat}{3}
 x_a =& &s_al_a& \\
 y_a =& -&c_al_a&  \\
 x_b =& &s_al_a& + s_bl_b \\
-\tag{1} y_b =& -&c_al_a& -c_bl_b 
+\tag{1} y_b =& -&c_al_a& -c_bl_b
 \end{alignedat}
 $$
 
-Here is a plot of these positions over time. The present is on the right, with time flow backwards to the left. Qualitatively, the plots are quite smooth and follow a sort of braiding pattern. 
-<!-- 
+Here is a plot of these positions over time. The present is on the right, with time flow backwards to the left. Qualitatively, the plots are quite smooth and follow a sort of braiding pattern.
+<!--
 <AnimatedTimeSeriesPlot
   toPoints={
     ({sim:{currentState:{a,b}}}) => [a.x, a.y, b.x, b.y].map(v => 0.5*v)
   }
 /> -->
-<!-- 
+
 <AnimatedTimeSeriesPlotSvg
-  toSequences={({sim:{lowResStates}}) => {
+  toSequences={({simulationState:{lowResStates}}) => {
     let foo = toValues => {
       return {
         capacity: lowResStates.capacity,
@@ -57,7 +59,9 @@ Here is a plot of these positions over time. The present is on the right, with t
       foo(s => 0.5* s.b.y)
     ];
   }}
-/> -->
+/>
+
+<!--
 
 The velocities can then be derived by taking the derivative of the positions
 with respect to time:
@@ -72,15 +76,16 @@ $$
 $$
 
 Similarly, we can plot the velocities over time. The plot looks somewhat similar to the position time series, although it is a littl..
-<!-- 
+<!--
 <AnimatedTimeSeriesPlot
   toPoints={
     ({sim:{currentState:{a,b}}}) => [a.dx, a.dy, b.dx, b.dy].map(v => 0.1*v)
   }
-/> -->
-<!-- 
+/>
+-->
+
 <AnimatedTimeSeriesPlotSvg
-  toSequences={({sim:{lowResStates}}) => {
+  toSequences={({simulationState:{lowResStates}}) => {
     let foo = toValues => {
       return {
         capacity: lowResStates.capacity,
@@ -94,7 +99,9 @@ Similarly, we can plot the velocities over time. The plot looks somewhat similar
       foo(s => 0.1* s.b.dy)
     ];
   }}
-/> -->
+/>
+
+<!--
 
 Taking the derivatives once more with respet to time, we get the accelerations:
 
@@ -106,9 +113,10 @@ $$
 \ddot{y_b} &= s_al_a\ddot{\theta_a} + s_bl_b\ddot{\theta_b} + c_al_a\dot{\theta_a}^2 + c_bl_b\dot{\theta_b}^2
 \end{alignedat}
 $$
-<!-- 
+-->
+
 <AnimatedTimeSeriesPlotSvg
-  toSequences={({sim:{lowResStates}}) => {
+  toSequences={({simulationState:{lowResStates}}) => {
     let foo = toValues => {
       return {
         capacity: lowResStates.capacity,
@@ -122,8 +130,9 @@ $$
       foo(s => 0.01* s.b.ddy)
     ];
   }}
-/> -->
-<!-- 
+/>
+
+<!--
 <AnimatedTimeSeriesPlotCanvas
   toSequences={({sim:{lowResStates}}) => {
     let foo = toValues => {
@@ -140,6 +149,8 @@ $$
     ];
   }}
 /> -->
+
+<!--
 
 <AnimatedTimeSeriesPlotCanvas
   toSequences={({lowResStates}) => {
@@ -160,7 +171,7 @@ $$
 />
 
 Zooming in (we can se it is still smooth?):
-<!-- 
+<!--
 <AnimatedTimeSeriesPlotSvg
   toSequences={({sim:{medResStates}}) => {
     let foo = toValues => {

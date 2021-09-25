@@ -22,11 +22,11 @@ function describeArc(x, y, radius, startAngle, endAngle){
     var sweepFlag = endAngle - startAngle >= 0 ? 0 : 1;
 
     var d = [
-        "M", start.x, start.y, 
+        "M", start.x, start.y,
         "A", radius, radius, 0, largeArcFlag, sweepFlag, end.x, end.y
     ].join(" ");
 
-    return d;       
+    return d;
 }
 
 var math = (x) => katex.renderToString(x, {
@@ -59,13 +59,13 @@ function clamp(x, min, max) {
 
 export default function DoublePendulumViewer(props) {
   const state = React.useContext(DoublePendulumSimulationContext);
-  if (!state || !state.sim) {
+  if (!state || !state.simulationState) {
     return (<></>);
   }
 
 
-  let theta_a = state.sim.currentState.theta.a;
-  let theta_b = state.sim.currentState.theta.b;
+  let theta_a = state.simulationState.currentState.theta.a;
+  let theta_b = state.simulationState.currentState.theta.b;
 
   const theta_a_arc_start = 3*Math.PI/2+theta_a;
   const theta_a_arc_end = 3*Math.PI/2;
@@ -74,10 +74,10 @@ export default function DoublePendulumViewer(props) {
 
   const r = 1;
   const l = 15;
-  const x_a = state.sim.currentState.a.x;
-  const y_a = state.sim.currentState.a.y;
-  const x_b = state.sim.currentState.b.x;
-  const y_b = state.sim.currentState.b.y;
+  const x_a = state.simulationState.currentState.a.x;
+  const y_a = state.simulationState.currentState.a.y;
+  const x_b = state.simulationState.currentState.b.x;
+  const y_b = state.simulationState.currentState.b.y;
 
   const black = 'black';
   const color = black;
@@ -156,13 +156,13 @@ export default function DoublePendulumViewer(props) {
           <g name="var-a" transform={`translate(${x_a} ${y_a}) scale(0.15) scale(1 -1)`}>{var_a}</g>
           <g name="var-b" transform={`translate(${x_b} ${y_b}) scale(0.15) scale(1 -1)`}>{var_b}</g>
           <g name="var-o" transform={`translate(${0} ${0}) scale(0.15) scale(1 -1)`}>{var_o}</g>
-          
+
           <g name="g-arrow" transform={`translate(${-41} ${-3}) scale(0.15) scale(1 -1)`}>
             <g name="g-arrow" transform={`translate(${-20}, ${-214})`}>{vvv}</g>
             <g name="g-arrow" transform={`translate(${-20}, ${-184})`}>{theta_a_legend}</g>
             <g name="g-arrow" transform={`translate(${-20}, ${-154})`}>{theta_b_legend}</g>
-          </g>  
-          
+          </g>
+
           {/* <g name="g-arrow" transform={`translate(${37} ${0}) scale(0.15) scale(1 -1)`}>
             <g name="g-arrow" transform={`translate(${25}, ${-34})`}>{var_g}</g>
             <g name="g-arrow" transform={`rotate(${-90})`}>{var_left_arrow}</g>

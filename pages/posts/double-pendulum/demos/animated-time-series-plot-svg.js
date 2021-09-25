@@ -1,7 +1,7 @@
 import React from 'react';
 import DoublePendulumSimulationContext from './double-pendulum-simulation-context.js'
 
-const svgPath = (points, command) => {
+const svgPath = (points, command, i) => {
   const d = points.filter(p => p).reduce(
     (acc, point, i, a) => i === 0
       ? `M ${point[0]},${point[1]}`
@@ -10,6 +10,7 @@ const svgPath = (points, command) => {
   )
   return (
     <path
+      key={i}
       d={d}
       style={{ fill: "none", stroke: "black", strokeWidth: 0.1 }}
     />
@@ -17,7 +18,7 @@ const svgPath = (points, command) => {
 }
 const lineCommand = point => `L ${point[0]} ${point[1]}`
 
-export default class AnimatedTimeSeriesPlot2 extends React.Component {
+export default class AnimatedTimeSeriesPlot extends React.Component {
   constructor(props) {
     super(props);
   }
@@ -28,14 +29,15 @@ export default class AnimatedTimeSeriesPlot2 extends React.Component {
         {context => {
           const state = context;
 
-          if (!state || !state.sim) {
+          if (!state || !state.simulationState) {
             return (<></>);
           }
 
           const paths = this.props.toSequences(state)
-            .map(s => svgPath(
+            .map((s, i) => svgPath(
               s.values.map((v, i) => [(Math.max(0,s.capacity-s.values.length) +i) * 100 / s.capacity, 0.25 * v]),
-              lineCommand
+              lineCommand,
+              i
             ));
 
           return (

@@ -1,9 +1,6 @@
 import CircularBuffer from 'mnemonist/circular-buffer';
 import React from 'react';
 
-import DoublePendulumSimulationContext from './double-pendulum-simulation-context.js'
-
-
 function clamp(x, min, max) {
   return Math.max(min, Math.min(x, max));
 }
@@ -43,7 +40,7 @@ export const withForwardKinematics = (state) => {
   return {...state, a, b};
 }
 
-class DoublePendulumModel extends React.Component {
+export default class DoublePendulumModel extends React.Component {
   constructor(props) {
     super(props);
     let initialState = withForwardKinematics(
@@ -63,18 +60,15 @@ class DoublePendulumModel extends React.Component {
   }
 
   update(elapsedSinceLastLoop) {
-    this.simUpdate(elapsedSinceLastLoop);
+    this.updateState(elapsedSinceLastLoop);
+    this.props.onChange(this.state);
   }
 
-  simUpdate(elapsedSinceLastLoopMs) {
-    const framesPerSecond = 64; //4*1600;
-    const lowFramesPerSecond = 64;
-    const lowMod = framesPerSecond / lowFramesPerSecond
-    const dt = 1/framesPerSecond; // 0.1 ms
-    // console.log(elapsedSinceLastLoopMs);
-    // elapsedSinceLastLoopMs = 16;
+  updateState(elapsedSinceLastLoopMs) {
+    const dt = 0.0001;
+    elapsedSinceLastLoopMs = 0.01;
     this.setState((state) => {
-      for (let t = 0; t < elapsedSinceLastLoopMs; t += dt*1000) {
+      for (let t = 0; t < elapsedSinceLastLoopMs; t += dt) {
         let currentState = state.currentState;
         const g = 9.8;
         const m_a = 1;
@@ -128,24 +122,23 @@ class DoublePendulumModel extends React.Component {
         if (Math.abs(currentState.theta.a) > Math.PI) {
           currentState.theta.a = (currentState.theta.a+Math.PI) % 2*Math.PI - Math.PI;
         }
-  
+
         if (Math.abs(currentState.theta.b) > Math.PI) {
           currentState.theta.b = (currentState.theta.b+Math.PI) % 2*Math.PI - Math.PI;
         }
 
         state.currentState = withForwardKinematics(currentState);
-        
+
         state.frameIndex++;
         state.highResStates.push({...state.currentState});
         if (state.frameIndex % 30 == 0) {
           state.medResStates.push({...state.currentState});
         }
-        if (state.frameIndex % lowMod == 0) {
+        if (state.frameIndex % 300 == 0) {
           state.lowResStates.push({...state.currentState});
         }
       }
-      
-      this.context.setSim(state);
+
       return state;
     });
   }
@@ -169,7 +162,7 @@ class DoublePendulumModel extends React.Component {
       };
 
       this.context.setSim(newState);
-      
+
       return newState;
     });
   }
@@ -179,6 +172,3 @@ class DoublePendulumModel extends React.Component {
     return null;
   }
 }
-DoublePendulumModel.contextType = DoublePendulumSimulationContext
-
-export default DoublePendulumModel;
