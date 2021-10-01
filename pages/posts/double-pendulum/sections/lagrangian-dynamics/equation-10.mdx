@@ -1,0 +1,23 @@
+$$
+\begin{alignedat}{1}
+\frac{d}{dt}\left(
+  \frac{\partial L}{\partial\dot{\theta}_b}
+\right) &=
+    \frac{d}{dt}\left(
+      m_bl_b^2\dot{\theta}_b
+      +m_bl_al_bc_{a-b}\dot{\theta}_a
+    \right)
+   \\
+&=
+    m_bl_b^2\ddot{\theta}_b
+    -m_bl_al_bs_{a-b}(\dot{\theta}_a - \dot{\theta}_b)\dot{\theta}_a
+    +m_bl_al_bc_{a-b}\ddot{\theta}_a
+    \\
+
+&=
+    m_bl_b^2\ddot{\theta}_b
+    -m_bl_al_bs_{a-b}\dot{\theta}_a^2
+    +m_bl_al_bs_{a-b}\dot{\theta}_a\dot{\theta}_b
+    +m_bl_al_bc_{a-b}\ddot{\theta}_a
+\end{alignedat}
+$$

@@ -13,12 +13,12 @@ import GeneralizedDda from './newtonian-mechanics/generalized-dda.mdx';
 
 The newtonian approach to deriving the dynamic equations of motion of a system
 relies on the forces acting on the bodies within the system. In practice, this
-means determining the forces using a free body diagram, then using the 
+means determining the forces using a free body diagram, then using the
 kinematic description of the system coupled with
 newton's second law, $F=ma$ to derive a set of equations that determine the
 system's motion as a function of time.
-<!-- 
-<FreeBodyViewer/> -->
+
+<FreeBodyViewer/>
 
 As depicted in the diagram above, point mass $a$ is being acted on by the
 tension from the massless rods connect it to the origin and $b$.
@@ -41,9 +41,9 @@ $$
  +2m_bs_{a-b}l_b\dot{\theta_b}^2
  -((2m_a + m_b)s_a +m_bs_{a-2b})g\\
 0 &= (m_a+m_bs_{a-b}^2)l_b\ddot{\theta_b}
-  -(m_a + m_b)s_{a-b}l_a\dot{\theta_a}^2 
+  -(m_a + m_b)s_{a-b}l_a\dot{\theta_a}^2
   -m_bs_{a-b}c_{a-b}l_b\dot{\theta_b}^2
-  -(m_a + m_b)s_{a-b}c_ag 
+  -(m_a + m_b)s_{a-b}c_ag
 \end{alignedat}
 $$
 
@@ -83,7 +83,7 @@ motion:
 Solving for that thing:
 
 1. Form equation 1 from the first equation of motion without the internal forces by substitution of $\ddot{y_b}$
-  and $\ddot{x_b}$. 
+  and $\ddot{x_b}$.
 
   <GeneralizedDdaDdb1/>
 

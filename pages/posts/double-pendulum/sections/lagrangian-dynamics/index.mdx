@@ -1,6 +1,17 @@
 import Equation1 from "./equation-1.mdx";
 import Equation2 from "./equation-2.mdx";
 import Equation3 from "./equation-3.mdx";
+import Equation4 from "./equation-4.mdx";
+import Equation5 from "./equation-5.mdx";
+import Equation6 from "./equation-6.mdx";
+import Equation7 from "./equation-7.mdx";
+import Equation8 from "./equation-8.mdx";
+import Equation9 from "./equation-9.mdx";
+import Equation10 from "./equation-10.mdx";
+import Equation11 from "./equation-11.mdx";
+import Equation12 from "./equation-12.mdx";
+import Equation13 from "./equation-13.mdx";
+import Equation14 from "./equation-14.mdx";
 
 ## lagrangian mechanics
 
@@ -22,16 +33,7 @@ And the kinetic energy, $E_k$:
 
 Lagrangian becomes:
 
-$$
-\begin{alignedat}{1}
-L &= E_k - E_p \\
-&= \tfrac{1}{2}(m_a +m_b)l_a^2\dot{\theta}_a^2
-    +\tfrac{1}{2}m_bl_b^2\dot{\theta}_b^2
-    +m_bl_al_bc_{a-b}\dot{\theta}_a\dot{\theta_b}
-    +g(m_a + m_b)l_ac_a
-    +gm_bl_bc_b
-\end{alignedat}
-$$
+<Equation4/>
 
 Since we are using generalized coordinates all the constraints of the system
 are modelled implicitly and we can use Lagrange's equations of the second kind
@@ -39,256 +41,36 @@ to .....
 
 First equation!
 
-$$
-\begin{alignedat}{1}
-  \frac{\partial L}{\partial\dot{\theta}_a}
-  &=
-  \frac{\partial}{\partial\dot{\theta}_a}\left(
-    \tfrac{1}{2}(m_a +m_b)l_a^2\dot{\theta}_a^2
-    +\tfrac{1}{2}m_bl_b^2\dot{\theta}_b^2
-    +m_bl_al_bc_{a-b}\dot{\theta}_a\dot{\theta_b}
-    +g(m_a + m_b)l_ac_a
-    +gm_bl_bc_b
-  \right)
-  \\
+<Equation5/>
+<Equation6/>
+<Equation7/>
+<Equation8/>
 
-  &=
-  (m_a+m_b)l_a^2\dot{\theta}_a
-  +m_bl_al_bc_{a-b}\dot{\theta_b}
-\end{alignedat}
-$$
-
-$$
-\begin{alignedat}{1}
-\frac{d}{dt}\left(
-  \frac{\partial L}{\partial\dot{\theta}_a}
-\right) &=
-    \frac{d}{dt}\left(
-      (m_a+m_b)l_a^2\dot{\theta}_a
-      +m_bl_al_bc_{a-b}\dot{\theta_b}
-    \right)
-   \\
-&=
-    (m_a+m_b)l_a^2\ddot{\theta}_a
-    +m_bl_al_bc_{a-b}\ddot{\theta}_b
-    -m_bl_al_bs_{a-b}(\dot{\theta}_a -\dot{\theta}_b)\dot{\theta_b}
-   \\
-&=
-    (m_a+m_b)l_a^2\ddot{\theta}_a
-    +m_bl_al_b(c_{a-b}\ddot{\theta}_b-s_{a-b}(\dot{\theta}_a - \dot{\theta}_b)\dot{\theta_b})
-   \\
-\end{alignedat}
-$$
-
-$$
-\begin{alignedat}{1}
-  \frac{\partial L}{\partial\theta_a}
-  &=
-  \frac{\partial}{\partial\theta_a}\left(
-    \tfrac{1}{2}(m_a +m_b)l_a^2\dot{\theta}_a^2
-    +\tfrac{1}{2}m_bl_b^2\dot{\theta}_b^2
-    +m_bl_al_bc_{a-b}\dot{\theta}_a\dot{\theta_b}
-    +g(m_a + m_b)l_ac_a
-    +gm_bl_bc_b
-  \right)
-  \\
-
-  &=
-    -m_bl_al_bs_{a-b}\dot{\theta}_a\dot{\theta_b}
-    -g(m_a + m_b)l_as_a
-\end{alignedat}
-$$
-
-
-$$
-\begin{alignedat}{1}
-0 &=
-  \frac{d}{dt}\left(
-    \frac{\partial L}{\partial\dot{\theta}_a}
-  \right)
-  -\frac{\partial L}{\partial\theta_a}
-  \\
-
- &= (m_a+m_b)l_a^2\ddot{\theta}_a
-    +m_bl_al_b(c_{a-b}\ddot{\theta}_b-s_{a-b}(\dot{\theta}_a -\dot{\theta}_b)\dot{\theta_b})
-  \\
-  &\hphantom{=} +m_bl_al_bs_{a-b}\dot{\theta}_a\dot{\theta_b}
-  +g(m_a + m_b)l_as_a
-  \\
-
- &= (m_a+m_b)l_a^2\ddot{\theta}_a
-    +m_bl_al_bc_{a-b}\ddot{\theta}_b
-    +m_bl_al_bs_{a-b}\dot{\theta}_b^2
-    +g(m_a + m_b)l_as_a
-  \\
-
- &= (m_a+m_b)l_a\ddot{\theta}_a
-    +m_bl_bc_{a-b}\ddot{\theta}_b
-    +m_bl_bs_{a-b}\dot{\theta}_b^2
-    +g(m_a + m_b)s_a
-\end{alignedat}
-$$
 
 Second Equation!
 
-$$
-\begin{alignedat}{1}
-  \frac{\partial L}{\partial\dot{\theta}_b}
-  &=
-  \frac{\partial}{\partial\dot{\theta}_b}\left(
-    \tfrac{1}{2}(m_a +m_b)l_a^2\dot{\theta}_a^2
-    +\tfrac{1}{2}m_bl_b^2\dot{\theta}_b^2
-    +m_bl_al_bc_{a-b}\dot{\theta}_a\dot{\theta_b}
-    +g(m_a + m_b)l_ac_a
-    +gm_bl_bc_b
-  \right)
-  \\
+<Equation9/>
 
-  &=
-    m_bl_b^2\dot{\theta}_b
-    +m_bl_al_bc_{a-b}\dot{\theta}_a
-\end{alignedat}
-$$
+<Equation10/>
 
-$$
-\begin{alignedat}{1}
-\frac{d}{dt}\left(
-  \frac{\partial L}{\partial\dot{\theta}_b}
-\right) &=
-    \frac{d}{dt}\left(
-      m_bl_b^2\dot{\theta}_b
-      +m_bl_al_bc_{a-b}\dot{\theta}_a
-    \right)
-   \\
-&=
-    m_bl_b^2\ddot{\theta}_b
-    -m_bl_al_bs_{a-b}(\dot{\theta}_a - \dot{\theta}_b)\dot{\theta}_a
-    +m_bl_al_bc_{a-b}\ddot{\theta}_a
-    \\
+<Equation11/>
 
-&=
-    m_bl_b^2\ddot{\theta}_b
-    -m_bl_al_bs_{a-b}\dot{\theta}_a^2
-    +m_bl_al_bs_{a-b}\dot{\theta}_a\dot{\theta}_b
-    +m_bl_al_bc_{a-b}\ddot{\theta}_a
-\end{alignedat}
-$$
 
-$$
-\begin{alignedat}{1}
-  \frac{\partial L}{\partial\theta}_b
-  &=
-  \frac{\partial}{\partial\theta_b}\left(
-    \tfrac{1}{2}(m_a +m_b)l_a^2\dot{\theta}_a^2
-    +\tfrac{1}{2}m_bl_b^2\dot{\theta}_b^2
-    +m_bl_al_bc_{a-b}\dot{\theta}_a\dot{\theta}_b
-    +g(m_a + m_b)l_ac_a
-    +gm_bl_bc_b
-  \right)
-  \\
+<Equation12/>
 
-  &=
-    m_bl_al_bs_{a-b}\dot{\theta}_a\dot{\theta}_b
-    -gm_bl_bs_b
-\end{alignedat}
-$$
-
-$$
-\begin{alignedat}{1}
-0 &=
-  \frac{d}{dt}\left(
-    \frac{\partial L}{\partial\dot{\theta}_b}
-  \right)
-  -\frac{\partial L}{\partial\theta_b}
-  \\
-
- &= m_bl_b^2\ddot{\theta}_b
-    -m_bl_al_bs_{a-b}\dot{\theta}_a^2
-    +m_bl_al_bs_{a-b}\dot{\theta}_a\dot{\theta}_b
-    +m_bl_al_bc_{a-b}\ddot{\theta}_a
-    -m_bl_al_bs_{a-b}\dot{\theta}_a\dot{\theta}_b
-    +gm_bl_bs_b
-  \\
-  &= l_b\ddot{\theta}_b
-    -l_as_{a-b}\dot{\theta}_a^2
-    +l_as_{a-b}\dot{\theta}_a\dot{\theta}_b
-    +l_ac_{a-b}\ddot{\theta}_a
-    -l_as_{a-b}\dot{\theta}_a\dot{\theta}_b
-    +gs_b
-  \\
-
- &= l_ac_{a-b}\ddot{\theta}_a
-    +l_b\ddot{\theta}_b
-    -l_as_{a-b}\dot{\theta}_a^2
-    +gs_b
-\end{alignedat}
-$$
 
 Eliminate $\ddot{\theta}_b$ from the first Lagrange equation to solve for
 $\ddot{\theta}_a$. We'll end up with the same result as with the newtonian
 approach (as expected).
 
-$$
-\begin{alignedat}{1}
-0 &=
-   (m_a+m_b)l_a\ddot{\theta}_a
-    +m_bl_bc_{a-b}\ddot{\theta}_b
-    +m_bl_bs_{a-b}\dot{\theta}_b^2
-    +g(m_a + m_b)s_a \\
-&\hphantom{=}
-    -m_bl_ac_{a-b}^2\ddot{\theta}_a
-    -m_bl_bc_{a-b}\ddot{\theta}_b
-    +m_bl_as_{a-b}c_{a-b}\dot{\theta}_a^2
-    -m_bgs_bc_{a-b}
-  \\
+<Equation13/>
 
-  &=
-   l_a(m_a+m_b-m_bc_{a-b}^2)\ddot{\theta}_a
-    +m_bl_as_{a-b}c_{a-b}\dot{\theta}_a^2
-    +m_bl_bs_{a-b}\dot{\theta}_b^2
-    +g(m_a + m_b)s_a -m_bgs_bc_{a-b} \\
-
-  &=
-   l_a(m_a +m_bs_{a-b}^2)\ddot{\theta}_a
-    +m_bl_as_{a-b}c_{a-b}\dot{\theta}_a^2
-    +m_bl_bs_{a-b}\dot{\theta}_b^2
-    +g((m_a + m_b)s_a -m_bs_bc_{a-b}) \\
-
-\end{alignedat}
-$$
 
 Similarly, eliminate $\ddot{\theta}_a$ from the first Lagrange equation to solve
 for $\ddot{\theta}_b$.
 
-$$
-\begin{alignedat}{1}
-0 &=
-   (m_a+m_b)l_ac_{a-b}\ddot{\theta}_a
-    +m_bl_bc_{a-b}^2\ddot{\theta}_b
-    +m_bl_bs_{a-b}c_{a-b}\dot{\theta}_b^2
-    +g(m_a + m_b)s_ac_{a-b} \\
-&\hphantom{=}
-    -(m_a+m_b)l_ac_{a-b}\ddot{\theta}_a
-    -(m_a+m_b)l_b\ddot{\theta}_b
-    +(m_a+m_b)l_as_{a-b}\dot{\theta}_a^2
-    -(m_a+m_b)gs_b
-  \\
+<Equation14/>
 
-&=
-    -(m_a+m_b-m_bc_{a-b}^2)l_b\ddot{\theta}_b
-    +(m_a+m_b)l_as_{a-b}\dot{\theta}_a^2
-    +m_bl_bs_{a-b}c_{a-b}\dot{\theta}_b^2
-    -g(m_a+m_b)(s_b - c_{a-b}s_a)
-  \\
-
-&=
-    (m_a+m_bs_{a-b}^2)l_b\ddot{\theta}_b
-    -(m_a+m_b)l_as_{a-b}\dot{\theta}_a^2
-    -m_bl_bs_{a-b}c_{a-b}\dot{\theta}_b^2
-    -g(m_a+m_b)s_{a-b}c_a
-  \\
-\end{alignedat}
-$$
 
 <!--
 $$
