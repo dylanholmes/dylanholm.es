@@ -2,14 +2,14 @@ const fs = require('fs')
 const path = require('path')
 
 
-function getPostPaths() {
-  const DIR = path.join(process.cwd(), '/pages/posts/');
+function getPostPaths(dir) {
   return [
-    getSingleFilePosts(DIR),
-    getMultiFilePosts(DIR)
+    getSingleFilePosts(dir),
+    getMultiFilePosts(dir)
   ]
     .flatMap(postPaths => postPaths);
 }
+
 function getSingleFilePosts(dir) {
   return fs
     .readdirSync(dir)
@@ -19,18 +19,21 @@ function getSingleFilePosts(dir) {
 
 function getMultiFilePosts(dir) {
   return fs
-    .readdirSync(dir)
-    .filter(file => fs.statSync(path.resolve(dir, file)).isDirectory())
-    .flatMap(subdir =>
-      fs.readdirSync(subdir)
-        .filter(file => file === 'index.md' || file === 'index.mdx')
-        .map(file => path.resolve(dir, subdir, file))
+    .readdirSync(dir, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name)
+    .map(subDirName => path.resolve(dir, subDirName))
+    .flatMap(subDirPath =>
+      fs.readdirSync(subDirPath)
+        .filter(fileName => fileName === 'index.md' || fileName === 'index.mdx')
+        .map(fileName => path.resolve(subDirPath, fileName))
     );
 }
 
+const DIR = path.join(process.cwd(), '/pages/posts/');
 const META = /export\s+const\s+meta\s+=\s+({[\s\S]*?\n})/
 
-module.exports = postPaths
+module.exports = getPostPaths(DIR)
   .map((path, index) => {
     const contents = fs.readFileSync(path, 'utf-8')
     const match = META.exec(contents)
@@ -44,7 +47,10 @@ module.exports = postPaths
 
     return {
       ...meta,
-      path: path.replace(/\.mdx?$/, '').replace('/pages', ''),
+      path: '/posts/' + path
+        .replace(DIR, '')
+        .replace(/\.mdx?$/, '')
+        .replace(/\/index$/, ''),
       index,
     }
   })
