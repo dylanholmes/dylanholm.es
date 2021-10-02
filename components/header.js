@@ -14,6 +14,16 @@ function Header({ path, pageTitle, ogImage }) {
         <Title path={path} />
         <Nav />
       </header>
+      <style jsx>
+        {`
+          header {
+            padding: 1em 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          }
+        `}
+      </style>
       <Style/>
     </>
   )
