@@ -11,7 +11,7 @@
     #container {
       display: flex;
     }
-    #canvas {
+    .canvas {
       display: block;
       width: 250px;
       height: 250px;
@@ -31,13 +31,17 @@
   <div id="container">
     <div>
       <h2>Canvas</h2>
-      <canvas id="canvas"></canvas>
+      <canvas id="canvas" class="canvas"></canvas>
     </div>
     <div>
       <h2>SVG</h2>
       <svg id="svg", viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" overflow="visible">
         <circle id="circle" name="point-o" cx="0" cy="0" r="10" style="fill:black" />
       </svg>
+    </div>
+    <div>
+      <h2>OffScreenCanvas</h2>
+      <canvas id="offscreen-canvas"  class="canvas"></canvas>
     </div>
   </div>
   <script>
@@ -50,6 +54,12 @@
       }
       return x;
     }
+
+    // function garbage(num) {
+    //   for (let i = 0; i < num; ++i) {
+    //     new Date();
+    //   }
+    // }
 
     class Canvas2dAnimation {
       constructor(canvas) {
@@ -115,8 +125,25 @@
       }
     }
 
+    function fix_dpi(canvas) {
+        let dpi = window.devicePixelRatio;
+        let style_height = +getComputedStyle(canvas).getPropertyValue("height").slice(0, -2);
+        let style_width = +getComputedStyle(canvas).getPropertyValue("width").slice(0, -2);
+        canvas.setAttribute('height', style_height * dpi);
+        canvas.setAttribute('width', style_width * dpi);
+      }
+
     const canvas2dAnimation = new Canvas2dAnimation(document.getElementById('canvas'));
     const svgAnimation = new SvgAnimation(document.getElementById('circle'));
+
+    var htmlCanvas = document.getElementById('offscreen-canvas');
+    fix_dpi(htmlCanvas);
+    console.log(htmlCanvas);
+    var offscreen = htmlCanvas.transferControlToOffscreen();
+
+    var worker = new Worker("worker.js");
+    worker.postMessage({ canvas: offscreen }, [offscreen]);
+
 
     function animate() {
       canvas2dAnimation.render();
