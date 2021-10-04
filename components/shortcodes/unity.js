@@ -1,3 +1,4 @@
+import React from 'react';
 import { default as ReactUnity, UnityContent as ReactUnityContent } from "react-unity-webgl";
 
 class Unity extends React.Component {

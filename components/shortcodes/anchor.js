@@ -1,3 +1,5 @@
+import React from 'react';
+
 class Anchor extends React.Component {
   componentDidMount() {
     this.hashChange = this.hashChange.bind(this);

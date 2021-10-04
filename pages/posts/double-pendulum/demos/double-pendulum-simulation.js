@@ -1,3 +1,4 @@
+import React from 'react';
 import DoublePendulumModel from './double-pendulum-model.js';
 import DoublePendulumSimulationContext from './double-pendulum-simulation-context.js'
 
