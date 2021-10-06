@@ -2,8 +2,8 @@ import { withRouter } from "next/router";
 import BlogPost from "../../../components/layouts/blog-post";
 
 import Overview from "./sections/overview.mdx";
-// import System from "./sections/system.mdx";
-// import Kinematics from "./sections/kinematics.mdx";
+import System from "./sections/system.mdx";
+import Kinematics from "./sections/kinematics.mdx";
 // import NewtonianMechanics from "./sections/newtonian-mechanics.mdx";
 // import LagrangianDynamics from "./sections/lagrangian-dynamics/index.mdx";
 // import NumericalIntegration from "./sections/numerical-integration.mdx";
@@ -29,10 +29,10 @@ export default withRouter(({ children, router }) => (
 ));
 
 <Overview/>
-
-<!--
 <System/>
 <Kinematics/>
+
+<!--
 <NewtonianMechanics/>
 <LagrangianDynamics/>
 <NumericalIntegration/>

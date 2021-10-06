@@ -68,81 +68,76 @@ export default class DoublePendulumModel extends React.Component {
     const dt = 0.0001;
     elapsedSinceLastLoopMs = 0.01;
     this.setState((state) => {
-      // for (let t = 0; t < elapsedSinceLastLoopMs; t += dt) {
-      //   let currentState = state.currentState;
-      //   const g = 9.8;
-      //   const m_a = 1;
-      //   const m_b = 1;
-      //   const l_a = 1;
-      //   const l_b = 1;
+      for (let t = 0; t < elapsedSinceLastLoopMs; t += dt) {
+        let currentState = state.currentState;
+        const g = 9.8;
+        const m_a = 1;
+        const m_b = 1;
+        const l_a = 1;
+        const l_b = 1;
 
-      //   const a = currentState.theta.a;
-      //   const b = currentState.theta.b;
-      //   const da = currentState.dtheta.a;
-      //   const db = currentState.dtheta.b;
+        const a = currentState.theta.a;
+        const b = currentState.theta.b;
+        const da = currentState.dtheta.a;
+        const db = currentState.dtheta.b;
 
-      //   const s_a = Math.sin(a);
-      //   const s_b = Math.sin(b);
-      //   const c_a = Math.cos(a);
-      //   const s_ab = Math.sin(a-b);
-      //   const c_ab = Math.cos(a-b);
+        const s_a = Math.sin(a);
+        const s_b = Math.sin(b);
+        const c_a = Math.cos(a);
+        const s_ab = Math.sin(a-b);
+        const c_ab = Math.cos(a-b);
 
-      //   const da2 = da*da;
-      //   const db2 = db*db;
-      //   const dda =
-      //     (
-      //       m_b*s_ab*c_ab*l_a*da2
-      //       +m_b*s_ab*l_b*db2
-      //       +((m_a+m_b)*s_a-m_b*s_b*c_ab)*g
-      //     ) / (
-      //       -(m_a + m_b*s_ab*s_ab)*l_a
-      //     );
-      //   const ddb =
-      //     (
-      //       (m_a + m_b)*s_ab*l_a*da2
-      //       +m_b*s_ab*c_ab*l_b*db2
-      //       +(m_a+m_b)*s_ab*c_a*g
-      //     ) / (
-      //       (m_a + m_b*s_ab*s_ab)*l_b
-      //     );
+        const da2 = da*da;
+        const db2 = db*db;
+        const dda =
+          (
+            m_b*s_ab*c_ab*l_a*da2
+            +m_b*s_ab*l_b*db2
+            +((m_a+m_b)*s_a-m_b*s_b*c_ab)*g
+          ) / (
+            -(m_a + m_b*s_ab*s_ab)*l_a
+          );
+        const ddb =
+          (
+            (m_a + m_b)*s_ab*l_a*da2
+            +m_b*s_ab*c_ab*l_b*db2
+            +(m_a+m_b)*s_ab*c_a*g
+          ) / (
+            (m_a + m_b*s_ab*s_ab)*l_b
+          );
 
-      //   currentState.ddtheta = {
-      //     a: dda,
-      //     b: ddb,
-      //   };
-      //   currentState.dtheta = {
-      //     a: da + dda * dt,
-      //     b: db + ddb * dt,
-      //   };
-      //   currentState.theta = {
-      //     a: fix_range(a + da * dt),
-      //     b: fix_range(b + db * dt),
-      //   };
+        currentState.ddtheta = {
+          a: dda,
+          b: ddb,
+        };
+        currentState.dtheta = {
+          a: da + dda * dt,
+          b: db + ddb * dt,
+        };
+        currentState.theta = {
+          a: fix_range(a + da * dt),
+          b: fix_range(b + db * dt),
+        };
 
-      //   if (Math.abs(currentState.theta.a) > Math.PI) {
-      //     currentState.theta.a = (currentState.theta.a+Math.PI) % 2*Math.PI - Math.PI;
-      //   }
+        if (Math.abs(currentState.theta.a) > Math.PI) {
+          currentState.theta.a = (currentState.theta.a+Math.PI) % 2*Math.PI - Math.PI;
+        }
 
-      //   if (Math.abs(currentState.theta.b) > Math.PI) {
-      //     currentState.theta.b = (currentState.theta.b+Math.PI) % 2*Math.PI - Math.PI;
-      //   }
+        if (Math.abs(currentState.theta.b) > Math.PI) {
+          currentState.theta.b = (currentState.theta.b+Math.PI) % 2*Math.PI - Math.PI;
+        }
 
-      //   state.currentState = withForwardKinematics(currentState);
+        state.currentState = withForwardKinematics(currentState);
 
-      //   state.frameIndex++;
-      //   state.highResStates.push({...state.currentState});
-      //   if (state.frameIndex % 30 == 0) {
-      //     state.medResStates.push({...state.currentState});
-      //   }
-      //   if (state.frameIndex % 300 == 0) {
-      //     state.lowResStates.push({...state.currentState});
-      //   }
-      // }
-
-
-
-      state.currentState.theta.a = performance.now() / 1000.0;
-      state.currentState = withForwardKinematics(state.currentState);
+        state.frameIndex++;
+        state.highResStates.push({...state.currentState});
+        if (state.frameIndex % 30 == 0) {
+          state.medResStates.push({...state.currentState});
+        }
+        if (state.frameIndex % 300 == 0) {
+          state.lowResStates.push({...state.currentState});
+        }
+      }
 
       return state;
     });
