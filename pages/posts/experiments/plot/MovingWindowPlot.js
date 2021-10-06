@@ -32,20 +32,9 @@ export default class Canvas2dPlot {
 
   generateSineValues(offset, sx, ex) {
     const func = (x) => 250*Math.sin(10.0*x/this.ctx.canvas.width) + 250;
-    const n = ex - sx;
+    const n = 100;
     const values = new Array(n);
-    const xi = (i) => i * (sx-ex) / n + sx;
-    for (let i = 0; i < n; ++i) {
-      values[i] = func(xi(i)+offset)
-    }
-    return values;
-  }
-
-  generateSineValues2(offset, sx, ex) {
-    const func = (x) => 250*Math.sin(10.0*x/this.ctx.canvas.width) + 250;
-    const n = 100 ;
-    const values = new Array(n);
-    const xi = (i) => i * (sx-ex) / n + sx;
+    const xi = (i) => i * (ex-sx) / n + sx;
     for (let i = 0; i < n; ++i) {
       values[i] = func(xi(i)+offset)
     }
@@ -54,39 +43,52 @@ export default class Canvas2dPlot {
 
   drawValues(values, sx, ex) {
     const n = values.length;
-    const xi = (i) => i * (sx-ex) / n + sx;
-    if (this.lastValue) {
+    const xi = (i) => i * (ex-sx) / n + sx;
+
+    if (this.lastValues) {
+      // TODO: explain why we draw the entire
+      // previous set of bufferred values, tldr;
+      // its because one point may be smaller than
+      // a pixel which will leave a thinner line
+      // connecting each bufferred region.
+      this.ctx.lineWidth = 2;
       this.ctx.strokeStyle = 'black';
       this.ctx.beginPath();
-      this.ctx.moveTo(xi(n), this.lastValue);
-      this.ctx.lineTo(xi(n-1), values[n-1]);
-      this.ctx.stroke();
+      this.ctx.moveTo(xi(-n), this.lastValues[0]);
+      for (let i = 1; i < n; ++i) {
+        this.ctx.lineTo(xi(i-n), this.lastValues[i]);
+      }
+      this.ctx.lineTo(xi(0), values[0]);
+    } else {
+      this.ctx.lineWidth = 2;
+      this.ctx.strokeStyle = 'black';
+      this.ctx.beginPath();
+      this.ctx.moveTo(xi(0), values[0]);
     }
 
-    this.ctx.strokeStyle = 'black';
-    for (let i = 0; i < n; ++i) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(xi(i-1), values[i-1]);
+    for (let i = 1; i < n; ++i) {
       this.ctx.lineTo(xi(i), values[i]);
-      this.ctx.stroke();
     }
-    this.lastValue = values[0];
+    this.ctx.stroke();
+
+
+
+    this.lastValues = values;
   }
 
   render(time) {
     this.prevTime = this.prevTime || time;
     this.deltaTime = time - this.prevTime;
-    this.shiftPixels = 100; // Math.ceil(this.deltaTime*0.1);
+    this.shiftPixels = 10; //Math.ceil(this.deltaTime*0.1);
     this.totalShift = (this.totalShift || 0 ) + this.shiftPixels;
     this.shiftLeft(this.shiftPixels);
 
     let width = this.ctx.canvas.width;
     this.ctx.strokeStyle = 'black';
     this.ctx.lineWidth = 2;
-    // this.drawSine(this.totalShift, width-this.shiftPixels, width);
     const sx = width-this.shiftPixels;
     const ex = width;
-    const values = this.generateSineValues2(this.totalShift, sx, ex);
+    const values = this.generateSineValues(this.totalShift, sx, ex);
     this.drawValues(values, sx, ex);
 
 
