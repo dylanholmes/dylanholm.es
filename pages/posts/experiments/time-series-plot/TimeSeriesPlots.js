@@ -1,6 +1,7 @@
 import React from "react";
 import Canvas2dV1 from "./Canvas2dV1_ImageData.js"
 import Canvas2dV2 from "./Canvas2dV2_Scaled.js"
+import CanvasWebGLV1 from "./CanvasWebGLV1.js"
 import AnimationController from "./AnimationController.js"
 
 
@@ -15,8 +16,9 @@ export default class Plot extends React.Component {
 
   componentDidMount() {
     const animationController = new AnimationController(
-      new Canvas2dV1(document.getElementById('canvas-v1')),
-      new Canvas2dV2(document.getElementById('canvas-v2'))
+      // new Canvas2dV1(document.getElementById('canvas-v1')),
+      // new Canvas2dV2(document.getElementById('canvas-v2')),
+      new CanvasWebGLV1(document.getElementById('canvas-v3'))
     );
     animationController.startAnimation();
     this.setState({animationController})
@@ -58,16 +60,19 @@ export default class Plot extends React.Component {
         </style>
         <button id="button" onClick={toggleAnimation} style={{display: 'block'}}>play/pause</button>
         <div id="container">
-          <div>
+          {/* <div>
             <h2>CanvasV1</h2>
             <canvas id="canvas-v1" className="canvas"></canvas>
           </div>
           <div>
             <h2>CanvasV2</h2>
             <canvas id="canvas-v2" className="canvas"></canvas>
+          </div> */}
+          <div>
+            <h2>CanvasV3</h2>
+            <canvas id="canvas-v3" className="canvas"></canvas>
           </div>
         </div>
-        {/* <canvas id="canvas" style={{height: 250, width:250, border: '1px solid'}}></canvas> */}
       </>
     );
   }

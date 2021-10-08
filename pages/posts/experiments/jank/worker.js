@@ -1,4 +1,4 @@
-export default () => {
+const worker = () => {
   self.addEventListener("message", evt => {
     console.log('here');
     var canvas = evt.data.canvas;
@@ -20,3 +20,4 @@ export default () => {
     requestAnimationFrame(render);
   });
 }
+export default worker;
