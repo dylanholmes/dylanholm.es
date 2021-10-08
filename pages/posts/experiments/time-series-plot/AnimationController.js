@@ -1,12 +1,12 @@
-export default class Animation {
-  constructor(plot) {
-    this.plot = plot;
+import { render } from "katex";
 
-
+export default class AnimationController {
+  constructor(...plots) {
+    this.plots = plots;
   }
 
   animate(time) {
-    this.plot.render(time);
+    this.plots.forEach(plot => plot.render(time));
     this.requestAnimationFrameHandle = requestAnimationFrame(t => this.animate(t));
   }
 

@@ -1,7 +1,7 @@
 import { withRouter } from "next/router";
 import BlogPost from "../../../components/layouts/blog-post";
-// import Jank from './jank/jank.js';
-import Plot from './plot/plot.js';
+import Jank from './jank/jank.js';
+import TimeSeriesPlots from './time-series-plot/TimeSeriesPlots.js';
 
 export const meta = {
   published: true,
@@ -17,4 +17,5 @@ export default withRouter(({ children, router }) => (
   </BlogPost>
 ));
 
-<Plot/>
+<TimeSeriesPlots/>
+<Jank/>

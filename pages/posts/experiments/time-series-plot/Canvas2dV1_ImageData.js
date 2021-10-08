@@ -1,8 +1,30 @@
-export default class Canvas2dPlot {
+/**
+ * This class demonstrates how to use the canvas image data
+ * to more efficiently render a slice of values produced by
+ * a time series.
+ *
+ * The idea here is to each frame:
+ * 1. Shift all the pixels to the left relative to the amount
+ *    of time that has past since the last frame. This will
+ *    truncate the left-most pixels as the pixels are shifted,
+ *    and not scaled.
+ * 2. Draw the new values in the pixels that are now available
+ *    in the new region on the right of the canvas.
+ *
+ * Some limitations:
+ * - Using the canvas 2d context's getImageData and putImageData
+ *   methods only work on integer values as they do simple copying,
+ *   this means that shifting the plot at a value of less than 1
+ *   pixel per frame is not possible. This may be fine for some
+ *   use cases. Note that one possible work around to this solution
+ *   may be to
+ *
+ * In this sxampl
+ */
+export default class Canvas2dV1 {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
-
     this.fix_dpi();
   }
 

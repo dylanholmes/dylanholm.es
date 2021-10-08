@@ -1,7 +1,7 @@
 import React from "react";
-import Canvas2dPlot from "./Canvas2dPlot.js"
-import MovingWindowPlot from "./MovingWindowPlot.js"
-import Animation from "./Animation.js"
+import Canvas2dV1 from "./Canvas2dV1_ImageData.js"
+import Canvas2dV2 from "./Canvas2dV2_Scaled.js"
+import AnimationController from "./AnimationController.js"
 
 
 export default class Plot extends React.Component {
@@ -14,25 +14,60 @@ export default class Plot extends React.Component {
   }
 
   componentDidMount() {
-    const plot = new MovingWindowPlot(document.getElementById('canvas'));
-    const animation = new Animation(plot);
-    this.setState({animation})
+    const animationController = new AnimationController(
+      new Canvas2dV1(document.getElementById('canvas-v1')),
+      new Canvas2dV2(document.getElementById('canvas-v2'))
+    );
+    animationController.startAnimation();
+    this.setState({animationController})
   }
 
   render() {
-    let foo = () => {console.log('foo');}
-    if (this.state.animation) {
-
-      foo = () => {
-        console.log('toggle');
-        this.state.animation.toggleAnimation();
+    let toggleAnimation = () => {}
+    if (this.state.animationController) {
+      toggleAnimation = () => {
+        this.state.animationController.toggleAnimation();
       }
     }
 
     return (
       <>
-        <button onClick={foo} style={{display: 'block'}}>play/pause</button>
-        <canvas id="canvas" style={{height: 250, width:250, border: '1px solid'}}></canvas>
+        <style>
+          {`
+            #button {
+              display: block;
+              margin: 20px auto;
+              padding: 20px;
+            }
+            #container {
+              display: flex;
+              justify-content: space-between;
+            }
+            .canvas {
+              display: block;
+              width: 250px;
+              height: 250px;
+              border: 1px solid;
+            }
+            #svg {
+              width: 250px;
+              height: 250px;
+              border: 1px solid;
+            }
+          `}
+        </style>
+        <button id="button" onClick={toggleAnimation} style={{display: 'block'}}>play/pause</button>
+        <div id="container">
+          <div>
+            <h2>CanvasV1</h2>
+            <canvas id="canvas-v1" className="canvas"></canvas>
+          </div>
+          <div>
+            <h2>CanvasV2</h2>
+            <canvas id="canvas-v2" className="canvas"></canvas>
+          </div>
+        </div>
+        {/* <canvas id="canvas" style={{height: 250, width:250, border: '1px solid'}}></canvas> */}
       </>
     );
   }
