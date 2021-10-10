@@ -36,7 +36,8 @@
     "react-unity-webgl": "^7.1.10",
     "rehype-katex": "^3.1.0",
     "remark-math": "^2.0.1",
-    "three": "^0.133.1"
+    "three": "^0.133.1",
+    "three.meshline": "git+https://github.com/NZhuravlev/THREE.MeshLine.git"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.10.4",

@@ -10,6 +10,8 @@ import Kinematics from "./sections/kinematics.mdx";
 // import Learnings from "./sections/learnings.mdx";
 // import References from "./sections/references.mdx";
 
+import Foo from "./demos/Foo.js";
+
 import DoublePendulumSimulation from './demos/double-pendulum-simulation.js';
 
 export const meta = {
@@ -28,11 +30,16 @@ export default withRouter(({ children, router }) => (
   </BlogPost>
 ));
 
+<Foo/>
+
+
 <Overview/>
+
+<!--
 <System/>
 <Kinematics/>
 
-<!--
+
 <NewtonianMechanics/>
 <LagrangianDynamics/>
 <NumericalIntegration/>

@@ -42,7 +42,11 @@ export default class DoublePendulumSimulation extends React.Component {
       this.previousTimeStamp = timestamp;
     }
     const delta =  timestamp - this.previousTimeStamp; //(timestamp - this.previousTimeStamp) / 1000.0;
-    this.componentsToUpdate.map(component => component.current.update(delta));
+    this.componentsToUpdate.map(component => {
+      // TODO: why is this becoming null????
+      if (component.current)
+      component.current.update(timestamp, delta)
+    });
 
     this.animationID = window.requestAnimationFrame((timestamp) => this.update(timestamp));
   }
