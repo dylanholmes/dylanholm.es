@@ -10,9 +10,11 @@ import Kinematics from "./sections/kinematics.mdx";
 // import Learnings from "./sections/learnings.mdx";
 // import References from "./sections/references.mdx";
 
-import Foo from "./demos/Foo.js";
+import Foo2 from "./demos/Foo2.js";
 
 import DoublePendulumSimulation from './demos/double-pendulum-simulation.js';
+import DoublePendulumSimulationContext from './demos/double-pendulum-simulation-context.js'
+
 
 export const meta = {
   published: true,
@@ -30,7 +32,11 @@ export default withRouter(({ children, router }) => (
   </BlogPost>
 ));
 
-<Foo/>
+
+
+<DoublePendulumSimulationContext.Consumer>
+  {context => <Foo2 context={context}/>}
+</DoublePendulumSimulationContext.Consumer>
 
 
 <Overview/>
