@@ -1,5 +1,7 @@
 import React from 'react';
 import katex from 'katex';
+import OnScreen from '../OnScreen.js'
+
 
 import SimulationContext from './double-pendulum-simulation-context.js'
 
@@ -56,13 +58,22 @@ function clamp(x, min, max) {
 }
 
 export default function FreeBodyViewer(props) {
-  const state = React.useContext(SimulationContext);
-  if (!state || !state.sim) {
-    return (<></>);
+  const context = React.useContext(SimulationContext);
+  if (!context) {
+    return null;
+  }
+  
+  if (!context.simulationState) {
+    return null;
   }
 
-  let theta_a = state.sim.currentState.theta.a;
-  let theta_b = state.sim.currentState.theta.b;
+  const state = context.simulationState.currentState;
+  if (!state) {
+    return null;
+  }
+
+  let theta_a = state.theta.a;
+  let theta_b = state.theta.b;
 
   // theta range 0 to pi 
   theta_a %= 2*Math.PI;
@@ -152,8 +163,11 @@ export default function FreeBodyViewer(props) {
   x_b = fb.x;
   y_b = fb.y;
 
+  const style = {display: "block", height: "600px", border: "1px solid", width: "100%"};
+
   return (
-      <svg viewBox="0 0 100 62" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+    <OnScreen style={style} >
+      <svg style={style} viewBox="0 0 100 62" xmlns="http://www.w3.org/2000/svg" overflow="visible">
         <defs>
         <marker id="fb-arrow" viewBox="0 0 10 10" refX="5" refY="5"
             markerWidth="6" markerHeight="6"
@@ -222,5 +236,6 @@ export default function FreeBodyViewer(props) {
           */}
         </g>
       </svg>
+    </OnScreen>
   );
 }

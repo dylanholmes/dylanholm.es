@@ -54,8 +54,6 @@ export default class DoublePendulumModel extends React.Component {
       frameIndex: 0,
       currentState: initialState,
       states: CircularBuffer.from([], Array, 4),
-      // medResStates: CircularBuffer.from([{...initialState}], Array, 500),
-      // highResStates: CircularBuffer.from([{...initialState}], Array, 500),
     }
   }
 
@@ -67,23 +65,15 @@ export default class DoublePendulumModel extends React.Component {
   stepSimulation(time) {
     this.lastTime = this.lastTime || time
     const deltaTime = time - this.lastTime;
-
     const deltaSeconds = deltaTime / 1000;
-    const dt = 0.001;
+    const dt = 0.0001;
     const steps = Math.floor(deltaSeconds / dt);
     const desiredFrames = 2;
     const mod = Math.floor(steps / desiredFrames);
 
-    // console.log(time/1000, deltaSeconds, dt, steps, mod);
     this.setState((state) => {
-      // const llastT = state.xy_positions[state.xy_positions.length-4];
-      // const llastY = state.xy_positions[state.xy_positions.length-3];
-      // const lastT = state.xy_positions[state.xy_positions.length-2];
-      // const lastY = state.xy_positions[state.xy_positions.length-1];
-      // state.xy_positions = [llastT, llastY, lastT, lastY];
 
       for (let t = 0; t < deltaSeconds; t += dt) {
-        // let ttime = time + t;
         let currentState = state.currentState;
         currentState.time = this.lastTime + t*1000;
         const g = 9.8;
@@ -146,19 +136,18 @@ export default class DoublePendulumModel extends React.Component {
         state.currentState = withForwardKinematics(currentState);
 
         state.frameIndex++;
-        if (state.frameIndex % mod == 0 && !Number.isNaN(currentState.theta.y)) {
-          // state.xy_positions.push(currentState.time);
-          // state.xy_positions.push(currentState.a.y);
+        if (state.frameIndex % mod == 0) {
           state.states.push(state.currentState);
         }
       }
-      this.lastTime = time
+      
       return state;
     });
+
+    this.lastTime = time
   }
 
   randomVelocityWalkUpdate() {
-    const deltaTime = 0.1;
     this.setState((state) => {
       const ddtheta = {
         a: 0.01*(2*Math.random(-1, 1)-1)**3,

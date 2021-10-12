@@ -1,5 +1,6 @@
 import React from 'react';
 import DoublePendulumSimulationContext from './double-pendulum-simulation-context.js'
+import OnScreen from '../OnScreen.js'
 
 export default function DoublePendulumViewerPlain(props) {
   const state = React.useContext(DoublePendulumSimulationContext);
@@ -22,8 +23,11 @@ export default function DoublePendulumViewerPlain(props) {
   const lineStyle = {stroke, strokeWidth: 0.25};
   const pointStyle = {fill};
 
+  const style = {display: "block", height: "600px", border: "1px solid", width: "100%"};
+
   return (
-      <svg viewBox="0 0 100 62" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+    <OnScreen style={style}>
+      <svg style={style} viewBox="0 0 100 62" xmlns="http://www.w3.org/2000/svg" overflow="visible">
         <g transform="scale(1 -1) translate(45 -30)">
           <line name="line-o-a" x1={0} y1={0} x2={x_a} y2={y_a} style={lineStyle}/>
           <line name="line-a-b" x1={x_a} y1={y_a} x2={x_b} y2={y_b} style={lineStyle}/>
@@ -32,5 +36,6 @@ export default function DoublePendulumViewerPlain(props) {
           <circle name="point-b" cx={x_b} cy={y_b} r={r} style={pointStyle}/>
         </g>
       </svg>
+    </OnScreen>
   );
 }

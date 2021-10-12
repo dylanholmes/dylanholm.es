@@ -1,5 +1,5 @@
 import AnimatedTimeSeriesPlotSvg from "../demos/animated-time-series-plot-svg.js";
-import PositionTimeSeries from "../figures/plots/PositionTimeSeries.js";
+import SimulationTimeSeriesPlot from "../figures/plots/SimulationTimeSeriesPlot.js";
 
 ## forward kinematics
 
@@ -36,12 +36,19 @@ $$
 
 Here is a plot of these positions over time. The present is on the right, with time flow backwards to the left. Qualitatively, the plots are quite smooth and follow a sort of braiding pattern.
 
-<PositionTimeSeries transforms={[
-  s => 0.5*s.a.x,
-  s => 0.5*s.a.y,
-  s => 0.5*s.b.x,
-  s => 0.5*s.b.y
-]}/>
+<SimulationTimeSeriesPlot
+  xMin={t => t - 10000}
+  xMax={t => t}
+  yMin={_ => -60}
+  yMax={_ => 60}
+  transforms={[
+    s => s.a.x,
+    s => s.a.y,
+    s => s.b.x,
+    s => s.b.y
+  ]}
+/>
+
 
 The velocities can then be derived by taking the derivative of the positions
 with respect to time:
@@ -57,12 +64,18 @@ $$
 
 Similarly, we can plot the velocities over time. The plot looks somewhat similar to the position time series, although it is a littl..
 
-<PositionTimeSeries transforms={[
-  s => 0.1* s.a.dx,
-  s => 0.1* s.a.dy,
-  s => 0.1* s.b.dx,
-  s => 0.1*s.b.dy
-]}/>
+<SimulationTimeSeriesPlot
+  xMin={t => t - 10000}
+  xMax={t => t}
+  yMin={_ => -300}
+  yMax={_ => 300}
+  transforms={[
+    s => s.a.dx,
+    s => s.a.dy,
+    s => s.b.dx,
+    s => s.b.dy
+  ]}
+/>
 
 Taking the derivatives once more with respet to time, we get the accelerations:
 
@@ -75,19 +88,31 @@ $$
 \end{alignedat}
 $$
 
-<PositionTimeSeries transforms={[
-  s => 0.01* s.a.ddx,
-  s => 0.01* s.a.ddy,
-  s => 0.01* s.b.ddx,
-  s => 0.01*s.b.ddy
-]}/>
+<SimulationTimeSeriesPlot
+  xMin={t => t - 10000}
+  xMax={t => t}
+  yMin={_ => -6000}
+  yMax={_ => 6000}
+  transforms={[
+    s => s.a.ddx,
+    s => s.a.ddy,
+    s => s.b.ddx,
+    s => s.b.ddy
+  ]}
+/>
 
 Zooming in (we can se it is still smooth?):
 
-<PositionTimeSeries transforms={[
-  s => 0.01* s.a.ddx,
-  s => 0.01* s.a.ddy,
-  s => 0.01* s.b.ddx,
-  s => 0.01*s.b.ddy
-]}/>
+<SimulationTimeSeriesPlot
+  xMin={t => t - 1000}
+  xMax={t => t}
+  yMin={_ => -6000}
+  yMax={_ => 6000}
+  transforms={[
+    s => s.a.ddx,
+    s => s.a.ddy,
+    s => s.b.ddx,
+    s => s.b.ddy
+  ]}
+/>
 

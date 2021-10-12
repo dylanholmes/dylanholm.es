@@ -1,5 +1,6 @@
 import React from 'react';
 import DoublePendulumSimulationContext from './double-pendulum-simulation-context.js'
+import OnScreen from '../OnScreen.js'
 
 import katex from 'katex';
 
@@ -101,8 +102,11 @@ export default function DoublePendulumViewer(props) {
   const theta_a_legend = foreignObjectMath(-5, -20, `\\theta_a = ${pa}${theta_a.toFixed(1)}\\pi`);
   const theta_b_legend = foreignObjectMath(-5, -20, `\\theta_b = ${pb}${theta_b.toFixed(1)}\\pi`);
 
+  const style = {display: "block", height: "600px", border: "1px solid", width: "100%"};
+
   return (
-      <svg viewBox="0 0 100 62" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+    <OnScreen style={style}>
+      <svg style={style} viewBox="0 0 100 62" xmlns="http://www.w3.org/2000/svg" overflow="visible">
         <defs>
         <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5"
             markerWidth="10" markerHeight="10"
@@ -169,5 +173,6 @@ export default function DoublePendulumViewer(props) {
           </g> */}
         </g>
       </svg>
+      </OnScreen>
   );
 }

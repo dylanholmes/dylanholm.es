@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { MeshLine, MeshLineMaterial, MeshLineRaycast } from 'three.meshline';
 
 class Segment {
-  constructor(scene, material, xy_positions) {
+  constructor(scene, material, xy_positions, canvasWidth, canvasHeight) {
     this.scene = scene;
     this.material = material;
     this.start = xy_positions[0];
@@ -17,51 +17,52 @@ class Segment {
       positions[3*i+2] = 0;
     }
 
-    this.geometry = new THREE.BufferGeometry();
-    this.geometry.setAttribute(
-      'position',
-      new THREE.Float32BufferAttribute( positions, 3 )
-    );
-    this.geometry.computeBoundingSphere();
+    this.lineWidth = 1;
+    if (this.lineWidth == 1) {
+      this.geometry = new THREE.BufferGeometry();
+      this.geometry.setAttribute(
+        'position',
+        new THREE.Float32BufferAttribute( positions, 3 )
+      );
+      this.geometry.computeBoundingSphere();
 
-    this.line = new THREE.Line( this.geometry, material );
-    this.scene.add( this.line );
+      this.line = new THREE.Line( this.geometry, material );
+      this.scene.add( this.line );
+    } else {
+      this.material = new MeshLineMaterial({color: 'black',
+      resolution: new THREE.Vector2(canvasWidth, canvasHeight), sizeAttenuation: 0, lineWidth: this.lineWidth});
+      this.line = new MeshLine();
+      this.line.setPoints(positions);
 
-    // DOESN't WOKR...
-    // this.material = new MeshLineMaterial({color: 'black',
-    // resolution: new THREE.Vector2(250, 250), sizeAttenuation: 0, lineWidth: 5});
-    // this.line = new MeshLine();
-    // this.line.setPoints(positions);
+      this.mesh = new THREE.Mesh(this.line, this.material);
 
-    // this.mesh = new THREE.Mesh(this.line, this.material);
-
-    // this.scene.add( this.mesh );
+      this.scene.add( this.mesh );
+    }
   }
 
   dispose() {
     if (this.scene) {
-      this.scene.remove( this.line );
-      this.scene = null;
+      if (this.lineWidth == 1) {
+        this.scene.remove( this.line );
+        this.scene = null;
 
-      // this.line.dispose();
-      this.line = null;
+        // this.line.dispose();
+        this.line = null;
 
-      this.geometry.dispose();
-      this.geometry = null;
+        this.geometry.dispose();
+        this.geometry = null;
+      } else {
+        this.scene.remove( this.mesh );
+        this.scene = null;
 
-      /////////
+        this.line.dispose();
+        this.line = null;
 
-      // this.scene.remove( this.mesh );
-      // this.scene = null;
+        this.material.dispose();
+        this.material = null;
 
-      // this.line.dispose();
-      // this.line = null;
-
-      // this.material.dispose();
-      // this.material = null;
-
-      // this.mesh.dispose();
-      // this.mesh = null;
+        this.mesh = null;
+      }
     }
   }
 }
@@ -92,7 +93,7 @@ class SegmentSequence {
   }
 }
 
-export default class CanvasWebGLV1 {
+export default class LinePlotRenderer {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('webgl');
@@ -101,13 +102,7 @@ export default class CanvasWebGLV1 {
     const height = this.styleHeight();
 
     this.scene = new THREE.Scene();
-    this.camera = new THREE.OrthographicCamera(
-      width / - 2,
-      width / 2, 
-      height / 2, 
-      height / - 2,
-      1,
-      1000
+    this.camera = new THREE.OrthographicCamera(-width,width / 2, height / 2, height / - 2,1,1000
     );
     this.camera.position.set(0, 0, 1);
     this.camera.lookAt(0, 0, 0);
@@ -141,8 +136,10 @@ export default class CanvasWebGLV1 {
     while (this.segmentSequences.length < positionSequences.length)  {
       this.segmentSequences.push(new SegmentSequence())
     }
+    const canvasWidth = this.styleWidth();
+    const canvasHeight = this.styleHeight();
     this.segmentSequences.forEach((seq, i) => {
-      seq.addSegment(new Segment(this.scene, this.material, positionSequences[i]));
+      seq.addSegment(new Segment(this.scene, this.material, positionSequences[i], canvasWidth, canvasHeight));
       seq.removeOutOfWindowSegments(windowStart);
     })
   }

@@ -4,6 +4,7 @@
         "out/**": true
     },
     "cSpell.words": [
-        "katex"
+        "katex",
+        "mnemonist"
     ]
 }
