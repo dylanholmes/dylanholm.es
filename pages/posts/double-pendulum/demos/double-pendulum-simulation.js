@@ -16,16 +16,17 @@ export default class DoublePendulumSimulation extends React.Component {
     this.state = {
       simulationState: null,
       setSimulationState: this.setSimulationState
-
     }
 
-    this.handleChange = this.handleChange.bind(this);
-    const simulatorRef = this.simulatorRef = React.createRef();
-    this.componentsToUpdate = [simulatorRef];
+    this.simulatorRef = React.createRef();
+
+    this.onSimulationStep = this.onSimulationStep.bind(this);
+
+    this.componentsToUpdate = [this.simulatorRef];
     this.animationID = null;
   }
 
-  handleChange(simulationState) {
+  onSimulationStep(simulationState) {
     this.setState({simulationState: simulationState})
   }
 
@@ -37,24 +38,29 @@ export default class DoublePendulumSimulation extends React.Component {
     window.cancelAnimationFrame(this.animationID);
   }
 
-  update(timestamp) {
-    if (this.previousTimeStamp === undefined) {
-      this.previousTimeStamp = timestamp;
-    }
-    const delta =  timestamp - this.previousTimeStamp; //(timestamp - this.previousTimeStamp) / 1000.0;
-    this.componentsToUpdate.map(component => {
-      // TODO: why is this becoming null????
-      if (component.current)
-      component.current.update(timestamp, delta)
-    });
+  update(time) {
+    // this.lastTime = this.lastTime || time;
 
-    this.animationID = window.requestAnimationFrame((timestamp) => this.update(timestamp));
+    // Compute delta time.
+    // const deltaTime =  timestamp - this.previousTimeStamp;
+
+
+    if (this.simulatorRef.current) {
+      // TODO: why is this becoming null????
+      this.simulatorRef.current.update(time)
+    }
+
+    // Update lastTime.
+    // this.lastTime = time;
+
+    // Request next animation frame.
+    this.animationID = window.requestAnimationFrame((time) => this.update(time));
   }
 
   render() {
     return(
       <DoublePendulumSimulationContext.Provider value={this.state}>
-        <DoublePendulumModel ref={ this.simulatorRef } onChange={ this.handleChange } />
+        <DoublePendulumModel ref={ this.simulatorRef } onChange={ this.onSimulationStep } />
         <div>{ this.props.children }</div>
       </DoublePendulumSimulationContext.Provider>
     );

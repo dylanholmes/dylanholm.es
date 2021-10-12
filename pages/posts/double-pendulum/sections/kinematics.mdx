@@ -1,4 +1,5 @@
 import AnimatedTimeSeriesPlotSvg from "../demos/animated-time-series-plot-svg.js";
+import PositionTimeSeries from "../figures/plots/PositionTimeSeries.js";
 
 ## forward kinematics
 
@@ -35,22 +36,12 @@ $$
 
 Here is a plot of these positions over time. The present is on the right, with time flow backwards to the left. Qualitatively, the plots are quite smooth and follow a sort of braiding pattern.
 
-<AnimatedTimeSeriesPlotSvg
-  toSequences={({simulationState:{lowResStates}}) => {
-    let foo = toValues => {
-      return {
-        capacity: lowResStates.capacity,
-        values: lowResStates.toArray().map(toValues)
-      }
-    };
-    return [
-      //foo(s => 0.5* s.a.x),
-      //foo(s => 0.5* s.a.y),
-      //foo(s => 0.5* s.b.x),
-      //foo(s => 0.5* s.b.y)
-    ];
-  }}
-/>
+<PositionTimeSeries transforms={[
+  s => 0.5*s.a.x,
+  s => 0.5*s.a.y,
+  s => 0.5*s.b.x,
+  s => 0.5*s.b.y
+]}/>
 
 The velocities can then be derived by taking the derivative of the positions
 with respect to time:
@@ -66,22 +57,12 @@ $$
 
 Similarly, we can plot the velocities over time. The plot looks somewhat similar to the position time series, although it is a littl..
 
-<AnimatedTimeSeriesPlotSvg
-  toSequences={({simulationState:{lowResStates}}) => {
-    let foo = toValues => {
-      return {
-        capacity: lowResStates.capacity,
-        values: lowResStates.toArray().map(toValues)
-      }
-    };
-    return [
-      //foo(s => 0.1* s.a.dx),
-      //foo(s => 0.1* s.a.dy),
-      //foo(s => 0.1* s.b.dx),
-      //foo(s => 0.1* s.b.dy)
-    ];
-  }}
-/>
+<PositionTimeSeries transforms={[
+  s => 0.1* s.a.dx,
+  s => 0.1* s.a.dy,
+  s => 0.1* s.b.dx,
+  s => 0.1*s.b.dy
+]}/>
 
 Taking the derivatives once more with respet to time, we get the accelerations:
 
@@ -94,38 +75,19 @@ $$
 \end{alignedat}
 $$
 
-<AnimatedTimeSeriesPlotSvg
-  toSequences={({simulationState:{lowResStates}}) => {
-    let foo = toValues => {
-      return {
-        capacity: lowResStates.capacity,
-        values: lowResStates.toArray().map(toValues)
-      }
-    };
-    return [
-      //foo(s => 0.01* s.a.ddx),
-      //foo(s => 0.01* s.a.ddy),
-      //foo(s => 0.01* s.b.ddx),
-      //foo(s => 0.01* s.b.ddy)
-    ];
-  }}
-/>
+<PositionTimeSeries transforms={[
+  s => 0.01* s.a.ddx,
+  s => 0.01* s.a.ddy,
+  s => 0.01* s.b.ddx,
+  s => 0.01*s.b.ddy
+]}/>
 
 Zooming in (we can se it is still smooth?):
 
-<AnimatedTimeSeriesPlotSvg
-  toSequences={({simulationState:{medResStates}}) => {
-    let foo = toValues => {
-      return {
-        capacity: medResStates.capacity,
-        values: medResStates.toArray().map(toValues)
-      }
-    };
-    return [
-      //foo(s => 0.01* s.a.ddx),
-      //foo(s => 0.01* s.a.ddy),
-      //foo(s => 0.01* s.b.ddx),
-      //foo(s => 0.01* s.b.ddy)
-    ];
-  }}
-/>
+<PositionTimeSeries transforms={[
+  s => 0.01* s.a.ddx,
+  s => 0.01* s.a.ddy,
+  s => 0.01* s.b.ddx,
+  s => 0.01*s.b.ddy
+]}/>
+

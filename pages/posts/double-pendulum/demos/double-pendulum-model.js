@@ -53,54 +53,39 @@ export default class DoublePendulumModel extends React.Component {
     this.state = {
       frameIndex: 0,
       currentState: initialState,
-      xy_positions: [],
-      // lowResStates: CircularBuffer.from([{...initialState}], Array, 500),
+      states: CircularBuffer.from([], Array, 4),
       // medResStates: CircularBuffer.from([{...initialState}], Array, 500),
       // highResStates: CircularBuffer.from([{...initialState}], Array, 500),
     }
   }
 
-  update(time, elapsedSinceLastLoop) {
-    this.updateState(time, elapsedSinceLastLoop);
+  update(time) {
+    this.stepSimulation(time);
     this.props.onChange(this.state);
   }
 
-  updateState(time, elapsedSinceLastLoopMs) {
+  stepSimulation(time) {
     this.lastTime = this.lastTime || time
-
-    if (time < this.lastTime) {
-      console.log("found one!", time, this.lastTime)
-    }
     const deltaTime = time - this.lastTime;
-    // console.log(deltaTime);
-    //const dt = 0.00001;
-    // const ddt = 1;
-    // const frames = Math.round(elapsedSinceLastLoopMs / ddt);
 
-    //elapsedSinceLastLoopMs = 0.01;
-
-    const slowDownFactor = 1;
-    const deltaSeconds = slowDownFactor * deltaTime / 1000;
-    const dt = slowDownFactor * 0.001;
+    const deltaSeconds = deltaTime / 1000;
+    const dt = 0.001;
     const steps = Math.floor(deltaSeconds / dt);
     const desiredFrames = 2;
     const mod = Math.floor(steps / desiredFrames);
 
     // console.log(time/1000, deltaSeconds, dt, steps, mod);
     this.setState((state) => {
-      const llastT = state.xy_positions[state.xy_positions.length-4];
-      const llastY = state.xy_positions[state.xy_positions.length-3];
-      const lastT = state.xy_positions[state.xy_positions.length-2];
-      const lastY = state.xy_positions[state.xy_positions.length-1];
-      state.xy_positions = [llastT, llastY, lastT, lastY];
-
-      if (time < lastT) {
-        console.log("found one!", time, lastT)
-      }
+      // const llastT = state.xy_positions[state.xy_positions.length-4];
+      // const llastY = state.xy_positions[state.xy_positions.length-3];
+      // const lastT = state.xy_positions[state.xy_positions.length-2];
+      // const lastY = state.xy_positions[state.xy_positions.length-1];
+      // state.xy_positions = [llastT, llastY, lastT, lastY];
 
       for (let t = 0; t < deltaSeconds; t += dt) {
         // let ttime = time + t;
         let currentState = state.currentState;
+        currentState.time = this.lastTime + t*1000;
         const g = 9.8;
         const m_a = 1;
         const m_b = 1;
@@ -162,24 +147,12 @@ export default class DoublePendulumModel extends React.Component {
 
         state.frameIndex++;
         if (state.frameIndex % mod == 0 && !Number.isNaN(currentState.theta.y)) {
-          state.xy_positions.push(this.lastTime + t*1000/slowDownFactor);
-          state.xy_positions.push(currentState.a.y);
+          // state.xy_positions.push(currentState.time);
+          // state.xy_positions.push(currentState.a.y);
+          state.states.push(state.currentState);
         }
-
-
-        // state.highResStates.push({...state.currentState});
-        // if (state.frameIndex % 30 == 0) {
-        //   state.medResStates.push({...state.currentState});
-        // }
-        // if (state.frameIndex % 300 == 0) {
-        //   state.lowResStates.push({...state.currentState});
-        // }
       }
-
-      //console.log(state.xy_positions[0], state.xy_positions[state.xy_positions.length-2]);
-
       this.lastTime = time
-
       return state;
     });
   }

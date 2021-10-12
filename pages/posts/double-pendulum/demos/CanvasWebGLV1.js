@@ -131,24 +131,25 @@ export default class CanvasWebGLV1 {
     return +getComputedStyle(this.canvas).getPropertyValue("width").slice(0, -2);
   }
 
-  updateSegments(windowStart, xy_positions) {
+  updateSegments(windowStart, positionSequences) {
+    while (this.segmentSequences.length < positionSequences.length)  {
+      this.segmentSequences.push(new SegmentSequence())
+    }
     this.segmentSequences.forEach((seq, i) => {
-      seq.addSegment(new Segment(this.scene, this.material, xy_positions));
+      seq.addSegment(new Segment(this.scene, this.material, positionSequences[i]));
       seq.removeOutOfWindowSegments(windowStart);
     })
   }
 
-  render(time, xy_positions) {
+  render(time, positionSequences) {
     this.lastTime = this.lastTime || time;
-
-    const deltaTime = time - this.lastTime;
 
     this.windowSize = (this.windowSize || 10000);// + 500*Math.sin((20.0)*time/4000);
     const windowSize = this.windowSize;
     const windowStart = time - windowSize
     const windowEnd = time;
 
-    this.updateSegments(windowStart, xy_positions);
+    this.updateSegments(windowStart, positionSequences);
 
 
     this.camera.left = windowStart;
