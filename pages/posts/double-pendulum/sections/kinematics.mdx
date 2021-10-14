@@ -1,9 +1,9 @@
 import AnimatedTimeSeriesPlotSvg from "../demos/animated-time-series-plot-svg.js";
 import SimulationTimeSeriesPlot from "../figures/plots/SimulationTimeSeriesPlot.js";
 
-## forward kinematics
+<!-- ## forward kinematics -->
 
-In general, the process of computing the position (or related derivatives) of a
+<!-- In general, the process of computing the position (or related derivatives) of a
 point in the system is known as forward kinematics. Mathematically, this can be
 written concisely as $\bold{x} = f(\bm{\theta})$, where $\bold{x}$ is a vector,
 representing the state of the system in _cartesian_ coordinates and
@@ -21,9 +21,12 @@ While we could keep the vector notation mentioned by letting
 $\bold{x} = \begin{bmatrix}x_a& y_a& x_b & y_b \end{bmatrix}^T$, it feels a
 unecessary for our purposes. Also, there will be quite a bit of sinsoidial
 functions, so we denote $\sin\theta_x$ and $\cos\theta_x$ as $s_x$ and $c_x$ for
-convenience.
+convenience. -->
 
-The positions of the point masses can be derived using geometry by inspection. Plotting the
+---
+
+The cartesian positions of the point masses can be derived using geometry by
+inspection. We denote $\sin\theta_x$ and $\cos\theta_x$ as $s_x$ and $c_x$.
 
 $$
 \begin{alignedat}{3}
@@ -34,7 +37,13 @@ x_b =& &s_al_a& + s_bl_b \\
 \end{alignedat}
 $$
 
-Here is a plot of these positions over time. The present is on the right, with time flow backwards to the left. Qualitatively, the plots are quite smooth and follow a sort of braiding pattern.
+---
+
+<!-- 
+Here is a plot of these positions over time. The present is on the right, with time flow backwards to the left.
+Qualitatively, the plots are quite smooth and follow a sort of braiding pattern. -->
+
+Positions over time.
 
 <SimulationTimeSeriesPlot
   xMin={t => t - 10000}
@@ -49,9 +58,9 @@ Here is a plot of these positions over time. The present is on the right, with t
   ]}
 />
 
+---
 
-The velocities can then be derived by taking the derivative of the positions
-with respect to time:
+Taking the derivative of the positions with respect to time, we get the velocities.
 
 $$
 \begin{alignedat}{3}
@@ -61,8 +70,6 @@ $$
 \dot{y_b} &= &s_al_a\dot{\theta_a}& + s_bl_b\dot{\theta_b}
 \end{alignedat}
 $$
-
-Similarly, we can plot the velocities over time. The plot looks somewhat similar to the position time series, although it is a littl..
 
 <SimulationTimeSeriesPlot
   xMin={t => t - 10000}
@@ -76,6 +83,8 @@ Similarly, we can plot the velocities over time. The plot looks somewhat similar
     s => s.b.dy
   ]}
 />
+
+---
 
 Taking the derivatives once more with respet to time, we get the accelerations:
 
@@ -101,8 +110,7 @@ $$
   ]}
 />
 
-Zooming in (we can se it is still smooth?):
-
+<!-- 
 <SimulationTimeSeriesPlot
   xMin={t => t - 1000}
   xMax={t => t}
@@ -115,4 +123,4 @@ Zooming in (we can se it is still smooth?):
     s => s.b.ddy
   ]}
 />
-
+ -->

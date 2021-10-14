@@ -163,11 +163,14 @@ export default function FreeBodyViewer(props) {
   x_b = fb.x;
   y_b = fb.y;
 
-  const style = {display: "block", height: "600px", border: "1px solid", width: "100%"};
+  // const style = {display: "block", height: "600px", border: "1px solid", width: "100%"};
+  const viewBoxWidth = 100;
+  const viewBoxHeight = 10;
+  const style = {display: "block", height: "300px", width: "100%"};
 
   return (
     <OnScreen style={style} >
-      <svg style={style} viewBox="0 0 100 62" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+      <svg style={style} viewBox={`0 0 100 ${viewBoxHeight}`} xmlns="http://www.w3.org/2000/svg" overflow="visible">
         <defs>
         <marker id="fb-arrow" viewBox="0 0 10 10" refX="5" refY="5"
             markerWidth="6" markerHeight="6"
@@ -180,7 +183,7 @@ export default function FreeBodyViewer(props) {
           <circle cx="5" cy="5" r="5" fill="red" />
         </marker>
       </defs>
-        <g transform="scale(1 -1) translate(45 -30)">
+        <g transform="scale(1 -1) translate(45 -7)">
           <line name="vertical-line-a" x1={x_a} y1={y_a+l} x2={x_a} y2={y_a-l} style={verticalLineStyle}/>
           <line name="vertical-line-b" x1={x_b} y1={y_b+l} x2={x_b} y2={y_b-l} style={verticalLineStyle}/>
           <path name="arc-a" d={describeArc(x_a, y_a, l/2, theta_a_arc_start-Math.PI, theta_a_arc_end-Math.PI)} style={arcStyle} />
@@ -222,7 +225,7 @@ export default function FreeBodyViewer(props) {
           <g name="var-a" transform={`translate(${x_a} ${y_a}) scale(0.15) scale(1 -1)`}>{var_a}</g>
           <g name="var-b" transform={`translate(${x_b} ${y_b}) scale(0.15) scale(1 -1)`}>{var_b}</g>
           
-          <g name="g-arrow" transform={`translate(${-38} ${-3}) scale(0.15) scale(1 -1)`}>
+          <g name="g-arrow" transform={`translate(${-38} ${-5}) scale(0.15) scale(1 -1)`}>
             <g name="g-arrow" transform={`translate(${-20}, ${-214})`}>{vvv}</g>
             <g name="g-arrow" transform={`translate(${-20}, ${-184})`}>{theta_a_legend}</g>
             <g name="g-arrow" transform={`translate(${-20}, ${-154})`}>{theta_b_legend}</g>

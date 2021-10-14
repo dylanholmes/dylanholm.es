@@ -102,11 +102,13 @@ export default function DoublePendulumViewer(props) {
   const theta_a_legend = foreignObjectMath(-5, -20, `\\theta_a = ${pa}${theta_a.toFixed(1)}\\pi`);
   const theta_b_legend = foreignObjectMath(-5, -20, `\\theta_b = ${pb}${theta_b.toFixed(1)}\\pi`);
 
-  const style = {display: "block", height: "600px", border: "1px solid", width: "100%"};
+  const viewBoxWidth = 100;
+  const viewBoxHeight = 10;
+  const style = {display: "block", height: "350px", width: "100%"};
 
   return (
     <OnScreen style={style}>
-      <svg style={style} viewBox="0 0 100 62" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+      <svg style={style} viewBox={`0 0 100 ${viewBoxHeight}`} xmlns="http://www.w3.org/2000/svg" overflow="visible">
         <defs>
         <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5"
             markerWidth="10" markerHeight="10"
@@ -120,7 +122,7 @@ export default function DoublePendulumViewer(props) {
         </marker>
       </defs>
 
-        <g transform="scale(1 -1) translate(45 -30)">
+        <g transform={`scale(1 -1) translate(45 0)`}>
 
           {/* <g transform="translate(-44 3)">
           <line x1={0} y1={0} x2={10} y2={0} style={axisLineStyle}  markerEnd="url(#arrow)" />
@@ -161,7 +163,7 @@ export default function DoublePendulumViewer(props) {
           <g name="var-b" transform={`translate(${x_b} ${y_b}) scale(0.15) scale(1 -1)`}>{var_b}</g>
           <g name="var-o" transform={`translate(${0} ${0}) scale(0.15) scale(1 -1)`}>{var_o}</g>
 
-          <g name="g-arrow" transform={`translate(${-41} ${-3}) scale(0.15) scale(1 -1)`}>
+          <g name="g-arrow" transform={`translate(${-41} ${-10}) scale(0.15) scale(1 -1)`}>
             <g name="g-arrow" transform={`translate(${-20}, ${-214})`}>{vvv}</g>
             <g name="g-arrow" transform={`translate(${-20}, ${-184})`}>{theta_a_legend}</g>
             <g name="g-arrow" transform={`translate(${-20}, ${-154})`}>{theta_b_legend}</g>

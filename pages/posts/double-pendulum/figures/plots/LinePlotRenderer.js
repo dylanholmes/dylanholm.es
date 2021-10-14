@@ -78,7 +78,7 @@ class SegmentSequence {
 
   removeOutOfWindowSegments(windowStart) {
     let i = 0;
-    while (this.segments[i].end < windowStart) {
+    while (i < this.segments.length && this.segments[i].end < windowStart) {
       this.segments[i].dispose();
       ++i;
     }

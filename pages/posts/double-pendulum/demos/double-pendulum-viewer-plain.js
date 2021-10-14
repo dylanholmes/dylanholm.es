@@ -22,13 +22,15 @@ export default function DoublePendulumViewerPlain(props) {
 
   const lineStyle = {stroke, strokeWidth: 0.25};
   const pointStyle = {fill};
+  const viewBoxWidth = 100;
+  const viewBoxHeight = 10;
 
-  const style = {display: "block", height: "600px", border: "1px solid", width: "100%"};
+  const style = {display: "block", height: "300px", width: "100%"};
 
   return (
     <OnScreen style={style}>
-      <svg style={style} viewBox="0 0 100 62" xmlns="http://www.w3.org/2000/svg" overflow="visible">
-        <g transform="scale(1 -1) translate(45 -30)">
+      <svg style={style} viewBox={`0 0 100 ${viewBoxHeight}`} xmlns="http://www.w3.org/2000/svg" overflow="visible">
+        <g transform={`scale(1 -1) translate(${0.45*viewBoxWidth} ${viewBoxHeight/2})`}>
           <line name="line-o-a" x1={0} y1={0} x2={x_a} y2={y_a} style={lineStyle}/>
           <line name="line-a-b" x1={x_a} y1={y_a} x2={x_b} y2={y_b} style={lineStyle}/>
           <circle name="point-o" cx={0} cy={0} r={r} style={pointStyle}/>

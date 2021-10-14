@@ -47,7 +47,7 @@ export default class DoublePendulumModel extends React.Component {
       {
         ddtheta: {a:0, b:0},
         dtheta: {a:0, b:0},
-        theta: {a: Math.PI, b: Math.PI/2},
+        theta: {a: Math.PI/2, b: Math.PI/2},
       }
     );
     this.state = {

@@ -23,12 +23,12 @@ export default class TimeSeries
       this.demo.render(xMin, xMax, yMin, yMax, positionSequences);
     }
 
-    const canvasStyle = {
+    const defaultCanvasStyle = {
       display: "block",
       width: "100%",
       height: "100px",
     }
 
-    return <canvas ref={this.canvasRef} style={canvasStyle} />;
+    return <canvas ref={this.canvasRef} style={{...defaultCanvasStyle, ...this.props.style}} />;
   }
 }
