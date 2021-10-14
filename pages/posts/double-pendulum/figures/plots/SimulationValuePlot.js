@@ -31,6 +31,7 @@ export default class SimulationPlot extends React.Component {
             const xMax = this.props.xMax(currentState);
             const yMin = this.props.yMin(currentState);
             const yMax = this.props.yMax(currentState);
+            const maxSegments = this.props.maxSegments;
             let sequences = this.props.transforms.map(transform => states.flatMap(s => transform(s)))
 
             const useCanvas = true;
@@ -41,6 +42,7 @@ export default class SimulationPlot extends React.Component {
                 xMax={xMax}
                 yMin={yMin}
                 yMax={yMax}
+                maxSegments={maxSegments}
                 positionSequences={sequences}
               />
             } else {

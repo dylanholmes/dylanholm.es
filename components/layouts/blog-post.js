@@ -29,8 +29,8 @@ function BlogPost(props) {
     <Layout pageTitle={meta.title} ogImage={meta.image}>
       <article className="h-entry">
         <header>
-          {/* <h1 className="p-name">{meta.title}</h1> */}
-          <h1 className="p-name">{path}</h1>
+          <h1 className="p-name">{meta.title}</h1>
+          {/* <h1 className="p-name">{path}</h1> */}
 
           {/*
           <div>

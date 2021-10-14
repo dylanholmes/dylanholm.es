@@ -76,9 +76,10 @@ class SegmentSequence {
     this.segments.push(segment);
   }
 
-  removeOutOfWindowSegments(windowStart) {
+  removeOutOfWindowSegments(windowStart, maxSegments) {
     let i = 0;
-    while (i < this.segments.length && this.segments[i].end < windowStart) {
+    while (i < this.segments.length && (
+      this.segments[i].end < windowStart || (this.segments.length-i) > maxSegments)) {
       this.segments[i].dispose();
       ++i;
     }
@@ -132,7 +133,7 @@ export default class LinePlotRenderer {
     this.camera.updateProjectionMatrix();
   }
 
-  updateSegments(windowStart, positionSequences) {
+  updateSegments(windowStart, maxSegments, positionSequences) {
     while (this.segmentSequences.length < positionSequences.length)  {
       this.segmentSequences.push(new SegmentSequence())
     }
@@ -140,7 +141,7 @@ export default class LinePlotRenderer {
     const canvasHeight = this.styleHeight();
     this.segmentSequences.forEach((seq, i) => {
       seq.addSegment(new Segment(this.scene, this.material, positionSequences[i], canvasWidth, canvasHeight));
-      seq.removeOutOfWindowSegments(windowStart);
+      seq.removeOutOfWindowSegments(windowStart, maxSegments);
     })
   }
 
@@ -149,9 +150,13 @@ export default class LinePlotRenderer {
     xMax,
     yMin,
     yMax,
+    maxSegments,
     positionSequences
   ) {
-    this.updateSegments(xMin, positionSequences);
+    if (!maxSegments) {
+      maxSegments = 999999;
+    }
+    this.updateSegments(xMin, maxSegments, positionSequences);
     this.updateCamera(xMin, xMax, yMin, yMax);
     this.renderer.render( this.scene, this.camera );
   }

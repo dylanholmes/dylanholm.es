@@ -18,9 +18,10 @@ export default class TimeSeries
     const xMax = this.props.xMax
     const yMin = this.props.yMin
     const yMax = this.props.yMax
+    const maxSegments = this.props.maxSegments;
     const positionSequences = this.props.positionSequences;
     if (positionSequences && this.demo) {
-      this.demo.render(xMin, xMax, yMin, yMax, positionSequences);
+      this.demo.render(xMin, xMax, yMin, yMax, maxSegments, positionSequences);
     }
 
     const defaultCanvasStyle = {
