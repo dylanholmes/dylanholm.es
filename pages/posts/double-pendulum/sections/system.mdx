@@ -1,26 +1,28 @@
 import DoublePendulumViewer from "../demos/double-pendulum-viewer.js";
+import SimulationTimeSeriesPlot from "../figures/plots/SimulationTimeSeriesPlot.js";
+
 
 <!-- ## Formalizing a double pendulum -->
 
 
-## How do we represent a double pendulum mathematically?
+## How do we model a double pendulum mathematically?
 
 <!-- Before simulating any system, you first need a formal mathematical definition. -->
 
 <!-- There are many choices on how to model a double pendulum.
 
-__**How many spatial degrees of freedom the system have?**__  
+__**How many spatial degrees of freedom the system have?**__
   Here we've chosen 2D, but there is no reason you can't have it be in 3D or even 4D.
   With more than 2 dimensions, you have additional choices about how many degrees of
   freedom are selected for each joint.
 
-__**How is the mass distributed?**__  
+__**How is the mass distributed?**__
 (e.g. in the links or joints?)
 
-__**Are there any external forces acting on the system?**__   
+__**Are there any external forces acting on the system?**__
 (e.g. gravity)
 
-__**Which variables are allowed to change over time?**__  
+__**Which variables are allowed to change over time?**__
 By definition, the joint angles connecting the links must be able to change
 over time in order to be a double pendulum, but in theory, any of the other
 parameters could change too. For example, the mass distribution, or the
@@ -28,11 +30,15 @@ link lengths.  -->
 
 <!-- To keep this example simple, we've chosen to model the system as two coplanar point
 masses connected via massless links. -->
-<!-- 
+<!--
 ## system -->
 
-The state of a double pendulum at a given time can be described by two variables.
-Here, we've chosen the angle between vertical and each link, $\theta_a$ and $\theta_b$.
+One simple choice is to model the system as two point masses connect via rigid massless links
+as illustrated below.
+
+<!-- we can describe the con of a system
+The state of a double pendulum at a given time, $t$ can be described by two variables.
+Here, we've chosen the angle between vertical and each link, $\theta_a$ and $\theta_b$. -->
 <!-- The simplest double pendulum variant we can model consists of two coplanar point
 masses connected via massless links. When including gravity the system  will
 display chaotic behavior (without gravity, you'll get trajectories similar to
@@ -50,3 +56,98 @@ Here is an illustration of the system, along with a table of variable descriptio
 | $m_a,\ m_b$ | masses of $a$ and $b$   |
 | $l_a,\ l_b$ | link lengths, $\overrightarrow {oa}$ and $\overrightarrow{ob}$ |
 | $\theta_a,\ \theta_b \in [-\pi, \pi] \hspace{10pt}$ | angle between vertical and each link |
+
+<br/>
+
+This model is a good start, but still doesn't tell us how the system changes over time. To do that,
+we'll need to use this description to derive the equations of motion for the system.
+
+
+<!--
+If we want to render a graphically representation of the system, we'll also want to know
+how to compute the cartesian coordinates of the point masses, since computer graphics APIs
+usually take them as input to drawing routines.
+
+The cartesian positions of the point masses can be derived using geometry by
+inspection. We denote $\sin\theta_x$ and $\cos\theta_x$ as $s_x$ and $c_x$.
+
+$$
+\begin{alignedat}{3}
+x_a =& &s_al_a& \\
+y_a =& -&c_al_a&  \\
+x_b =& &s_al_a& + s_bl_b \\
+\tag{1} y_b =& -&c_al_a& -c_bl_b
+\end{alignedat}
+$$
+
+<SimulationTimeSeriesPlot
+  xMin={t => t - 10000}
+  xMax={t => t}
+  yMin={_ => -60}
+  yMax={_ => 60}
+  transforms={[
+    s => s.a.x,
+    s => s.a.y,
+    s => s.b.x,
+    s => s.b.y
+  ]}
+/> -->
+
+<!-- While the generalized coordinates, $\theta_a$ and $\theta_b$ uniquely describe any state of the
+system at any time, $t$, is still useful to determine the cartesian coordinates as well.
+We've chosen to model the state using generalized coordinates,  which
+are a minimal set of independent variables that dto
+simpify the math that is yet to come -->
+
+
+
+<!-- So far, this only describes the state of double pendulum at a single time, $t$. As a pendulum swings,
+$\theta_a$ and $\theta_b$ are actually functions of time; $\theta_a(t)$ and $\theta_b(t)$. -->
+
+<!-- If we knew what the values of $\theta_a(t)$ and $\theta_b(t)$ were for any time, $t$, then
+we'd be able to simulate the system forward through time. To solve for the state we'll
+need to derive the dynamic equations of motion. Before getting to that, let's take a detour
+and  -->
+
+<!--
+This model is a good start towards producing a simulation, but still lacks the details
+on what the $\theta_a(t)$ and $\theta_b(t)$ functions are.
+
+Simulating the system requires use to take two more steps:
+1.
+To determine how the system evolves over time, we need to derive the dynamic equations of
+motion.
+
+<!-- Dynamics ..... study of forces and their effects on motion...
+
+Let the vector $y(t) = [\theta_a$ $\theta_b]^T$ represent the state of the system
+at time $t$.
+
+<!-- In order to simulate the system forward in time from some initial state, we need to know
+how that state will change, in other words, we need to know what
+
+Observing that the rate at which $\theta_a$ and $\theta_b$ change, or $y'(t)$, depends on the
+current state, $y(t)$ we expect the system first order differential equation to describe how
+the system changes over time.
+
+$$
+y' = f(y)
+$$
+
+For some function $f$ that descrbies the dynamics of the system.
+
+Starting a simulation at time $t_0$ in state $y(t_0)$, corresponds to the initial value problem
+
+$$
+\begin{alignedat}{1}
+y' &= f(y) \\
+y_0 &= y(t_0)
+\end{alignedat}
+$$
+
+This leaves the following questions we need to answer before we can complete the
+model of the system, which we will answer in the following sections.
+
+1. How do we determine the function $f$ that descrbies the dynamics of the system?
+2. How do we solve this initial value problem to determine the state of the system at any given
+   time? -->

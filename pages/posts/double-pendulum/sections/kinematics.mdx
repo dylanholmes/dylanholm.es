@@ -1,9 +1,9 @@
 import AnimatedTimeSeriesPlotSvg from "../demos/animated-time-series-plot-svg.js";
 import SimulationTimeSeriesPlot from "../figures/plots/SimulationTimeSeriesPlot.js";
 
-## forward kinematics
+<!-- ## What is forward kinematics?
 
-<!-- In general, the process of computing the position (or related derivatives) of a
+In general, the process of computing the position (or related derivatives) of a
 point in the system is known as forward kinematics. Mathematically, this can be
 written concisely as $\bold{x} = f(\bm{\theta})$, where $\bold{x}$ is a vector,
 representing the state of the system in _cartesian_ coordinates and
@@ -21,9 +21,9 @@ While we could keep the vector notation mentioned by letting
 $\bold{x} = \begin{bmatrix}x_a& y_a& x_b & y_b \end{bmatrix}^T$, it feels a
 unecessary for our purposes. Also, there will be quite a bit of sinsoidial
 functions, so we denote $\sin\theta_x$ and $\cos\theta_x$ as $s_x$ and $c_x$ for
-convenience. -->
+convenience.
 
----
+--- -->
 
 The cartesian positions of the point masses can be derived using geometry by
 inspection. We denote $\sin\theta_x$ and $\cos\theta_x$ as $s_x$ and $c_x$.
@@ -37,14 +37,6 @@ x_b =& &s_al_a& + s_bl_b \\
 \end{alignedat}
 $$
 
----
-
-<!-- 
-Here is a plot of these positions over time. The present is on the right, with time flow backwards to the left.
-Qualitatively, the plots are quite smooth and follow a sort of braiding pattern. -->
-
-Positions over time.
-
 <SimulationTimeSeriesPlot
   xMin={t => t - 10000}
   xMax={t => t}
@@ -57,6 +49,16 @@ Positions over time.
     s => s.b.y
   ]}
 />
+
+---
+
+<!--
+Here is a plot of these positions over time. The present is on the right, with time flow backwards to the left.
+Qualitatively, the plots are quite smooth and follow a sort of braiding pattern. -->
+
+
+
+
 
 ---
 
@@ -110,7 +112,7 @@ $$
   ]}
 />
 
-<!-- 
+<!--
 <SimulationTimeSeriesPlot
   xMin={t => t - 1000}
   xMax={t => t}

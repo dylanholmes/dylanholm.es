@@ -1,13 +1,16 @@
 import KinematicViewer from "../demos/double-pendulum-viewer-plain.js";
 import SimulationPlot from "../figures/plots/SimulationValuePlot.js";
 
-<!-- 
---- 
+
+
+<!--
+
+---
 
 Table of Contents
 
 <div style={{fontSize:"14px", lineHeight: "28px"}}>
-<a href="#">Case Study: Simulating a Double Pendulum from Scratch</a>  
+<a href="#">Case Study: Simulating a Double Pendulum from Scratch</a>
 
 - <a href="#dd">What is a double pendulum?</a>
 - <a href="#dd">What does it mean to simulate a system?</a>
@@ -16,16 +19,20 @@ Table of Contents
 
 </div>
 
---- 
+---
 
-<h2 id="dd">What is a double pendulum? <a href="#dd" style={{fontSize:"12px"}}>link</a></h2> -->
+<h2 id="dd">What is a double pendulum? <a href="#dd" style={{fontSize:"12px"}}>link</a></h2>
+-->
 
+<!--
+> _This post introduces simulation concepts through the example
+> application of simulating a double pendulum._ -->
 
 ## What is a double pendulum?
 
 
 A double pendulum is a two-link chain with one end fixed in space.
-<!-- 
+<!--
 ## overview
 
 The double pendulum is a beautiful example of a dynamical system. Despite having
@@ -47,7 +54,7 @@ Small changes in initial conditions result in large differences in subsequent st
 
 Despite being a simple system, it exhibits chaotic behavior. In other words, small
 changes in initial conditions result in large differences in subsequent states. This
-is commonly known as the butterfly effect. 
+is commonly known as the butterfly effect.
 
 <!-- This makes it a particularly good system to simulate. -->
 
@@ -64,3 +71,66 @@ is commonly known as the butterfly effect.
 />
 
 ---
+
+<!--
+
+All This belongs in an intro chapter to simulation.
+
+
+## What is a simulation exactly? And why do we care?
+
+<!--
+Maybe include some examples of types of systems to make the definitions
+more concrete/relatable?
+
+Maybe include some examples of applications of simulations?
+
+-->
+
+<!--
+Simulations imitate systems changing over time. For a simulation to be
+useful, it must provide some value that can't be achieved using the "real
+thing". More often than not, the simulated system is to complex to
+model in its entirty. In these cases, models must be designed to
+approximate the aspects of the system that are important to the application.
+
+Simulations used for movies need to be visually plausible, but don't need to
+be realtime. Simulations for games also need to be visually plausible, but do
+need to be realtime.
+
+## How do we model a double pendulum for our use case?
+
+The goal of our simulation is to
+
+
+If we let the $y(t)$ represent the state of the system at time $t$ and the
+rate of change of the system $(y'(t))$ depends on the state of the system
+then we can model this as a 1st order ordinary differential equation.
+
+$$
+y'(t) = f(y(t))
+$$
+
+Then simulating the system corresponds to generating a
+
+
+- Model only the parts of the system relevant.
+-
+
+As many systems are too
+complex to model exactly, they are usually approximations. Part of
+designing a simulation requires taking into account the application in
+order to
+
+There are always
+many different choices for how to approximately model a system., simulations can only approximate them They are generally approximations
+to "real" system being simulated, as it may not be possible t
+
+To simulate somthing is to imitate it else over time.  The simulation is almost
+always an approximation of the system being simulated. Part of designing
+a simulation for an application is determining what aspects of the system are
+important for the use case to ensure that this approximation provides you with
+the information that is valuable to your application. For this example,
+we w
+
+-->

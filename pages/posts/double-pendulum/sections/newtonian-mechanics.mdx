@@ -10,35 +10,40 @@ import GeneralizedDda from './newtonian-mechanics/generalized-dda.mdx';
 
 <!-- ## What does it mean to _simulate_ a system? -->
 
-## How do we derive the 
+## Deriving the Equations of Motion using Newtonian Mechanics
 
 <!-- ## newtonian mechanics -->
 
-> _Let's derive the equations of motion for the double pendulum using newton's laws of motion._
+<!-- > _Let's derive the equations of motion for the double pendulum using newton's laws of motion._ -->
 
-The newtonian approach to deriving the dynamic equations of motion of a system
+<!-- The newtonian approach to deriving the dynamic equations of motion of a system
 relies on the forces acting on the bodies within the system. In practice, this
 means determining the forces using a free body diagram, then using the
 kinematic description of the system coupled with
 newton's second law, $F=ma$ to derive a set of equations that determine the
-system's motion as a function of time.
+system's motion as a function of time. -->
 
----
+Point mass $a$ is being acted on by the tension from the massless rods
+connect it to the origin and $b$. Point mass $b$ is being acted on by
+the tension from the massless rods connecting it to $a$. Both point masses
+are being acted on by gravity. This is illustrated as a free body diagram
+below (gravity omitted).
 
-First, let's draw free body diagrams for the point masses, $a$ and $b$.
+<!-- First, let's draw free body diagrams for the point masses, $a$ and $b$. (Note: the
+diagram is missing gravity currently.) -->
 
 <FreeBodyViewer/>
-
----
 
 As depicted in the diagram above, point mass $a$ is being acted on by the
 tension from the massless rods connect it to the origin and $b$.
 
-<FreeBodyEquations/>
-
 Now that we have a system of equations that describe the acceleration of the
 system for a given state given the forces acting on the bodies in the system.
 Next, we can combine the
+
+<FreeBodyEquations/>
+
+
 
 <!--
 After some heavy algebra (see appendix for details), we can solve for
