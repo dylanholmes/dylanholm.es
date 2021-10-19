@@ -12,14 +12,23 @@ import Equation11 from "./equation-11.mdx";
 import Equation12 from "./equation-12.mdx";
 import Equation13 from "./equation-13.mdx";
 import Equation14 from "./equation-14.mdx";
+import Equation15 from "./generalized-final.mdx";
 
-## lagrangian mechanics
+## Deriving the Equations of Motion using Lagrangian Mechanics
+
+Before we go on to use the equations of motion derived in the last section,
+let's visit one other approach to deriving the equations of motion, because
+why not.
 
 The Lagrangian approach differs from the Newtownian approach in that it
 derives the equations of motion from energies rather than forces. This is
 somewhat less general, in that it cannot handle non-conservative systems
 (e.g. systems with friction), however it can be more convenient if applicable.
-The cornerstone of Lagrangian dynamics is the Lagrangian, $L$, defined as the difference between the kinetic energy, $E_k$, and potential energy of the system.
+The cornerstone of Lagrangian dynamics is the Lagrangian, $L$, defined as the
+difference between the kinetic energy, $E_k$, and potential energy of the system.
+
+We will be able to derive the equations of motion from the Euler-Lagrange equation
+for each point mass.
 
 <Equation1/>
 
@@ -35,29 +44,33 @@ Lagrangian becomes:
 
 <Equation4/>
 
-Since we are using generalized coordinates all the constraints of the system
-are modelled implicitly and we can use Lagrange's equations of the second kind
-to .....
-
-First equation!
+Compute the first term of the Euler-Lagrange equation for point mass $a$.
 
 <Equation5/>
 <Equation6/>
+
+Compute the second term of the Euler-Lagrange equation for point mass $a$.
+
 <Equation7/>
+
+Combine the terms of the Euler-Lagrange equation for point mass $a$ to get the
+first equation of motion.
+
 <Equation8/>
 
-
-Second Equation!
+Compute the first term of the Euler-Lagrange equation for point mass $b$.
 
 <Equation9/>
-
 <Equation10/>
+
+Compute the second term of the Euler-Lagrange equation for point mass $b$.
 
 <Equation11/>
 
+Combine the terms of the Euler-Lagrange equation for point mass $b$ to get the
+second equation of motion.
 
 <Equation12/>
-
 
 Eliminate $\ddot{\theta}_b$ from the first Lagrange equation to solve for
 $\ddot{\theta}_a$. We'll end up with the same result as with the newtonian
@@ -65,12 +78,14 @@ approach (as expected).
 
 <Equation13/>
 
-
 Similarly, eliminate $\ddot{\theta}_a$ from the first Lagrange equation to solve
 for $\ddot{\theta}_b$.
 
 <Equation14/>
 
+Now once again we have the equations of motion for the model.
+
+<Equation15/>
 
 <!--
 $$
