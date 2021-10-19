@@ -64,7 +64,8 @@ export default class DoublePendulumModel extends React.Component {
 
   stepSimulation(time) {
     this.lastTime = this.lastTime || time
-    const deltaTime = time - this.lastTime;
+    // const deltaTime = time - this.lastTime;
+    const deltaTime = 1000/60; // make this thing deterministic...
     const deltaSeconds = deltaTime / 1000;
     const dt = 0.0001;
     const steps = Math.floor(deltaSeconds / dt);

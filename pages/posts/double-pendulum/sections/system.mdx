@@ -5,7 +5,7 @@ import SimulationTimeSeriesPlot from "../figures/plots/SimulationTimeSeriesPlot.
 <!-- ## Formalizing a double pendulum -->
 
 
-## How do we model a double pendulum mathematically?
+## How do we model a double pendulum for a simulation?
 
 <!-- Before simulating any system, you first need a formal mathematical definition. -->
 
@@ -33,11 +33,13 @@ masses connected via massless links. -->
 <!--
 ## system -->
 
-One simple choice is to model the system as two point masses connect via rigid massless links
-as illustrated below.
+Before we can simulate a the double pendulum, we need to construct a
+mathematical model that describes its properties and how those
+properties change over time. One simple choice is to model the system
+as two point masses connected via rigid massless links as illustrated below.
 
 <!-- we can describe the con of a system
-The state of a double pendulum at a given time, $t$ can be described by two variables.
+The state of a double pendulum at a given time, $t$ can be minimally described by two independent variables.
 Here, we've chosen the angle between vertical and each link, $\theta_a$ and $\theta_b$. -->
 <!-- The simplest double pendulum variant we can model consists of two coplanar point
 masses connected via massless links. When including gravity the system  will
@@ -59,13 +61,19 @@ Here is an illustration of the system, along with a table of variable descriptio
 
 <br/>
 
-This model is a good start, but still doesn't tell us how the system changes over time. To do that,
-we'll need to use this description to derive the equations of motion for the system.
+So far, our model captures the state of a double pendulum at any given time, but not how the
+system evolves over time. For this, we need to derive the system's equations of motion.
+
+
+<!-- A simulation will need to compute the sequence of states assumed by the system over time. This
+means we also need to model how the system moves. For physical systems that , this means The sequence of states 
+To do that,
+we'll need to use this description to derive the equations of motion for the system. -->
 
 
 <!--
 If we want to render a graphically representation of the system, we'll also want to know
-how to compute the cartesian coordinates of the point masses, since computer graphics APIs
+how to compute the cartesian coordinates of the point masses, since computer graphics API
 usually take them as input to drawing routines.
 
 The cartesian positions of the point masses can be derived using geometry by

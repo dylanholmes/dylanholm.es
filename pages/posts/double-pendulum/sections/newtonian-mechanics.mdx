@@ -7,6 +7,7 @@ import GeneralizedDdaDdb1 from './newtonian-mechanics/generalized-equation-dda-d
 import GeneralizedDdaDdb2 from './newtonian-mechanics/generalized-equation-dda-ddb-2.mdx';
 import GeneralizedDdb from './newtonian-mechanics/generalized-ddb.mdx';
 import GeneralizedDda from './newtonian-mechanics/generalized-dda.mdx';
+import GeneralizedFinal from './newtonian-mechanics/generalized-final.mdx';
 
 <!-- ## What does it mean to _simulate_ a system? -->
 
@@ -23,9 +24,9 @@ kinematic description of the system coupled with
 newton's second law, $F=ma$ to derive a set of equations that determine the
 system's motion as a function of time. -->
 
-Point mass $a$ is being acted on by the tension from the massless rods
-connect it to the origin and $b$. Point mass $b$ is being acted on by
-the tension from the massless rods connecting it to $a$. Both point masses
+Point mass $a$ is being acted on by the tension forces from the massless rods
+connecting it to the origin and $b$. Point mass $b$ is being acted on by
+the tension from the massless rods connecting it to $a$, $T_b$. Both point masses
 are being acted on by gravity. This is illustrated as a free body diagram
 below (gravity omitted).
 
@@ -34,15 +35,22 @@ diagram is missing gravity currently.) -->
 
 <FreeBodyViewer/>
 
-As depicted in the diagram above, point mass $a$ is being acted on by the
-tension from the massless rods connect it to the origin and $b$.
+<!-- As depicted in the diagram above, point mass $a$ is being acted on by the
+tension from the massless rods connect it to the origin and $b$. -->
 
-Now that we have a system of equations that describe the acceleration of the
+<!-- Now that we have a system of equations that describe the acceleration of the
 system for a given state given the forces acting on the bodies in the system.
-Next, we can combine the
+Next, we can combine the -->
+
+Using newton's second law (i.e. $F = ma$) and the free body diagram, we can form a
+system of equations that describes how the motion of the point masses relate to the
+forces being applied to them. $\sin\theta_x$ and $\cos\theta_x$ are denoted as $s_x$
+and $c_x$ for convenience.
 
 <FreeBodyEquations/>
 
+Since the tension forces ($T_a$ and $T_b$) are only acting on bodies within the system,
+they can be eliminated by algebraic manipulation.
 
 
 <!--
@@ -65,27 +73,78 @@ $$
 
 -->
 
-Starting from the kinematic equations for acceleration and the equations derived
+<!-- Starting from the kinematic equations for acceleration and the equations derived
 from newton's second law, this section will describe how to solve for the
-generlized accelerations, $\ddot{\theta}$.
+generlized accelerations, $\ddot{\theta}$. -->
 
-We'll start by manipulating the second law equations to eliminate the
-internal forces:
+<!-- We'll start by manipulating the second law equations to eliminate the
+internal forces: -->
 
-1. Find the first equation of motion by substitution of $T_b$.
+1. Solve for $T_b$ using $\text{(3)}$, then use substitution of $T_b$
+   into $\text{(4)}$ to get a new equation of motion that does not
+   depend on the tension forces.
 
   <CartesianNewtonianEquation1/>
 
 
-2. Find the seconds equation of motion by substitution of $T_a$ and $T_b$.
+2. Solve for $T_a$ using $\text{(1)}$ and $T_b$ from the last step, then substitute
+  $T_a$ and $T_b$ into $\text{(2)}$ to get a second new equation of motion that
+  does not depend on the tension forces.
 
   <CartesianNewtonianEquation2/>
 
-Now we have the following equations of motions that do depend on the internal forces.
+Now we have the following equations of motions that do not depend on the tension forces.
 
 <CartesianNewtonianEquations/>
 
-Note that the equations still depend on the cartesian accelerations of the point
+Note that $\text{(5)}$ and $\text{(6)}$ are still not expressed entirely in terms of the
+variables we chose to represent the state of the system, $\theta_a$ and $\theta_b$ as
+they still depend on the cartesian accelerations. We can derive and apply the forward kinematic
+equations relating the generalized and cartesian accelerations, then use them to get
+equations of motion that are truly in terms of $\theta_a$, $\theta_b$, and their
+derivatives.
+
+The cartesian positions of the point masses can be derived using geometry by
+inspection.
+
+$$
+\begin{alignedat}{4}
+x_a =& &s_al_a& \qquad &\text{(7)}\\
+y_a =& -&c_al_a& \qquad &\text{(8)}  \\
+x_b =& &s_al_a& + s_bl_b \qquad &\text{(9)} \\
+y_b =& -&c_al_a& -c_bl_b \qquad &\text{(10)}
+\end{alignedat}
+$$
+
+Taking the derivative of the positions with respect to time, we get the velocities.
+
+$$
+\begin{alignedat}{5}
+\dot{x_a} &= &c_al_a\dot{\theta_a}& \qquad &\text{(11)}\\
+\dot{y_a} &= &s_al_a\dot{\theta_a}& \qquad &\text{(12)}\\
+\dot{x_b} &= &c_al_a\dot{\theta_a}& + c_bl_b\dot{\theta_b} \qquad &\text{(13)}\\
+\dot{y_b} &= &s_al_a\dot{\theta_a}& + s_bl_b\dot{\theta_b} \qquad &\text{(14)}
+\end{alignedat}
+$$
+
+Taking the derivatives once more with respet to time, we get the accelerations:
+
+$$
+\begin{alignedat}{3}
+\ddot{x_a} &= c_al_a\ddot{\theta_a} - s_al_a\dot{\theta_a}^2 \qquad &\text{(15)}\\
+\ddot{y_a} &= s_al_a\ddot{\theta_a} + c_al_a\dot{\theta_a}^2 \qquad &\text{(16)}\\
+\ddot{x_b} &= c_al_a\ddot{\theta_a} + c_bl_b\ddot{\theta_b} - s_al_a\dot{\theta_a}^2 - s_bl_b\dot{\theta_b}^2 \qquad &\text{(17)}\\
+\ddot{y_b} &= s_al_a\ddot{\theta_a} + s_bl_b\ddot{\theta_b} + c_al_a\dot{\theta_a}^2 + c_bl_b\dot{\theta_b}^2 \qquad &\text{(18)}
+\end{alignedat}
+$$
+
+Now we are ready to manipulate the equations of motion into their final form, which
+only depends on the generalized coordinates, $\theta_a$ and $\theta_b$.
+
+
+<!-- ## Deriving the Equations of Motion using Newtonian Mechanics (Part 2) -->
+
+<!-- Note that the equations still depend on the cartesian accelerations of the point
 masses. Next, we will use the kinematic equations for acceleration to solve
 these equations for the generalized accelerations $\ddot{\theta}$. To make this easier, let
 $s_x=s_x$ and $c_x=c_x$.
@@ -94,23 +153,35 @@ We have gotten rid of the external forces, but the equation not yet completely
 in terms of the generalized coordiantes $\theta$. We still need to substitute in
 the cartesian accelerations of the point masses using the kinematic equations.
 After the substitution, we can rearrange, to arrive a the following equations of
-motion:
+motion: -->
 
-Solving for that thing:
+<!-- Solving for that thing: -->
 
-1. Form equation 1 from the first equation of motion without the internal forces by substitution of $\ddot{y_b}$
-  and $\ddot{x_b}$.
+1. Substitute $\text{(17)}$ and $\text{(18)}$ into $\text{(5)}$ to the the first equation of motion
+   in terms of the generalized parameters.
 
   <GeneralizedDdaDdb1/>
 
-2. Form equation 2 from the 2nd equation of motion without the internal forces.
+2. Substitute  $\text{(15)}$, $\text{(16)}$, $\text{(17)}$ and $\text{(18)}$ into $\text{(6)}$ to
+   the the first equation of motion in terms of the generalized parameters.
 
   <GeneralizedDdaDdb2/>
 
-3. Eliminate $\ddot{\theta_a}$ from equation 1 using equation 2 to solve for $\ddot{\theta_b}$.
+Now we have two equations of motion in terms of the generalized parameters, but both equations
+depend on $\ddot{\theta_a}$ and $\ddot{\theta_b}$. What we really want is one equation for
+$\ddot{\theta_a}$ and one for $\ddot{\theta_b}$, which we can achieve through some algebraic
+manipulation.
+
+1. Eliminate $\ddot{\theta_a}$ from $\text{(19)}$ using $\text{(20)}$ to solve for $\ddot{\theta_b}$.
 
   <GeneralizedDdb/>
 
-4. Eliminate $\ddot{\theta_b}$ from equation 1 using equation 3 to solve for $\ddot{\theta_a}$.
+2. Eliminate $\ddot{\theta_b}$ from $\text{(19)}$ using $\text{(21)}$ to solve for $\ddot{\theta_a}$.
 
   <GeneralizedDda/>
+
+And we finally have the equations of motion for our model that will be amenable to simulation
+as we'll see in the coming sections.
+
+<GeneralizedFinal/>
+

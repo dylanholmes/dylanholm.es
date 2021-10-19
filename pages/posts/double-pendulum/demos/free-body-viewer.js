@@ -51,6 +51,9 @@ const var_b = foreignObjectMath(5, 0, "b");
 const var_o = foreignObjectMath(5, 0, "o");
 
 const var_g = foreignObjectMath(0, 0, "g");
+const var_Ta = foreignObjectMath(0, 0, "T_a");
+const var_Tb = foreignObjectMath(0, 0, "T_b");
+const var_nTb = foreignObjectMath(0, 0, "-T_b");
 const var_left_arrow = foreignObjectMath(0, 0, "\\longleftarrow");
 
 function clamp(x, min, max) {
@@ -191,10 +194,29 @@ export default function FreeBodyViewer(props) {
           <path name="arc-b" d={describeArc(x_a, y_a, l*.4, theta_b_arc_start, theta_b_arc_end)} style={arcStyle} />
 
           <line name="line-a-o" x1={x_a} y1={y_a} x2={x_a+oa_4.x} y2={y_a+oa_4.y} style={lineStyle} markerEnd="url(#fb-arrow)" />
-          
+          <g name="g-arrow" transform={`translate(${x_a+1.5*oa_4.x} ${y_a+1.5*oa_4.y}) scale(0.15) scale(1 -1)`}>
+            <g name="g-arrow" transform={`translate(0, 0)`}>{var_Ta}</g>
+          </g>
+
           <line name="line-a-b" x1={x_a} y1={y_a} x2={x_a-ab_4.x} y2={y_a-ab_4.y} style={lineStyle} markerEnd="url(#fb-arrow)"/>
+          <g name="g-arrow" transform={`translate(${x_a-1.5*ab_4.x} ${y_a-1.5*ab_4.y}) scale(0.15) scale(1 -1)`}>
+            <g name="g-arrow" transform={`translate(0, 0)`}>{var_nTb}</g>
+          </g>
 
           <line name="line-a-b" x1={x_b+ab_4.x} y1={y_b+ab_4.y} x2={x_b} y2={y_b} style={lineStyle} markerStart="url(#fb-arrow)"/>
+          <g name="g-arrow" transform={`translate(${x_b+1.5*ab_4.x} ${y_b+1.5*ab_4.y}) scale(0.15) scale(1 -1)`}>
+            <g name="g-arrow" transform={`translate(0, 0)`}>{var_Tb}</g>
+          </g>
+
+          <line name="line-a-g" x1={x_a+0} y1={y_a-10} x2={x_a} y2={y_a} style={lineStyle} markerStart="url(#fb-arrow)"/>
+          <g name="g-arrow" transform={`translate(${x_a} ${y_a-10}) scale(0.15) scale(1 -1)`}>
+            <g name="g-arrow" transform={`translate(5, -5)`}>{var_g}</g>
+          </g>
+          
+          <line name="line-b-g" x1={x_b+0} y1={y_b-10} x2={x_b} y2={y_b} style={lineStyle} markerStart="url(#fb-arrow)"/>
+          <g name="g-arrow" transform={`translate(${x_b} ${y_b-10}) scale(0.15) scale(1 -1)`}>
+            <g name="g-arrow" transform={`translate(5, -5)`}>{var_g}</g>
+          </g>
           
           <circle name="point-a" cx={x_a} cy={y_a} r={r} style={pointStyle}/>
           <circle name="point-b" cx={x_b} cy={y_b} r={r} style={pointStyle}/>

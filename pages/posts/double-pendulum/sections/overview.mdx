@@ -24,9 +24,10 @@ Table of Contents
 <h2 id="dd">What is a double pendulum? <a href="#dd" style={{fontSize:"12px"}}>link</a></h2>
 -->
 
-<!--
+
 > _This post introduces simulation concepts through the example
-> application of simulating a double pendulum._ -->
+> application of simulating a double pendulum._
+> Add introduction
 
 ## What is a double pendulum?
 
@@ -54,7 +55,12 @@ Small changes in initial conditions result in large differences in subsequent st
 
 Despite being a simple system, it exhibits chaotic behavior. In other words, small
 changes in initial conditions result in large differences in subsequent states. This
-is commonly known as the butterfly effect.
+is commonly known as the butterfly effect. 
+
+The complexity of this dynamical system is highlighted by plotting the trajectory
+followed by the the tip of the chain over time.
+
+<!-- > TODO: three plots with different initial states? -->
 
 <!-- This makes it a particularly good system to simulate. -->
 
@@ -64,7 +70,7 @@ is commonly known as the butterfly effect.
   xMax={_ => 100}
   yMin={_ => -40}
   yMax={_ => 40}
-  maxSegments={10000}
+  maxSegments={2000}
   transforms={[
     s => [s.b.x, s.b.y]
   ]}
