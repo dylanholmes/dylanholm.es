@@ -195,17 +195,17 @@ export default function FreeBodyViewer(props) {
 
           <line name="line-a-o" x1={x_a} y1={y_a} x2={x_a+oa_4.x} y2={y_a+oa_4.y} style={lineStyle} markerEnd="url(#fb-arrow)" />
           <g name="g-arrow" transform={`translate(${x_a+1.5*oa_4.x} ${y_a+1.5*oa_4.y}) scale(0.15) scale(1 -1)`}>
-            <g name="g-arrow" transform={`translate(0, 0)`}>{var_Ta}</g>
+            <g name="g-arrow" transform={`translate(-10, -12)`}>{var_Ta}</g>
           </g>
 
           <line name="line-a-b" x1={x_a} y1={y_a} x2={x_a-ab_4.x} y2={y_a-ab_4.y} style={lineStyle} markerEnd="url(#fb-arrow)"/>
           <g name="g-arrow" transform={`translate(${x_a-1.5*ab_4.x} ${y_a-1.5*ab_4.y}) scale(0.15) scale(1 -1)`}>
-            <g name="g-arrow" transform={`translate(0, 0)`}>{var_nTb}</g>
+            <g name="g-arrow" transform={`translate(-10, -12)`}>{var_nTb}</g>
           </g>
 
           <line name="line-a-b" x1={x_b+ab_4.x} y1={y_b+ab_4.y} x2={x_b} y2={y_b} style={lineStyle} markerStart="url(#fb-arrow)"/>
           <g name="g-arrow" transform={`translate(${x_b+1.5*ab_4.x} ${y_b+1.5*ab_4.y}) scale(0.15) scale(1 -1)`}>
-            <g name="g-arrow" transform={`translate(0, 0)`}>{var_Tb}</g>
+            <g name="g-arrow" transform={`translate(-10, -12)`}>{var_Tb}</g>
           </g>
 
           <line name="line-a-g" x1={x_a+0} y1={y_a-10} x2={x_a} y2={y_a} style={lineStyle} markerStart="url(#fb-arrow)"/>
