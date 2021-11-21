@@ -1,0 +1,19 @@
+import { withRouter } from "next/router";
+import BlogPost from "../../../components/layouts/blog-post";
+import WodTimer from './WodTimer.js';
+
+export const meta = {
+  published: false,
+  publishedAt: "2021-10-05",
+  title: "timer",
+  summary: "",
+  image: ""
+};
+
+export default withRouter(({ children, router }) => (
+  <BlogPost path={router.pathname} meta={meta}>
+      {children}
+  </BlogPost>
+));
+
+<WodTimer/>
