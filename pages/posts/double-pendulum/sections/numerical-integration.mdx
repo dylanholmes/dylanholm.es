@@ -1,5 +1,23 @@
-<!--
-### numerical integration - euler approach
 
-> TODO
--->
+### Stepping forward through time using the Euler Method
+
+The equations of motion are a set of differential equations,
+meaning that they describe a set of functions, each function
+representing one possible trajectory of states the system
+could take. Solving a differential equation for a particular
+function given an initial condition is called an initial value
+problem. The initial value problems of ordinary differential
+equations that stem from physical systems often do not have
+analytic solutions. Instead we can use numerical integration
+methods to approximate the solution.
+
+Covering all of the types numerical integration methods is
+outside the scope of this post, instead we will focus on a
+very simple method called the Euler integration method, or
+Euler method for short. This method is not the best, but it
+is easy to implement and can work well enough for simulations
+that don't require much accuracy as long as the time step is
+kept very small.
+
+
+
