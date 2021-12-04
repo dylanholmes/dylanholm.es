@@ -104,8 +104,8 @@ function Style() {
           margin-bottom: 0;
         }
 
-        pre code {
-          font-size: 18px;
+        pre, code {
+          font-size: 14px;
         }
 
         code {

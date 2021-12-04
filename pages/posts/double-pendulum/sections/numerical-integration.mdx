@@ -2,22 +2,144 @@
 ### Stepping forward through time using the Euler Method
 
 The equations of motion are a set of differential equations,
-meaning that they describe a set of functions, each function
-representing one possible trajectory of states the system
+meaning that their solution describes a set of functions. Each
+function
+represents one possible trajectory that states the system
 could take. Solving a differential equation for a particular
 function given an initial condition is called an initial value
-problem. The initial value problems of ordinary differential
-equations that stem from physical systems often do not have
-analytic solutions. Instead we can use numerical integration
-methods to approximate the solution.
+problem. The initial value problems that stem from physical
+systems often do not have analytic solutions, thus require
+numerical methods to approximate them.
 
 Covering all of the types numerical integration methods is
 outside the scope of this post, instead we will focus on a
-very simple method called the Euler integration method, or
-Euler method for short. This method is not the best, but it
-is easy to implement and can work well enough for simulations
-that don't require much accuracy as long as the time step is
-kept very small.
+a simple method called the Euler integration method, or
+Euler method for short. This method is not the most accurate,
+but it is easy to implement and can work well enough for our
+purposes when the long as the time step is kept small.
 
 
+Our initial value problem is:
 
+$$
+\begin{alignedat}{2}
+\ddot{\theta_a} &= f_a(\theta_a, \theta_b, \dot{\theta_a}, \dot{\theta_b}) \quad
+\ddot{\theta_b} = f_b(\theta_a, \theta_b, \dot{\theta_a}, \dot{\theta_b}) \qquad \text{(?)} \\
+\theta_a(0) &= \theta_{a0} \quad
+\theta_b(0) = \theta_{b0} \quad
+\dot{\theta_a}(0) = \dot{\theta_a}_{0} \quad
+\dot{\theta_b}(0) = \dot{\theta_b}_{0} \\
+\end{alignedat}
+$$
+
+Here, I've moved the highest derivative to the left hand side
+of the equations and added functions $f_a$ and $f_b$ to represent
+what remains on the right hand side in order to highlight the
+relationships between the variables in the expression.
+
+In general the Euler method is:
+
+
+Now in our case, we need to apply it twice to solve for as
+we have the second derivative.
+Now the Euler method to solve for $t_{n+1}$ given $t_n$ is:
+
+$$
+\begin{alignedat}{2}
+\dot{\theta}_{a,n+1} &= \dot{\theta}_{a,n} + h f_a(\theta_{a,n}, \theta_{b,n}, \dot{\theta}_{a,n}, \dot{\theta}_{b,n}) \qquad &\text{(?)} \\
+\dot{\theta}_{b,n+1} &= \dot{\theta}_{b,n} + h f_b(\theta_{a,n}, \theta_{b,n}, \dot{\theta}_{a,n}, \dot{\theta}_{b,n}) \qquad &\text{(?)} \\
+\end{alignedat}
+$$
+
+<!-- TODO: decrease font for cod snippets -->
+
+```ts
+interface Model {
+  g: number,   // gravity in meters per second
+  ma: number,  // mass of point mass a in kilograms
+  mb: number,  // mass of point mass b in kilograms
+  la: number,  // length of link from origin to point mass a in meters
+  lb: number,  // length of link from point mass a to point mass b in meters
+}
+
+interface State {
+  a: number,   // theta a in radians, normalized to [-pi, pi)
+  b: number,   // theta b in radians, normalized to [-pi, pi)
+  da: number,  // angular velocity of theta a in rad/s
+  db: number,  // angular velocity of theta b in rad/s
+  dda: number,
+  ddb: number
+}
+
+interface Acceleration {
+  dda: number,
+  ddb: number
+}
+
+function computeAcceleration(s: State): Acceleration {
+  const { g, ma, mb, la, lb } = m;
+  const { a, b, da, db } = s;
+
+  // Precompute common terms
+  const s_a = Math.sin(a);
+  const s_b = Math.sin(b);
+  const c_a = Math.cos(a);
+  const s_ab = Math.sin(a-b);
+  const c_ab = Math.cos(a-b);
+  const denom = m_a + m_b*s_ab*s_ab;
+
+  // Compute the second time derivativee of theta a and b (angular acceleration),
+  // using the equations of motion for the current state.
+  return {
+    dda:
+      (
+        m_b*s_ab*c_ab*l_a*da*da
+        + m_b*s_ab*l_b*db*db
+        + ((m_a + m_b)*s_a - m_b*s_b*c_ab)*g
+      ) / (
+        -denom*l_a
+      ),
+    ddb:
+      (
+        (m_a + m_b)*s_ab*l_a*da*da
+        + m_b*s_ab*c_ab*l_b*db*db
+        + (m_a+m_b)*s_ab*c_a*g
+      ) / (
+        denom*l_b
+      )
+  };
+}
+
+function mod(n, m) {
+  return ((n % m) + m) % m;
+}
+
+/**
+ * (-inf, inf) => [-pi, pi)
+ */
+function normalizeRadians(x) {
+  return mod(x + Math.PI, 2*Math.PI) - Math.PI;
+}
+
+/**
+ *
+ * h - step size
+ */
+function eulerMethod(y: number, dy: number, h: number): number {
+  return y + h * dy
+}
+
+function stepSimulation(m: Model, s: State): State {
+  let { a, b, da, db, dda, ddb} = s;
+  let h = 0.1;
+
+  return {
+    a: normalizeRadians(eulerMethod(a, da, h)),
+    b: normalizeRadians(eulerMethod(b, db, h)),
+    da: eulerMethod(da, dda, h),
+    db: eulerMethod(db, ddb, h),
+    ...computeAcceleration(s)
+  };
+}
+
+```

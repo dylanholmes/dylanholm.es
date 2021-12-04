@@ -1,6 +1,8 @@
 import CircularBuffer from 'mnemonist/circular-buffer';
 import React from 'react';
 
+import * as dp from './model2.js';
+
 function clamp(x, min, max) {
   return Math.max(min, Math.min(x, max));
 }
@@ -54,6 +56,14 @@ export default class DoublePendulumModel extends React.Component {
       frameIndex: 0,
       currentState: initialState,
       states: CircularBuffer.from([], Array, 4),
+      s: {
+        a: Math.PI/2,
+        b: Math.PI/2,
+        da: 0,
+        db: 0,
+        dda: 0,
+        ddb: 0
+      }
     }
   }
 
@@ -141,7 +151,7 @@ export default class DoublePendulumModel extends React.Component {
           state.states.push(state.currentState);
         }
       }
-      
+
       return state;
     });
 
