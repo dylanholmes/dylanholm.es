@@ -1,6 +1,9 @@
 import React from 'react'
 import Highlight, {defaultProps} from 'prism-react-renderer'
 import {LiveProvider, LiveEditor, LiveError, LivePreview} from 'react-live'
+import FunctionProvider from './FunctionProvider';
+import FunctionEditor from './FunctionEditor';
+import FunctionLogger from './FunctionLogger';
 import * as ts from "typescript";
 
 // Impor the theme we want.
@@ -12,15 +15,7 @@ import Prism from "prism-react-renderer/prism";
 (typeof global !== "undefined" ? global : window).Prism = Prism;
 require("prismjs/components/prism-csharp");
 
-// function tsCompile(source: string, options: ts.TranspileOptions = null): string {
-//     // Default options -- you could also perform a merge, or use the project tsconfig.json
-//     if (null === options) {
-//         options = { compilerOptions: { module: ts.ModuleKind.CommonJS }};
-//     }
-//     return ts.transpileModule(source, options).outputText;
-// }
-
-function tsCompile(source, options = null) {
+function tsCompile(source: string, options: ts.TranspileOptions = null): string {
     // Default options -- you could also perform a merge, or use the project tsconfig.json
     if (null === options) {
         options = { compilerOptions: { module: ts.ModuleKind.CommonJS }};
@@ -28,10 +23,8 @@ function tsCompile(source, options = null) {
     return ts.transpileModule(source, options).outputText;
 }
 
-const CodeBlock = ({children, className, live}) => {
+const FunctionCodeBlock = ({children, className, live}) => {
   const language = className.replace(/language-/, '')
-
-
 
   if (live) {
     let transformCode = null;
@@ -41,11 +34,10 @@ const CodeBlock = ({children, className, live}) => {
 
     return (
       <div style={{marginTop: '40px'}}>
-        <LiveProvider language={language} code={children} transformCode={transformCode}>
-          <LivePreview />
-          <LiveEditor />
-          <LiveError />
-        </LiveProvider>
+        <FunctionProvider language={language} code={children} transformCode={transformCode}>
+          <FunctionEditor />
+          <FunctionLogger />
+        </FunctionProvider>
       </div>
     )
   }
@@ -72,4 +64,4 @@ const CodeBlock = ({children, className, live}) => {
   )
 }
 
-export default CodeBlock
+export default FunctionCodeBlock
