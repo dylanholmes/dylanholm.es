@@ -23,7 +23,7 @@
     "lodash.range": "^3.2.0",
     "mdx.macro": "^0.2.9",
     "micro": "^9.3.3",
-    "next": "^9.5.4",
+    "next": "^13.1.1",
     "pagination": "^0.4.6",
     "prism-react-renderer": "^1.1.1",
     "prismjs": "^1.21.0",
@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.10.4",
-    "@svgr/webpack": "^4.2.0",
+    "@svgr/webpack": "^6.5.1",
     "babel-plugin-inline-react-svg": "^1.1.1",
     "prettier": "^1.16.4",
     "rehype": "^8.0.0"
