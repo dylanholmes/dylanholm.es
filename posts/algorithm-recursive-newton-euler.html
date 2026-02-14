@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>recursive newton euler algorithm - dylanholm.es</title>
+    <meta name="description" content="The recursive newton euler algorithm solves the inverse dynamics problem for a kinematic tree">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <h1><a href="/">dylanholm.es</a></h1>
+            <nav>
+                <a href="/about.html">/about</a>
+            </nav>
+        </header>
+        
+        <main>
+            <article>
+                <h1>recursive newton euler algorithm</h1>
+                <div class="blog-date">2020-02-22</div>
+                
+                <h2>overview</h2>
+                <p>The recursive newton euler algorithm solves the inverse dynamics problem for a kinematic tree of <em>n</em> bodies in <em>O(n)</em> time. This document is intended to act as a concise reference to the already informed reader. For an introduction to the topic or a deeper discussion, refer to <a href="#references-1">[1]</a>.</p>
+
+                <h2>history</h2>
+                <p>The recursive newton euler algorithm was first described in <a href="#references-2">[2]</a>. Classical accerations were replaced with spatial accerations in <a href="#references-3">[3]</a>, with the addition of spatial accelerations. The version presented in this document is the subsequent reformulation from <a href="#references-1">[1]</a>, which introduces the use of generalized coorderinates and spatial vector algebra.</p>
+
+                <h2>formulation</h2>
+                <p>A rigid body system in any configuration is described as <em>(model, state)</em>.</p>
+
+                <p>For a kinematic tree, the <em>model</em> is a set of parent body indices λ, joint types jtype, parent transforms X_T, and inertias I.</p>
+
+                <p>The <em>state</em> is a set of generalized positions <strong>q</strong>, velocities <strong>q̇</strong>, and accelerations <strong>q̈</strong>.</p>
+
+                <p>Inverse dynamics is the problem of finding the forces of a rigid body system given its state.</p>
+
+                <div class="equation">
+                <strong>τ = ID(model, state)</strong>
+                </div>
+
+                <p>The recursive newton euler algorithm solves the inverse dynamic problem by:</p>
+
+                <ol>
+                    <li>Compute the velocity and acceleration of each body in the tree.</li>
+                    <li>Compute the forces required to produce these accelerations.</li>
+                    <li>Compute the forces transmitted across the joints from the forces acting on the bodies.</li>
+                </ol>
+
+                <hr>
+
+                <div class="algorithm">
+                <h3>Recursive Newton Euler Algorithm</h3>
+                <pre><code>v₀ = 0
+a₀ = -aₓ
+for i = 1 to Nᵦ do
+    [Xⱼ, Sᵢ, vⱼ, cⱼ] = jcalc(jtype(i), qᵢ, q̇ᵢ)
+    ⁱXₗ₍ᵢ₎ = Xⱼ Xₜ(i)
+    if λ(i) ≠ 0 then
+        ⁱX₀ = ⁱXₗ₍ᵢ₎ ˡ⁽ⁱ⁾X₀
+    end
+    vᵢ = ⁱXₗ₍ᵢ₎ vₗ₍ᵢ₎ + vⱼ
+    aᵢ = ⁱXₗ₍ᵢ₎ aₗ₍ᵢ₎ + Sᵢq̈ᵢ + cⱼ + vᵢ × vⱼ
+    fᵢ = Iᵢaᵢ + vᵢ ×* Iᵢvᵢ - ⁱX₀*fᵢˣ
+end
+for i = Nᵦ to 1 do
+    τᵢ = Sᵢᵀfᵢ
+    if λ(i) ≠ 0 then
+        fₗ₍ᵢ₎ = fₗ₍ᵢ₎ + ˡ⁽ⁱ⁾Xᵢ*fᵢ
+    end
+end</code></pre>
+                </div>
+
+                <hr>
+
+                <div class="joint-table">
+                <h3>Joint Model Formulae (jcalc)</h3>
+                <table>
+                    <tr>
+                        <th>Joint Type</th>
+                        <th>Joint Transform</th>
+                        <th>r</th>
+                        <th>Motion Subspace S</th>
+                        <th>Constraint Force Subspace T</th>
+                    </tr>
+                    <tr>
+                        <td>revolute</td>
+                        <td>rz(q₁)</td>
+                        <td>[0; 0; 0]</td>
+                        <td>[0; 0; 0; 1; 0; 0]</td>
+                        <td>5×5 identity with [0,0,0] in row 3</td>
+                    </tr>
+                    <tr>
+                        <td>prismatic</td>
+                        <td>I₃ₓ₃</td>
+                        <td>[0; 0; q₁]</td>
+                        <td>[0; 0; 0; 0; 0; 1]</td>
+                        <td>5×5 identity with [0,0,0] in row 6</td>
+                    </tr>
+                </table>
+                </div>
+
+                <hr>
+
+                <h2>references</h2>
+
+                <p id="references-1">[1] R. Featherstone. Rigid Body Dynamics Algorithms. Springer, 2008.</p>
+                <p id="references-2">[2] J. Luh, et al. Resolved-Acceleration Control of Mechanical Manipulators. IEEE Trans. On Auto. Control, Vol. AC-25, No. 3, pp. 468– 474, June 1980.</p>
+                <p id="references-3">[3] M. Brady, et al. Robot Motion: Planning and Control. The MIT Press, 1982.</p>
+            </article>
+        </main>
+        
+        <footer>
+            <p>&copy; 2020 Dylan Holmes</p>
+        </footer>
+    </div>
+</body>
+</html>
