@@ -4,15 +4,16 @@ Personal website and blog by Dylan Holmes, built with minimal HTML and CSS.
 
 ## About
 
-A simple, fast-loading personal site focused on readability and maintainability. No JavaScript frameworks, no build process, no dependencies—just clean HTML and CSS that works everywhere.
+A simple, fast-loading personal site focused on readability and maintainability. Built with plain HTML and CSS, using minimal external resources only when necessary for enhanced functionality.
 
 ## Features
 
-- **Zero Dependencies**: No npm packages or build tools required
-- **Fast Loading**: Optimized for speed with minimal CSS
+- **Minimal Dependencies**: No npm packages or build tools required
+- **CDN-Only External Resources**: KaTeX via CDN for mathematical notation when needed
+- **Fast Loading**: Optimized for speed with minimal CSS and selective JavaScript
 - **Universal Compatibility**: Works on any web server or hosting service
 - **Mobile Responsive**: Clean design that works on all devices
-- **Future-Proof**: Plain HTML/CSS will work forever
+- **Future-Proof**: Plain HTML/CSS foundation will work forever
 
 ## Local Development
 
@@ -38,7 +39,9 @@ Then visit http://localhost:8080
 ├── about.html          # About page
 ├── style.css           # All site styling
 ├── posts/              # Blog posts
-│   └── *.html          # Individual posts
+│   ├── double-pendulum.html              # Physics analysis with animation
+│   ├── algorithm-recursive-newton-euler.html  # Technical algorithm reference
+│   └── *.html          # Other individual posts
 └── README.md           # This file
 ```
 
@@ -88,8 +91,14 @@ To add a new blog post:
 This site follows the KISS principle—Keep It Simple, Stupid. It prioritizes:
 
 - **Simplicity** over complexity
-- **Performance** over features
+- **Performance** over features  
 - **Maintainability** over sophistication
 - **Longevity** over trends
 
-No frameworks. No bundlers. No dependencies. Just a website that works.
+Minimal frameworks. No bundlers. No build process. External resources used sparingly and only via CDN for enhanced functionality (like mathematical notation). Just a website that works.
+
+## Dependencies
+
+- **KaTeX** (via CDN): Mathematical equation rendering for technical posts
+  - Only loaded on pages that need mathematical notation
+  - Fallback: equations display as LaTeX source if KaTeX fails to load
