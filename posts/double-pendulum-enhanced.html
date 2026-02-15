@@ -11,6 +11,87 @@
     <!-- KaTeX JavaScript -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    
+    <style>
+        .pendulum-container {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        
+        #doublePendulumSVG {
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            border: 1px solid #ddd;
+        }
+        
+        .time-series-container {
+            margin: 2rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .time-series-canvas {
+            width: 100%;
+            height: 200px;
+            border: 1px solid #ddd;
+            margin: 0.5rem 0;
+            background: white;
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .controls button {
+            margin: 0 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .controls button:hover {
+            background: #0056b3;
+        }
+        
+        .controls button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .katex-display {
+            margin: 1rem 0;
+        }
+        
+        .equation {
+            text-align: center;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+        }
+        
+        blockquote {
+            margin: 1rem 0;
+            padding: 0 1rem;
+            border-left: 4px solid #ddd;
+            background: #f8f9fa;
+        }
+        
+        .references {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .references a {
+            word-break: break-all;
+        }
+    </style>
 </head>
 <body>
     <div class="wrap">
@@ -31,6 +112,20 @@
 
                 <h2>system</h2>
                 <p>The simplest double pendulum variant we can model consists of two coplanar point masses connected via massless links. When including gravity the system will display chaotic behavior (without gravity, you'll get trajectories similar to something drawn by a <a href="https://en.wikipedia.org/wiki/Spirograph">Spirograph</a>). Here is an illustration of the system, along with a table of variable descriptions:</p>
+                
+                <div class="pendulum-container">
+                    <svg id="doublePendulumSVG" viewBox="0 0 100 62" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+                        <g id="pendulum" transform="scale(1 -1) translate(45 -30)">
+                            <!-- Dynamic content will be inserted here -->
+                        </g>
+                    </svg>
+                </div>
+                
+                <div class="controls">
+                    <button id="startBtn">Start Animation</button>
+                    <button id="stopBtn" disabled>Stop Animation</button>
+                    <button id="resetBtn">Reset</button>
+                </div>
                 
                 <table>
                     <tr><td>$o$</td><td>the origin</td></tr>
@@ -59,6 +154,11 @@
 
                 <p><em>Here is a plot of these positions over time. The present is on the right, with time flow backwards to the left. Qualitatively, the plots are quite smooth and follow a sort of braiding pattern.</em></p>
 
+                <div class="time-series-container">
+                    <h3>Position Time Series</h3>
+                    <canvas id="positionsCanvas" class="time-series-canvas"></canvas>
+                </div>
+
                 <p><strong>The velocities can then be derived by taking the derivative of the positions with respect to time:</strong></p>
 
                 $$\begin{alignedat}{3}
@@ -70,6 +170,11 @@
 
                 <p><em>Similarly, we can plot the velocities over time. The plot looks somewhat similar to the position time series.</em></p>
 
+                <div class="time-series-container">
+                    <h3>Velocity Time Series</h3>
+                    <canvas id="velocitiesCanvas" class="time-series-canvas"></canvas>
+                </div>
+
                 <p><strong>Taking the derivatives once more with respect to time, we get the accelerations:</strong></p>
 
                 $$\begin{alignedat}{3}
@@ -78,6 +183,11 @@
                 \ddot{x_b} &= c_al_a\ddot{\theta_a} + c_bl_b\ddot{\theta_b} - s_al_a\dot{\theta_a}^2 - s_bl_b\dot{\theta_b}^2 \\
                 \ddot{y_b} &= s_al_a\ddot{\theta_a} + s_bl_b\ddot{\theta_b} + c_al_a\dot{\theta_a}^2 + c_bl_b\dot{\theta_b}^2
                 \end{alignedat}$$
+
+                <div class="time-series-container">
+                    <h3>Acceleration Time Series</h3>
+                    <canvas id="accelerationsCanvas" class="time-series-canvas"></canvas>
+                </div>
 
                 <h2>newtonian mechanics</h2>
 
@@ -109,6 +219,24 @@
 
                 <p>We have gotten rid of the external forces, but the equation is not yet completely in terms of the generalized coordinates $\theta$. We still need to substitute in the cartesian accelerations of the point masses using the kinematic equations. After the substitution, we can rearrange to arrive at the following equations of motion.</p>
 
+                <p><strong>The final equations implemented in the simulation above are:</strong></p>
+
+                $$\ddot{\theta_a} = \frac{
+                  m_b s_{a-b} c_{a-b} l_a \dot{\theta_a}^2 +
+                  m_b s_{a-b} l_b \dot{\theta_b}^2 +
+                  ((m_a + m_b) s_a - m_b s_b c_{a-b}) g
+                }{
+                  -(m_a + m_b s_{a-b}^2) l_a
+                }$$
+
+                $$\ddot{\theta_b} = \frac{
+                  (m_a + m_b) s_{a-b} l_a \dot{\theta_a}^2 +
+                  m_b s_{a-b} c_{a-b} l_b \dot{\theta_b}^2 +
+                  (m_a + m_b) s_{a-b} c_a g
+                }{
+                  (m_a + m_b s_{a-b}^2) l_b
+                }$$
+
                 <h2>learnings</h2>
 
                 <p>Here are some things I learned while making this article:</p>
@@ -119,6 +247,10 @@
                     <li>In blog posts, I was surprised to see authors suggest using a computer algebra program to solve the equations rather than solving them by hand. While my first reaction was "what a cheater!", I realized this is actually a really smart decision to save time when you don't feel like doing tedious algebra. I still think you should try to solve equations by hand as a first choice, but using a computer algebra program to validate your answers or to use your time more wisely is a great idea (well at least outside of education).</li>
 
                     <li>Choosing the generalized coordinates for the planar double pendulum as the angle between each point mass and vertical was not my first choice when I started this article. I started with $\theta_b$ being the angle between the vectors $\overrightarrow{oa}$ and $\overrightarrow{ob}$, being more similar to recursive kinematic descriptions used in most graphics software. I quickly found that the math is slightly more complex with this choice (try it yourself), and so I decided to keep with the common choice used in this article.</li>
+
+                    <li><strong>Visualizing the time series data</strong> reveals the "braiding patterns" mentioned in the theory. The chaotic nature becomes apparent when you see how small changes in initial conditions lead to dramatically different trajectories over time.</li>
+
+                    <li><strong>Real-time physics simulation</strong> makes the mathematical theory tangible. Watching the accelerations spike as the pendulums swing through their trajectories helps build intuition for the complex dynamics.</li>
                 </ul>
 
                 <h3>Mechanics vs Dynamics vs Kinematics</h3>
@@ -157,11 +289,13 @@
 
                 <h2>references</h2>
                 
-                <p><a href="https://diego.assencio.com/?index=1500c66ae7ab27bb0106467c68feebc6">diego.assencio.com - Double Pendulum</a></p>
-                <p><a href="https://scienceworld.wolfram.com/physics/DoublePendulum.html">Wolfram ScienceWorld - Double Pendulum</a></p>
-                <p><a href="https://www.myphysicslab.com/pendulum/double-pendulum-en.html">myPhysicsLab - Double Pendulum</a></p>
-                <p><a href="https://en.wikipedia.org/wiki/Equations_of_motion">Wikipedia - Equations of motion</a></p>
-                <p><a href="https://en.wikipedia.org/wiki/Double_pendulum">Wikipedia - Double pendulum</a></p>
+                <div class="references">
+                    <p><a href="https://diego.assencio.com/?index=1500c66ae7ab27bb0106467c68feebc6">diego.assencio.com - Double Pendulum</a></p>
+                    <p><a href="https://scienceworld.wolfram.com/physics/DoublePendulum.html">Wolfram ScienceWorld - Double Pendulum</a></p>
+                    <p><a href="https://www.myphysicslab.com/pendulum/double-pendulum-en.html">myPhysicsLab - Double Pendulum</a></p>
+                    <p><a href="https://en.wikipedia.org/wiki/Equations_of_motion">Wikipedia - Equations of motion</a></p>
+                    <p><a href="https://en.wikipedia.org/wiki/Double_pendulum">Wikipedia - Double pendulum</a></p>
+                </div>
 
             </article>
         </main>
@@ -171,9 +305,180 @@
         </footer>
     </div>
 
+    <!-- Enhanced Physics Engine -->
+    <script src="../enhanced-pendulum-physics.js"></script>
+
     <script>
-        // Initialize KaTeX rendering when the page loads
+        // Enhanced Double Pendulum Animation (with time series plotting)
+        class EnhancedDoublePendulumVisualization {
+            constructor() {
+                this.physics = new EnhancedDoublePendulumPhysics();
+                this.positionsPlot = new TimeSeriesCanvas('positionsCanvas', this.physics);
+                this.velocitiesPlot = new TimeSeriesCanvas('velocitiesCanvas', this.physics);
+                this.accelerationsPlot = new TimeSeriesCanvas('accelerationsCanvas', this.physics);
+                
+                this.setupSVG();
+                this.setupControls();
+                this.startVisualizationLoop();
+            }
+            
+            setupSVG() {
+                const svg = document.querySelector('#doublePendulumSVG');
+                const pendulumGroup = document.getElementById('pendulum');
+                
+                // Create SVG elements for pendulum
+                pendulumGroup.innerHTML = `
+                    <line id="vertical-line-a" style="stroke: black; stroke-width: 0.1; stroke-dasharray: 0.4;"/>
+                    <line id="vertical-line-b" style="stroke: black; stroke-width: 0.1; stroke-dasharray: 0.4;"/>
+                    <path id="arc-a" style="fill: none; stroke: black; stroke-width: 0.1; stroke-dasharray: 0.4;"/>
+                    <path id="arc-b" style="fill: none; stroke: black; stroke-width: 0.1; stroke-dasharray: 0.4;"/>
+                    <line id="line-o-a" style="stroke: black; stroke-width: 0.25;"/>
+                    <line id="line-a-b" style="stroke: black; stroke-width: 0.25;"/>
+                    <circle id="point-o" style="fill: black;" r="1" cx="0" cy="0"/>
+                    <circle id="point-a" style="fill: red;" r="1.5"/>
+                    <circle id="point-b" style="fill: blue;" r="1.5"/>
+                    <g id="trail-a" opacity="0.3"></g>
+                    <g id="trail-b" opacity="0.5"></g>
+                `;
+                
+                this.trailA = [];
+                this.trailB = [];
+            }
+            
+            setupControls() {
+                const startBtn = document.getElementById('startBtn');
+                const stopBtn = document.getElementById('stopBtn');
+                const resetBtn = document.getElementById('resetBtn');
+                
+                startBtn.addEventListener('click', () => {
+                    this.physics.start();
+                    startBtn.disabled = true;
+                    stopBtn.disabled = false;
+                });
+                
+                stopBtn.addEventListener('click', () => {
+                    this.physics.stop();
+                    startBtn.disabled = false;
+                    stopBtn.disabled = true;
+                });
+                
+                resetBtn.addEventListener('click', () => {
+                    this.physics.stop();
+                    this.physics.state = this.physics.createInitialState();
+                    this.trailA = [];
+                    this.trailB = [];
+                    document.getElementById('trail-a').innerHTML = '';
+                    document.getElementById('trail-b').innerHTML = '';
+                    startBtn.disabled = false;
+                    stopBtn.disabled = true;
+                });
+            }
+            
+            polarToCartesian(centerX, centerY, radius, angleInRadians) {
+                return {
+                    x: centerX + (radius * Math.cos(angleInRadians)),
+                    y: centerY + (radius * Math.sin(angleInRadians))
+                };
+            }
+            
+            describeArc(x, y, radius, startAngle, endAngle) {
+                const start = this.polarToCartesian(x, y, radius, endAngle);
+                const end = this.polarToCartesian(x, y, radius, startAngle);
+                
+                const largeArcFlag = endAngle - startAngle <= Math.PI ? "0" : "1";
+                if (endAngle - startAngle <= -Math.PI) {
+                    largeArcFlag = "1";
+                }
+                const sweepFlag = endAngle - startAngle >= 0 ? 0 : 1;
+                
+                return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} ${sweepFlag} ${end.x} ${end.y}`;
+            }
+            
+            updateSVG() {
+                const state = this.physics.state.currentState;
+                const l = 15; // rod length
+                
+                // Get positions from physics simulation
+                const x_a = state.a.x;
+                const y_a = state.a.y;
+                const x_b = state.b.x;
+                const y_b = state.b.y;
+                
+                // Update trails
+                this.trailA.push({x: x_a, y: y_a});
+                this.trailB.push({x: x_b, y: y_b});
+                
+                if (this.trailA.length > 100) this.trailA.shift();
+                if (this.trailB.length > 100) this.trailB.shift();
+                
+                // Update trail SVG
+                const trailAGroup = document.getElementById('trail-a');
+                const trailBGroup = document.getElementById('trail-b');
+                
+                trailAGroup.innerHTML = this.trailA.map((point, i) => 
+                    `<circle cx="${point.x}" cy="${point.y}" r="${i / 50}" fill="red" opacity="${i / this.trailA.length}"/>`
+                ).join('');
+                
+                trailBGroup.innerHTML = this.trailB.map((point, i) => 
+                    `<circle cx="${point.x}" cy="${point.y}" r="${i / 30}" fill="blue" opacity="${i / this.trailB.length}"/>`
+                ).join('');
+                
+                // Arc angles for the visual indicators
+                const theta_a = state.theta.a;
+                const theta_b = state.theta.b;
+                const theta_a_arc_start = 3 * Math.PI / 2 + theta_a;
+                const theta_a_arc_end = 3 * Math.PI / 2;
+                const theta_b_arc_start = 3 * Math.PI / 2 + theta_b;
+                const theta_b_arc_end = 3 * Math.PI / 2;
+                
+                // Update SVG elements
+                document.getElementById('vertical-line-a').setAttribute('x1', 0);
+                document.getElementById('vertical-line-a').setAttribute('y1', 0);
+                document.getElementById('vertical-line-a').setAttribute('x2', 0);
+                document.getElementById('vertical-line-a').setAttribute('y2', -l);
+                
+                document.getElementById('vertical-line-b').setAttribute('x1', x_a);
+                document.getElementById('vertical-line-b').setAttribute('y1', y_a);
+                document.getElementById('vertical-line-b').setAttribute('x2', x_a);
+                document.getElementById('vertical-line-b').setAttribute('y2', y_a - l);
+                
+                document.getElementById('arc-a').setAttribute('d', this.describeArc(0, 0, l/2, theta_a_arc_start, theta_a_arc_end));
+                document.getElementById('arc-b').setAttribute('d', this.describeArc(x_a, y_a, l/2, theta_b_arc_start, theta_b_arc_end));
+                
+                document.getElementById('line-o-a').setAttribute('x1', 0);
+                document.getElementById('line-o-a').setAttribute('y1', 0);
+                document.getElementById('line-o-a').setAttribute('x2', x_a);
+                document.getElementById('line-o-a').setAttribute('y2', y_a);
+                
+                document.getElementById('line-a-b').setAttribute('x1', x_a);
+                document.getElementById('line-a-b').setAttribute('y1', y_a);
+                document.getElementById('line-a-b').setAttribute('x2', x_b);
+                document.getElementById('line-a-b').setAttribute('y2', y_b);
+                
+                document.getElementById('point-a').setAttribute('cx', x_a);
+                document.getElementById('point-a').setAttribute('cy', y_a);
+                
+                document.getElementById('point-b').setAttribute('cx', x_b);
+                document.getElementById('point-b').setAttribute('cy', y_b);
+            }
+            
+            startVisualizationLoop() {
+                const updateVisualization = () => {
+                    this.updateSVG();
+                    this.positionsPlot.updatePositions();
+                    this.velocitiesPlot.updateVelocities();
+                    this.accelerationsPlot.updateAccelerations();
+                    
+                    requestAnimationFrame(updateVisualization);
+                };
+                
+                updateVisualization();
+            }
+        }
+        
+        // Initialize everything when the page loads
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize KaTeX rendering
             if (window.renderMathInElement) {
                 renderMathInElement(document.body, {
                     delimiters: [
@@ -182,6 +487,9 @@
                     ]
                 });
             }
+            
+            // Start the enhanced double pendulum visualization
+            const visualization = new EnhancedDoublePendulumVisualization();
         });
     </script>
 </body>
