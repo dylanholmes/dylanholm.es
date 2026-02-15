@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>double pendulum (enhanced) - dylanholm.es</title>
+    <meta name="description" content="Comprehensive physics analysis of a planar double pendulum with detailed mathematical derivations">
+    <link rel="stylesheet" href="../style.css">
+    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <!-- KaTeX JavaScript -->
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <h1><a href="/">dylanholm.es</a></h1>
+            <nav>
+                <a href="/about.html">/about</a>
+            </nav>
+        </header>
+        
+        <main>
+            <article>
+                <h1>double pendulum (enhanced)</h1>
+                <div class="blog-date">2020-10-05</div>
+                
+                <h2>overview</h2>
+                <p>The double pendulum is a beautiful example of a dynamical system. Despite having only two degrees of freedom, it displays sophisticatedly chaotic trajectories that can leave you mesmerized for hours on end (or at least me). In this post, we'll explore the mechanics of this system.</p>
+
+                <h2>system</h2>
+                <p>The simplest double pendulum variant we can model consists of two coplanar point masses connected via massless links. When including gravity the system will display chaotic behavior (without gravity, you'll get trajectories similar to something drawn by a <a href="https://en.wikipedia.org/wiki/Spirograph">Spirograph</a>). Here is an illustration of the system, along with a table of variable descriptions:</p>
+                
+                <table>
+                    <tr><td>$o$</td><td>the origin</td></tr>
+                    <tr><td>$a, b$</td><td>point masses</td></tr>
+                    <tr><td>$m_a, m_b$</td><td>masses of $a$ and $b$</td></tr>
+                    <tr><td>$l_a, l_b$</td><td>link lengths, $\overrightarrow{oa}$ and $\overrightarrow{ob}$</td></tr>
+                    <tr><td>$\theta_a, \theta_b \in [-\pi, \pi]$</td><td>angle between vertical and each link</td></tr>
+                </table>
+
+                <h2>forward kinematics</h2>
+                
+                <p>In general, the process of computing the position (or related derivatives) of a point in the system is known as forward kinematics. Mathematically, this can be written concisely as $\mathbf{x} = f(\boldsymbol{\theta})$, where $\mathbf{x}$ is a vector representing the state of the system in <em>cartesian</em> coordinates and $\boldsymbol{\theta}$ is a vector representing the state of the system in <em>generalized</em> coordinates, and $f$ is a function that maps from the generalized coordinates to the cartesian coordinates.</p>
+
+                <p>In the case of the double pendulum we have modeled above, this means computing cartesian coordinates of the point masses $x_a$, $y_a$, $x_b$ and $y_b$ in terms of the joint angles, $\theta_a$ and $\theta_b$. To derive the forward kinematic function, $f$, we can rely entirely on geometry as it only depends on $\boldsymbol{\theta}$.</p>
+
+                <p>While we could keep the vector notation mentioned by letting $\mathbf{x} = \begin{bmatrix}x_a& y_a& x_b & y_b \end{bmatrix}^T$, it feels unnecessary for our purposes. Also, there will be quite a bit of sinusoidal functions, so we denote $\sin\theta_x$ and $\cos\theta_x$ as $s_x$ and $c_x$ for convenience.</p>
+
+                <p><strong>The positions of the point masses can be derived using geometry by inspection:</strong></p>
+
+                $$\begin{alignedat}{3}
+                x_a =& &s_al_a& \\
+                y_a =& -&c_al_a&  \\
+                x_b =& &s_al_a& + s_bl_b \\
+                \tag{1} y_b =& -&c_al_a& -c_bl_b 
+                \end{alignedat}$$
+
+                <p><em>Here is a plot of these positions over time. The present is on the right, with time flow backwards to the left. Qualitatively, the plots are quite smooth and follow a sort of braiding pattern.</em></p>
+
+                <p><strong>The velocities can then be derived by taking the derivative of the positions with respect to time:</strong></p>
+
+                $$\begin{alignedat}{3}
+                \dot{x_a} &= &c_al_a\dot{\theta_a}& \\
+                \dot{y_a} &= &s_al_a\dot{\theta_a}& \\
+                \dot{x_b} &= &c_al_a\dot{\theta_a}& + c_bl_b\dot{\theta_b} \\
+                \dot{y_b} &= &s_al_a\dot{\theta_a}& + s_bl_b\dot{\theta_b}
+                \end{alignedat}$$
+
+                <p><em>Similarly, we can plot the velocities over time. The plot looks somewhat similar to the position time series.</em></p>
+
+                <p><strong>Taking the derivatives once more with respect to time, we get the accelerations:</strong></p>
+
+                $$\begin{alignedat}{3}
+                \ddot{x_a} &= c_al_a\ddot{\theta_a} - s_al_a\dot{\theta_a}^2 \\
+                \ddot{y_a} &= s_al_a\ddot{\theta_a} + c_al_a\dot{\theta_a}^2 \\
+                \ddot{x_b} &= c_al_a\ddot{\theta_a} + c_bl_b\ddot{\theta_b} - s_al_a\dot{\theta_a}^2 - s_bl_b\dot{\theta_b}^2 \\
+                \ddot{y_b} &= s_al_a\ddot{\theta_a} + s_bl_b\ddot{\theta_b} + c_al_a\dot{\theta_a}^2 + c_bl_b\dot{\theta_b}^2
+                \end{alignedat}$$
+
+                <h2>newtonian mechanics</h2>
+
+                <p>The newtonian approach to deriving the dynamic equations of motion of a system relies on the forces acting on the bodies within the system. In practice, this means determining the forces using a free body diagram, then using the kinematic description of the system coupled with newton's second law, $F=ma$ to derive a set of equations that determine the system's motion as a function of time.</p>
+
+                <p>As depicted in the diagram above, point mass $a$ is being acted on by the tension from the massless rods connecting it to the origin and $b$.</p>
+
+                <p><strong>Free body equations:</strong></p>
+
+                $$\begin{alignedat}{3}
+                m_a\ddot{x_a} &= -&T_as_a& + T_bs_b \\
+                m_a\ddot{y_a} &= &T_ac_a& - T_bc_b - m_ag \\
+                m_b\ddot{x_b} &= -&T_bs_b&  \\
+                m_b\ddot{y_b} &= &T_bc_b& - m_bg
+                \end{alignedat}$$
+
+                <p><strong>Starting from the kinematic equations for acceleration and the equations derived from newton's second law, this section will describe how to solve for the generalized accelerations, $\ddot{\theta}$.</strong></p>
+
+                <p>We'll start by manipulating the second law equations to eliminate the internal forces:</p>
+
+                <ol>
+                    <li><strong>Find the first equation of motion by substitution of $T_b$.</strong></li>
+                    <li><strong>Find the second equation of motion by substitution of $T_a$ and $T_b$.</strong></li>
+                </ol>
+
+                <p>Now we have equations of motion that do not depend on the internal forces.</p>
+
+                <p>Note that the equations still depend on the cartesian accelerations of the point masses. Next, we will use the kinematic equations for acceleration to solve these equations for the generalized accelerations $\ddot{\theta}$. To make this easier, let $s_x=\sin\theta_x$ and $c_x=\cos\theta_x$.</p>
+
+                <p>We have gotten rid of the external forces, but the equation is not yet completely in terms of the generalized coordinates $\theta$. We still need to substitute in the cartesian accelerations of the point masses using the kinematic equations. After the substitution, we can rearrange to arrive at the following equations of motion.</p>
+
+                <h2>learnings</h2>
+
+                <p>Here are some things I learned while making this article:</p>
+
+                <ul>
+                    <li>The term "equations of motion" aren't just reserved for dynamics. Any set of equations that describe motion are "equations of motion" (quite obvious in retrospect). So, when talking about "kinematic equations of motion" or "dynamic equations of motion", you can simply say "kinematics" or "dynamics".</li>
+
+                    <li>In blog posts, I was surprised to see authors suggest using a computer algebra program to solve the equations rather than solving them by hand. While my first reaction was "what a cheater!", I realized this is actually a really smart decision to save time when you don't feel like doing tedious algebra. I still think you should try to solve equations by hand as a first choice, but using a computer algebra program to validate your answers or to use your time more wisely is a great idea (well at least outside of education).</li>
+
+                    <li>Choosing the generalized coordinates for the planar double pendulum as the angle between each point mass and vertical was not my first choice when I started this article. I started with $\theta_b$ being the angle between the vectors $\overrightarrow{oa}$ and $\overrightarrow{ob}$, being more similar to recursive kinematic descriptions used in most graphics software. I quickly found that the math is slightly more complex with this choice (try it yourself), and so I decided to keep with the common choice used in this article.</li>
+                </ul>
+
+                <h3>Mechanics vs Dynamics vs Kinematics</h3>
+                
+                <p><em>From various sources on the taxonomy of classical mechanics:</em></p>
+
+                <p><strong>Mechanics</strong> deals with all interactions between bodies with forces, and the resultant motion of the body. Its aim is to predict the nature of motion and rest under the action of forces.</p>
+
+                <p>Mechanics is a broader area of study, comprising of <strong>Dynamics</strong> and <strong>Statics</strong>.</p>
+
+                <ul>
+                    <li><strong>Statics</strong> deals with bodies under rest or uniform motion, i.e., equilibrium. The net force acting on the body will be zero.</li>
+                    <li><strong>Dynamics</strong> deals with moving (accelerating) bodies and the forces acting on them.</li>
+                </ul>
+
+                <p>Dynamics is again classified as:</p>
+                <ul>
+                    <li><strong>Kinematics</strong> - deals with motion (displacement, velocity, acceleration) alone, without considering the forces responsible for the motion.</li>
+                    <li><strong>Kinetics</strong> - deals with the actual forces causing the motion. This mainly uses d'Alembert's principle (F=ma).</li>
+                </ul>
+
+                <h3>Timeline of Classical Mechanics Reformulations</h3>
+
+                <ul>
+                    <li><strong>1687</strong> - Newton's laws of motion (Newtonian Mechanics, vectorial mechanics for point masses)</li>
+                    <li><strong>1742</strong> - D'Alembert's principle (fundamental classical laws of motion)</li>
+                    <li><strong>1740-1751</strong> - Euler's laws of motion (extended Newtonian mechanics to rigid bodies)</li>
+                    <li><strong>1750's</strong> - Euler-Lagrange equations</li>
+                    <li><strong>1788</strong> - Lagrange's equations of motion (Lagrangian Mechanics, analytical mechanics)</li>
+                    <li><strong>1829</strong> - Gauss's Principle of least constraint (variational formulation)</li>
+                    <li><strong>1821-1835</strong> - Hamiltonian Mechanics & Hamilton–Jacobi equation</li>
+                    <li><strong>Late 1800's</strong> - Routhian mechanics (combines Lagrangian and Hamiltonian advantages)</li>
+                    <li><strong>1879-1990</strong> - Gibbs–Appell equation of motion (convenient for nonholonomic constraints)</li>
+                    <li><strong>1931-1932</strong> - Koopman–von Neumann mechanics (classical mechanics in Hilbert space)</li>
+                </ul>
+
+                <h2>references</h2>
+                
+                <p><a href="https://diego.assencio.com/?index=1500c66ae7ab27bb0106467c68feebc6">diego.assencio.com - Double Pendulum</a></p>
+                <p><a href="https://scienceworld.wolfram.com/physics/DoublePendulum.html">Wolfram ScienceWorld - Double Pendulum</a></p>
+                <p><a href="https://www.myphysicslab.com/pendulum/double-pendulum-en.html">myPhysicsLab - Double Pendulum</a></p>
+                <p><a href="https://en.wikipedia.org/wiki/Equations_of_motion">Wikipedia - Equations of motion</a></p>
+                <p><a href="https://en.wikipedia.org/wiki/Double_pendulum">Wikipedia - Double pendulum</a></p>
+
+            </article>
+        </main>
+        
+        <footer>
+            <p>&copy; 2020 Dylan Holmes</p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize KaTeX rendering when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: "$$", right: "$$", display: true},
+                        {left: "$", right: "$", display: false}
+                    ]
+                });
+            }
+        });
+    </script>
+</body>
+</html>
