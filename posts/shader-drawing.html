@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>shader drawing - dylanholm.es</title>
+    <meta name="description" content="A WebGL drawing tool with multiple GPU-accelerated brush types">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        #app-container { width: 100%; margin: 1.5rem 0; }
+        #app-container canvas { display: block; }
+    </style>
+</head>
+<body>
+    <a class="skip" href="#main">Skip to Content</a>
+    <div class="wrap">
+        <header>
+            <h1><a href="/">dylanholm.es</a></h1>
+            <nav>
+                <a href="/about.html">/about</a>
+                <a href="/resume.html">/resume</a>
+            </nav>
+        </header>
+
+        <main id="main">
+            <article>
+                <h2>shader drawing</h2>
+                <p>a WebGL drawing tool with multiple GPU-accelerated brush types. click to paint, scroll to resize brush, keys 1–7 to switch brush types.</p>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/88/three.min.js" integrity="sha256-6fhm481uY9c152qGWIVgE7KbzaCj5WjCi3BGIpZef2E=" crossorigin="anonymous"></script>
+<div id="app-container"></div>
+<script type='application/json' id='vertex-shader'>
+    varying vec2 v_uv;
+
+    void main() {
+        gl_Position = vec4( position, 1.0 );
+        v_uv = uv;
+    }
+</script>
+<script type='application/json' id='vertex-shader-perfect-brush'>
+
+    attribute vec3 head;
+    attribute vec4 brushColor;
+    attribute float brushSize;
+
+    varying vec3 vHead;
+    varying vec4 vBrushColor;
+    varying vec2 vUv;
+
+    void main() {
+        vHead = head;
+        vBrushColor = brushColor;
+        vUv = uv;
+        gl_PointSize = 2.0*brushSize;
+        gl_Position = vec4( position, 1.0 );
+    }
+</script>
+<script type='application/json' id='vertex-shader-quad-brush'>
+
+    attribute vec3 instancePosition;
+    attribute vec3 instanceHead;
+    attribute vec4 instanceBrushColor;
+    attribute float instanceBrushSize;
+
+    uniform vec2 resolution;
+
+    varying vec3 vHead;
+    varying vec4 vBrushColor;
+    varying vec2 vPointCoord;
+    varying vec2 vUv;
+
+    void main() {
+        vHead = instanceHead;
+        vBrushColor = instanceBrushColor;
+        vUv = vec2(0.0); // match Points behavior (no per-vertex uv)
+        // Emulate gl_PointCoord: (0,0) top-left, (1,1) bottom-right
+        vPointCoord = vec2(position.x + 0.5, 0.5 - position.y);
+        // Scale quad by brush size (in pixels), convert to clip space
+        // 4.0 = 2.0 (clip space range) * 2.0 (diameter from half-extent vertices)
+        vec2 offset = position.xy * 4.0 * instanceBrushSize / resolution;
+        gl_Position = vec4( instancePosition.xy + offset, 0.0, 1.0 );
+    }
+</script>
+<script type='application/json' id='fragment-shader-perfect-brush-hard-circle'>
+    varying vec3 vHead;
+    varying vec4 vBrushColor;
+    varying vec2 vUv;
+
+    uniform float time;
+
+    float map(float sn, float sx, float dn, float dx, float x) {
+        float y = (dx - dn) * ( x - sn ) / ( sx - sn ) + dn;
+
+        return clamp(y, dn, dx);
+    }
+
+    float hardcircle( vec2 uv, vec2 center, float radius ) {
+        return step( distance(uv, center), radius );
+    }
+
+    void main() {
+        vec3 head = vHead;
+        vec2 center = -vec2( 0.5 ) + vec2( gl_PointCoord.x, 1.0-gl_PointCoord.y );
+        gl_FragColor = vec4(vBrushColor.rgb, map(0.0, 1.0, 0.0, vBrushColor.a, hardcircle( vUv, center, 0.5 )));
+    }
+</script>
+<script type='application/json' id='fragment-shader-perfect-brush-soft-circle'>
+    varying vec3 vHead;
+    varying vec4 vBrushColor;
+    varying vec2 vUv;
+
+    uniform float time;
+
+    float map(float sn, float sx, float dn, float dx, float x) {
+        float y = (dx - dn) * ( x - sn ) / ( sx - sn ) + dn;
+
+        return clamp(y, dn, dx);
+    }
+
+    float smoothcircle(vec2 uv, vec2 center, float outerRadius, float innerRadius) {
+        return smoothstep( outerRadius, innerRadius, distance(uv, center) );
+    }
+
+    void main() {
+        vec3 head = vHead;
+        vec2 uv = vUv;
+        vec2 center = -vec2( 0.5 ) + vec2( gl_PointCoord.x, 1.0-gl_PointCoord.y );
+        float brush = smoothcircle( uv, center, 0.5, 0.3 );
+        gl_FragColor = vec4(vBrushColor.rgb, map(0.0, 1.0, 0.0, vBrushColor.a, brush));
+    }
+</script>
+<script type='application/json' id='fragment-shader-perfect-brush-hard-ellipse'>
+    varying vec3 vHead;
+    varying vec4 vBrushColor;
+    varying vec2 vUv;
+
+    uniform float time;
+
+    vec2 rotate(vec2 p, float a) {
+        return vec2(cos(a)*p.x - sin(a)*p.y, sin(a)*p.x + cos(a)*p.y);
+    }
+
+    vec2 rotate(vec2 p, vec2 center, float a) {
+        p -= center;
+        p = rotate(p, a);
+        p += center;
+        return p;
+    }
+
+    float map(float sn, float sx, float dn, float dx, float x) {
+        float y = (dx - dn) * ( x - sn ) / ( sx - sn ) + dn;
+
+        return clamp(y, dn, dx);
+    }
+
+    float hardellipse( vec2 uv, vec2 center, float r1, float r2 ) {
+        // ellipse equation: ( x / a )^2 + ( y / b )^2 = 1
+        uv -= center;
+        float e1 = ( uv.x ) / r1;
+        float e2 = ( uv.y ) / r2;
+        float d = ( e1 * e1 ) + ( e2 * e2 );
+
+        return step( d, 1.0 );
+    }
+
+    void main() {
+        vec3 head = vHead;
+        vec2 uv = vUv;
+        vec2 center = -vec2( 0.5 ) + vec2( gl_PointCoord.x, 1.0-gl_PointCoord.y );
+
+        // to rotate tip:
+        // uv = rotate( uv, center, sin( time ) );
+
+        float brush = hardellipse( uv, center, 0.5, 0.1);
+        gl_FragColor = vec4(vBrushColor.rgb, map(0.0, 1.0, 0.0, vBrushColor.a, brush));
+    }
+</script>
+<script type='application/json' id='fragment-shader-perfect-brush-soft-ellipse'>
+    varying vec3 vHead;
+    varying vec4 vBrushColor;
+    varying vec2 vUv;
+
+    uniform float time;
+
+    vec2 rotate(vec2 p, float a) {
+        return vec2(cos(a)*p.x - sin(a)*p.y, sin(a)*p.x + cos(a)*p.y);
+    }
+
+    vec2 rotate(vec2 p, vec2 center, float a) {
+        p -= center;
+        p = vec2(cos(a)*p.x - sin(a)*p.y, sin(a)*p.x + cos(a)*p.y);
+        p += center;
+        return p;
+    }
+
+    float map(float sn, float sx, float dn, float dx, float x) {
+        float y = (dx - dn) * ( x - sn ) / ( sx - sn ) + dn;
+
+        return clamp(y, dn, dx);
+    }
+
+    float hardcircle( vec2 uv, vec2 center, float radius ) {
+        return step( distance(uv, center), radius );
+    }
+
+    float smoothcircle(vec2 uv, vec2 center, float outerRadius, float innerRadius) {
+        return smoothstep( outerRadius, innerRadius, distance(uv, center) );
+    }
+
+    float hardring(vec2 uv, vec2 center, float outerRadius, float innerRadius) {
+        float d = distance(uv, center);
+        return step( d, outerRadius ) - step( d, innerRadius );
+    }
+
+    float smoothring( vec2 uv, vec2 center, float r1, float r2, float r3, float r4 ) {
+        float d = distance(uv, center);
+        return smoothstep( r1, r2, d ) - smoothstep( r3, r4, d );
+    }
+
+    float hardellipse( vec2 uv, vec2 center, float r1, float r2 ) {
+        // ellipse equation: ( x / a )^2 + ( y / b )^2 = 1
+        uv -= center;
+        float e1 = ( uv.x ) / r1;
+        float e2 = ( uv.y ) / r2;
+        float d = ( e1 * e1 ) + ( e2 * e2 );
+
+        return step( d, 1.0 );
+    }
+
+    float softellipse( vec2 uv, vec2 center, float r1, float r2, float r3, float r4 ) {
+        // ellipse equation: ( x / a )^2 + ( y / b )^2 = 1
+        uv -= center;
+        float e1 = ( uv.x ) / r1;
+        float e2 = ( uv.y ) / r2;
+        float d1 = ( e1 * e1 ) + ( e2 * e2 );
+
+        float e3 = ( uv.x ) / r3;
+        float e4 = ( uv.y ) / r4;
+        float d2 = ( e3 * e3 ) + ( e4 * e4 );
+
+        return smoothstep( d1, d2, 1.0 );
+    }
+
+    float spraycan( vec2 uv, vec2 center, vec3 head, float sprayAmount, float capAngle ) {
+        vec3 target = vec3( center, 0.0 );
+        vec3 fragment = vec3( uv, 0.0 );
+
+        vec3 targetFromHead = normalize( target - head );
+        vec3 fragmentFromHead = fragment - head;
+
+        float angle = acos( dot( normalize( targetFromHead ), normalize( fragmentFromHead ) ) );
+        float brush = step( angle, capAngle );
+
+        //
+        float d = length( fragmentFromHead );
+        float d1 = length( targetFromHead );
+        brush *= smoothstep(d, sprayAmount*d, 1.5*d1);
+
+        return brush;
+    }
+
+    void main() {
+        vec3 head = vHead;
+        vec2 uv = vUv;
+        vec2 center = -vec2( 0.5 ) + vec2( gl_PointCoord.x, 1.0-gl_PointCoord.y );
+
+        /* simple brushes */
+
+        // to rotate tip:
+        // uv = rotate( uv, center, sin( time ) );
+
+        // float brush = hardcircle( uv, center, 0.5 );
+        // float brush = smoothcircle( uv, center, 0.5, 0.3 );
+        // float brush = hardring( uv, center, 0.5, 0.49 );
+        // float brush = smoothring( uv, center, 0.5, 0.49, 0.48, 0.3 );
+        // float brush = hardellipse( uv, center, 0.5, 0.1);
+        float brush = softellipse( uv, center, 0.5, 0.5, 0.5, 0.1);
+
+        /* spray brush */
+        // float brush = spraycan( uv, center, vec3(center, 0.0) + head, 10.0, 3.14 / 12.0 );
+
+        gl_FragColor = vec4(vBrushColor.rgb, map(0.0, 1.0, 0.0, vBrushColor.a, brush));
+    }
+</script>
+<script type='application/json' id='fragment-shader-perfect-brush-hard-ring'>
+    varying vec3 vHead;
+    varying vec4 vBrushColor;
+    varying vec2 vUv;
+
+    uniform float time;
+
+    float map(float sn, float sx, float dn, float dx, float x) {
+        float y = (dx - dn) * ( x - sn ) / ( sx - sn ) + dn;
+
+        return clamp(y, dn, dx);
+    }
+
+    float hardring(vec2 uv, vec2 center, float outerRadius, float innerRadius) {
+        float d = distance(uv, center);
+        return step( d, outerRadius ) - step( d, innerRadius );
+    }
+
+    void main() {
+        vec3 head = vHead;
+        vec2 uv = vUv;
+        vec2 center = -vec2( 0.5 ) + vec2( gl_PointCoord.x, 1.0-gl_PointCoord.y );
+        float brush = hardring( uv, center, 0.5, 0.49 );
+        gl_FragColor = vec4(vBrushColor.rgb, map(0.0, 1.0, 0.0, vBrushColor.a, brush));
+    }
+</script>
+<script type='application/json' id='fragment-shader-perfect-brush-soft-ring'>
+    varying vec3 vHead;
+    varying vec4 vBrushColor;
+    varying vec2 vUv;
+
+    uniform float time;
+
+    vec2 rotate(vec2 p, float a) {
+        return vec2(cos(a)*p.x - sin(a)*p.y, sin(a)*p.x + cos(a)*p.y);
+    }
+
+    vec2 rotate(vec2 p, vec2 center, float a) {
+        p -= center;
+        p = vec2(cos(a)*p.x - sin(a)*p.y, sin(a)*p.x + cos(a)*p.y);
+        p += center;
+        return p;
+    }
+
+    float map(float sn, float sx, float dn, float dx, float x) {
+        float y = (dx - dn) * ( x - sn ) / ( sx - sn ) + dn;
+
+        return clamp(y, dn, dx);
+    }
+
+    float smoothring( vec2 uv, vec2 center, float r1, float r2, float r3, float r4 ) {
+        float d = distance(uv, center);
+        return smoothstep( r1, r2, d ) - smoothstep( r3, r4, d );
+    }
+
+    void main() {
+        vec3 head = vHead;
+        vec2 uv = vUv;
+        vec2 center = -vec2( 0.5 ) + vec2( gl_PointCoord.x, 1.0-gl_PointCoord.y );
+        float brush = smoothring( uv, center, 0.5, 0.49, 0.48, 0.3 );
+        gl_FragColor = vec4(vBrushColor.rgb, map(0.0, 1.0, 0.0, vBrushColor.a, brush));
+    }
+</script>
+<script type='application/json' id='fragment-shader-perfect-brush-spray-can'>
+    varying vec3 vHead;
+    varying vec4 vBrushColor;
+    varying vec2 vUv;
+
+    uniform float time;
+
+    float map(float sn, float sx, float dn, float dx, float x) {
+        float y = (dx - dn) * ( x - sn ) / ( sx - sn ) + dn;
+
+        return clamp(y, dn, dx);
+    }
+
+    float spraycan( vec2 uv, vec2 center, vec3 head, float capAngle ) {
+        vec3 target = vec3( center, 0.0 );
+        vec3 fragment = vec3( uv, 0.0 );
+
+        vec3 targetFromHead = normalize( target - head );
+        vec3 fragmentFromHead = fragment - head;
+
+        float angle = acos( dot( normalize( targetFromHead ), normalize( fragmentFromHead ) ) );
+        float brush = step( angle, capAngle );
+
+        float d = length( fragmentFromHead );
+        float d1 = length( targetFromHead );
+        brush *= 1.0 - smoothstep(d1, d1 + 0.25, d);
+
+        return brush;
+    }
+
+    void main() {
+        vec3 head = vHead;
+        vec2 uv = vUv;
+        vec2 center = -vec2( 0.5 ) + vec2( gl_PointCoord.x, 1.0-gl_PointCoord.y );
+
+        /* spray brush */
+        float brush = spraycan( uv, center, vec3(center, 0.0) + head, 3.14 / 12.0 );
+
+        gl_FragColor = vec4(vBrushColor.rgb, map(0.0, 1.0, 0.0, vBrushColor.a, brush));
+    }
+</script>
+<script type='application/json' id='fragment-shader-a'>
+    varying vec2 v_uv;
+
+    uniform sampler2D prevTexture;
+
+    void main() {
+        gl_FragColor = texture2D(prevTexture, v_uv);
+    }
+</script>
+<script type='application/json' id='fragment-shader-b'>
+    varying vec2 v_uv;
+
+    uniform float time;
+    uniform sampler2D texture;
+
+    void main() {
+        gl_FragColor = texture2D( texture, v_uv );
+    }
+</script>
+<script type='application/json' id='fragment-shader-main'>
+    varying vec2 v_uv;
+
+    uniform float time;
+
+    uniform vec2 brushAPosition;
+
+    uniform float brushSize;
+    uniform sampler2D bufferA;
+    uniform sampler2D bufferB;
+
+    float circle(vec2 uv, vec2 center, bool fill, float radius, float thickness) {
+        float d = distance(uv, center);
+        float r = radius;
+        float t = thickness;
+        return smoothstep(r+t,r,d) - (fill?0.0:smoothstep(r,r-t,d));
+    }
+
+    float round( float x ) {
+        return floor( x + 0.5 );
+    }
+
+    void main() {
+        vec2 uv = v_uv;
+
+        vec4 colorA = texture2D(bufferA, uv);
+        vec4 colorB = texture2D(bufferB, uv);
+
+        gl_FragColor = vec4( mix( colorA.xyz, colorB.xyz, colorB.a ), colorB.a );
+
+        if ( round(brushAPosition.x) == round(gl_FragCoord.x) ||
+             round(brushAPosition.y) == round(gl_FragCoord.y) ) {
+
+            if (gl_FragColor.a > 0.5) {
+                gl_FragColor = mix(gl_FragColor, vec4(1.0-gl_FragColor.xyz, 1.0), 0.4);
+            } else {
+                gl_FragColor = mix(gl_FragColor, vec4(vec3(0.0), 1.0), 0.4);
+            }
+
+        }
+
+        float c = circle(gl_FragCoord.xy, brushAPosition - vec2(0.5), false, brushSize, 1.0);
+
+        if (gl_FragColor.a > 0.5) {
+            gl_FragColor = mix(gl_FragColor, vec4(1.0-gl_FragColor.xyz, 1.0), 0.4*c);
+        } else {
+            gl_FragColor = mix(gl_FragColor, vec4(vec3(0.0), 1.0), 0.4*c);
+        }
+
+    }
+</script>
+<script>
+
+    /* MaterialBuilder */
+    (function( global ) {
+        // lsfjldsjfdslkfjdslkfjdslkfjdslkfjdslkfjivjsi
+    })( this );
+
+    /* Source */
+    (function( global ) {
+
+        function Source( ) {
+            this.value = null;
+        }
+
+        Source.prototype.setValue = function( value ) {
+            this.value = value;
+        }
+
+        Source.prototype.getValue = function( ) {
+            return this.value;
+        }
+
+        global.Source = Source;
+
+    })( this );
+
+    /* Sink */
+    (function( global ) {
+
+        function Sink( ) {
+            this.source = null;
+        }
+
+        Sink.prototype.setSource = function( source ) {
+            this.source = source;
+        }
+
+        Sink.prototype.getValue = function( ) {
+            return this.source.getValue();
+        }
+
+        global.Sink = Sink;
+
+    })( this );
+
+    /* Mouse */
+    (function( global ) {
+
+        function Mouse( container ) {
+            this.container = container;  // input?
+
+            this.mouse = new THREE.Vector2( );
+            this.mousePrev = new THREE.Vector2( );
+            this.mousePrevPrev = new THREE.Vector2( );
+
+            this.mousePressed = false;
+            this.spacePressed = false;
+            this.ismousedown = false;
+
+            this.mouse2 = new THREE.Vector2( );
+
+            this.wheelY = 0;
+            this.wheelY2 = 16.0;
+
+            /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+            var scope = this;
+            window.addEventListener( 'mousedown', function(e) { scope.mousedown(e); }, false );
+            window.addEventListener( 'mouseup', function(e) { scope.mouseup(e); }, false );
+            window.addEventListener( 'keydown', function(e) {
+                if ( e.code === 'Space' ) { e.preventDefault(); scope.spacePressed = true; scope.updateDown(); }
+            }, false );
+            window.addEventListener( 'keyup', function(e) {
+                if ( e.code === 'Space' ) { scope.spacePressed = false; scope.updateDown(); }
+            }, false );
+            this.container.addEventListener( 'mouseleave', function(e) { scope.mouseleave(e); }, false );
+            this.container.addEventListener( 'mousemove', function(e) { scope.mousemove(e); }, false );
+            this.container.addEventListener( 'wheel', function(e) { scope.wheel(e); }, false );
+
+            /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+            this.inputs = { };
+
+            this.outputs = {
+                wheelY2: new Source( ),
+                mousedown: new Source( ),
+                position2: new Source( ),
+
+                position: new Source( ),
+                positionPrev: new Source( ),
+                positionPrevPrev: new Source( )
+            };
+
+            this.outputs.wheelY2.setValue( this.wheelY2 );
+            this.outputs.position2.setValue( new THREE.Vector2( ) );
+            this.outputs.position.setValue( new THREE.Vector2( ) );
+            this.outputs.positionPrev.setValue( new THREE.Vector2( ) );
+            this.outputs.positionPrevPrev.setValue( new THREE.Vector2( ) );
+        }
+
+        Mouse.prototype.updateDown = function( ) {
+            this.ismousedown = this.mousePressed || this.spacePressed;
+            this.outputs.mousedown.setValue( this.ismousedown );
+        }
+
+        Mouse.prototype.mousedown = function( e ) {
+            this.mousePressed = true;
+            this.updateDown();
+        }
+
+        Mouse.prototype.mouseup = function( e ) {
+            this.mousePressed = false;
+            this.updateDown();
+        }
+
+        Mouse.prototype.mouseleave = function( e ) {
+        }
+
+        Mouse.prototype.mousemove = function( e ) {
+            var size = getElementSize( this.container );
+            var x = ( e.pageX - this.container.offsetLeft ) * window.devicePixelRatio;
+            var y = ( size.height - (e.pageY - this.container.offsetTop))  * window.devicePixelRatio;
+
+            this.mousePrevPrev = this.mousePrev.clone();
+            this.mousePrev = this.mouse.clone();
+            this.mouse.x = 2.*( e.pageX - this.container.offsetLeft ) / size.width - 1.0;
+            this.mouse.y = 2.*( ( size.height - (e.pageY - this.container.offsetTop)) ) / size.height  - 1.0;
+
+            var size = getElementSize( this.container );
+            var x = ( e.pageX - this.container.offsetLeft ) * window.devicePixelRatio;
+            var y = ( size.height - ( e.pageY - this.container.offsetTop ) )  * window.devicePixelRatio;
+
+            this.outputs.position.setValue( this.mouse );
+            this.outputs.positionPrev.setValue( this.mousePrev );
+            this.outputs.positionPrevPrev.setValue( this.mousePrevPrev );
+            this.outputs.position2.setValue( new THREE.Vector2( x, y ) );
+        }
+
+        Mouse.prototype.wheel = function( e ) {
+            this.wheelY += e.wheelDeltaY;
+
+            var oneRoll = 120.0;
+            var brushSizeDelta = -1.0 * e.wheelDeltaY / oneRoll;
+            this.wheelY2 = Math.max( this.wheelY2 + brushSizeDelta, 1.0 );
+
+            this.outputs.wheelY2.setValue( this.wheelY2 );
+
+            e.preventDefault();
+        }
+
+        var getElementSize = function( element ) {
+            return ( element.getBoundingClientRect != undefined )
+                    ? element.getBoundingClientRect()
+                    : { width: element.offsetWidth, height: element.offsetHeight };
+        }
+
+        global.Mouse = Mouse;
+
+    })( this );
+
+    /* Keyboard */
+    (function( global ) {
+
+        function Keyboard( ) {
+            /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+            var scope = this;
+            document.addEventListener( 'keydown', function(e) { scope.keydown(e); }, false );
+            document.addEventListener( 'keyup', function(e) { scope.keyup(e); }, false );
+
+            /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+            this.inputs = { };
+            this.outputs = { };
+        }
+
+        Keyboard.prototype.keydown = function( event ) {
+            // const keyName = event.key;
+
+            console.log(event.key, event.which);
+
+            // if (keyName === 'Control') {
+            //     // do not alert when only Control key is pressed.
+            //     return;
+            // }
+
+            // if (event.ctrlKey) {
+            //     // Even though event.key is not 'Control' (i.e. 'a' is pressed),
+            //     // event.ctrlKey may be true if Ctrl key is pressed at the time.
+            //     alert(`Combination of ctrlKey + ${keyName}`);
+            // } else {
+            //     alert(`Key pressed ${keyName}`);
+            // }
+        }
+
+        Keyboard.prototype.keyup = function( event ) {
+            // const keyName = event.key;
+
+            // // As the user release the Ctrl key, the key is no longer active.
+            // // So event.ctrlKey is false.
+            // if (keyName === 'Control') {
+            //     alert('Control key was released');
+            // }
+        }
+
+        global.Keyboard = Keyboard;
+
+    })( this );
+
+    /* BrushMaterialSelector */
+    (function( global ) {
+
+        function BrushMaterialSelector( ) {
+
+            this.outputs = {
+                material: new Source( ),
+            }
+
+            this.outputs.material.setValue( );
+        }
+
+    })( this );
+
+    /* Brush */
+    (function( global ) {
+
+        function Brush ( ) {
+
+            this.inputs = {
+                brushSize: new Sink( ),
+                brushDown: new Sink( ),
+                brushPosition: new Sink( )
+            };
+
+            this.outputs = {
+                brushSize: new Source( ),
+                brushDown: new Source( ),
+                brushing: new Source( ),
+                brushPosition: new Source( )
+            }
+
+            return this;
+        }
+
+        Brush.prototype.update = function( ) {
+            this.outputs.brushSize.setValue( this.inputs.brushSize.getValue( ) );
+            this.outputs.brushDown.setValue( this.inputs.brushDown.getValue( ) );
+            this.outputs.brushing.setValue( this.inputs.brushDown.getValue( ) );
+            this.outputs.brushPosition.setValue( this.inputs.brushPosition.getValue( ) );
+        }
+
+        Brush.prototype.getBrushSize = function( ) {
+            return this.outputs.brushSize.getValue();
+        }
+
+        Brush.prototype.getUniforms = function( ) {
+            var uniforms = {
+                brushSize: this.outputs.brushSize.getValue(),
+                brushing: this.outputs.brushDown.getValue(),
+                brushAPosition: this.outputs.brushPosition.getValue(),
+            };
+
+            return uniforms;
+        }
+
+        global.Brush = Brush;
+
+    })( this );
+
+    /* Clock */
+    (function( global ) {
+
+        function Clock( ) {
+            this.startTime = Date.now();
+
+            this.outputs = {
+                time: new Source( )
+            }
+        }
+
+        Clock.prototype.now = function( ) {
+            return (Date.now() - this.startTime) / 1000.;
+        }
+
+        Clock.prototype.update = function( ) {
+            this.outputs.time.setValue( this.now() );
+        }
+
+        global.Clock = Clock;
+
+    })( this );
+
+    /* Counter */
+    (function( global ) {
+
+        function Counter( ) {
+            this.count = 0;
+
+            this.outputs = {
+                count: new Source( )
+            }
+
+            this.outputs.count.setValue( this.count );
+        }
+
+        Counter.prototype.update = function( ) {
+            this.count++;
+            this.outputs.count.setValue( this.count );
+        }
+
+        Counter.prototype.getCount = function( ) {
+            return this.count;
+        }
+
+        global.Counter = Counter;
+
+    })( this );
+
+    /* MainBuffer */
+    (function( global ) {
+
+        function MainBuffer( container, renderer, size ) {
+            this.container = container;
+            this.renderer = renderer;
+            this.uniforms = {
+                time: { type: "f", value: 1.0 },
+
+                brushAPosition: { type: "2v", value: new THREE.Vector2( ) },
+                brushSize: { type: "f", value: 1.0 },
+
+                bufferA: { type: "t", value: null },
+                bufferB: { type: "t", value: null }
+            };
+
+            this.material = new THREE.ShaderMaterial( {
+                uniforms: this.uniforms,
+                vertexShader: document.getElementById( 'vertex-shader' ).textContent,
+                fragmentShader: document.getElementById( 'fragment-shader-main' ).textContent
+            });
+
+            this.mesh = new THREE.Mesh( new THREE.PlaneGeometry( 2, 2 ), this.material );
+
+            this.camera = new THREE.Camera();
+            this.camera.position.z = 1;
+
+            this.scene = new THREE.Scene();
+            this.scene.add( this.mesh );
+
+            var scope = this;
+            window.addEventListener( 'resize', function() { scope.resize(); }, false );
+
+            this.inputs = {
+                time: new Sink( ),
+                brushPosition: new Sink( ),
+                brushSize: new Sink( ),
+                bufferA: new Sink( ),
+                bufferB: new Sink( ),
+            };
+            this.outputs = { };
+
+            return this;
+        }
+
+        MainBuffer.prototype.resize = function( ) {
+            var size = getElementSize( this.container );
+            this.renderer.setSize( size.width, size.height );
+        };
+
+        MainBuffer.prototype.update = function( ) {
+            this.uniforms.time.value = this.inputs.time.getValue( );
+            this.uniforms.brushAPosition.value = this.inputs.brushPosition.getValue( );
+            this.uniforms.brushSize.value = this.inputs.brushSize.getValue( );
+            this.uniforms.bufferA.value = this.inputs.bufferA.getValue( );
+            this.uniforms.bufferB.value = this.inputs.bufferB.getValue( );
+
+            this.renderer.render( this.scene, this.camera );
+        }
+
+        var getElementSize = function( element ) {
+            return ( element.getBoundingClientRect != undefined )
+                    ? element.getBoundingClientRect()
+                    : { width: element.offsetWidth, height: element.offsetHeight };
+        }
+
+        global.MainBuffer = MainBuffer;
+
+    })( this );
+
+    /* BrushBuffer */
+    (function( global ) {
+
+        // Adapt point-sprite fragment shaders for instanced quads
+        function makeQuadFragShader( source ) {
+            return 'varying vec2 vPointCoord;\n' + source.replace(/gl_PointCoord/g, 'vPointCoord');
+        }
+
+        function BrushBuffer( container, renderer, size ) {
+
+            this.container = container;
+
+            this.renderer = renderer;
+            var rtOpts = {
+                minFilter: THREE.LinearFilter,
+                magFilter: THREE.LinearFilter,
+                format: THREE.RGBAFormat,
+                type: THREE.FloatType
+            };
+            this.rtA = new THREE.WebGLRenderTarget( size.width, size.height, rtOpts );
+            this.rtB = new THREE.WebGLRenderTarget( size.width, size.height, rtOpts );
+            this.renderTarget = this.rtA; // current write target
+            this.current = 0;
+
+            this.uniforms = {
+                time: { type: "f", value: 1.0 },
+                frame: { type: "i", value: 0 },
+                prevTexture: { type: "t", value: this.rtB.texture },
+                resolution: { type: "v2", value: new THREE.Vector2( size.width, size.height ) },
+
+                mousePrev: { type: "v2", value: new THREE.Vector2( -1, -1 ) },
+                mouse: { type: "v2", value: new THREE.Vector2( -1, -1 ) },
+                mousedown: { type: "b", value: false },
+
+                brushing: { type: "b", value: false },
+                brushANum: { type: "i", value: 0 },
+                brushA: { type: "v2v", value: [ new THREE.Vector2( ), new THREE.Vector2( ), new THREE.Vector2( ) ] },
+                brushSize: { type: "f", value: 1.0 },
+
+            };
+
+            this.material = new THREE.ShaderMaterial( {
+                uniforms: this.uniforms,
+                vertexShader: document.getElementById( 'vertex-shader' ).textContent,
+                fragmentShader: document.getElementById( 'fragment-shader-a' ).textContent
+            });
+
+            this.mesh = new THREE.Mesh( new THREE.PlaneGeometry( 2, 2 ), this.material );
+
+            this.camera = new THREE.Camera( );
+            this.camera.position.z = 1;
+
+            this.scene = new THREE.Scene( );
+            this.scene.add( this.mesh );
+
+            this.npoints = 100;
+
+            // Instanced quad geometry: each brush stamp is a quad scaled by brush size
+            var baseQuad = new THREE.PlaneBufferGeometry( 1, 1 );
+            var geometry = this.geometry = new THREE.InstancedBufferGeometry();
+            geometry.index = baseQuad.index;
+            geometry.addAttribute( 'position', baseQuad.getAttribute( 'position' ) );
+            geometry.addAttribute( 'uv', baseQuad.getAttribute( 'uv' ) );
+
+            var positions = this.positions = new Float32Array( 3 * this.npoints );
+            var heads = this.heads = new Float32Array( 3 * this.npoints );
+            var brushColors = this.brushColors = new Float32Array( 4 * this.npoints );
+            var brushSizes = this.brushSizes = new Float32Array( this.npoints );
+
+            geometry.addAttribute( 'instancePosition', new THREE.InstancedBufferAttribute( positions, 3 ).setDynamic( true ) );
+            geometry.addAttribute( 'instanceHead', new THREE.InstancedBufferAttribute( heads, 3 ).setDynamic( true ) );
+            geometry.addAttribute( 'instanceBrushColor', new THREE.InstancedBufferAttribute( brushColors, 4 ).setDynamic( true ) );
+            geometry.addAttribute( 'instanceBrushSize', new THREE.InstancedBufferAttribute( brushSizes, 1 ).setDynamic( true ) );
+            geometry.maxInstancedCount = this.npoints;
+
+            var quadVertShader = document.getElementById( 'vertex-shader-quad-brush' ).textContent;
+
+            this.brushMaterials = {
+                hardCircleMaterial: new THREE.ShaderMaterial( {
+                    uniforms: this.uniforms,
+                    vertexShader: quadVertShader,
+                    fragmentShader: makeQuadFragShader( document.getElementById( 'fragment-shader-perfect-brush-hard-circle' ).textContent ),
+                    transparent: true
+                } ),
+                softCircleMaterial: new THREE.ShaderMaterial( {
+                    uniforms: this.uniforms,
+                    vertexShader: quadVertShader,
+                    fragmentShader: makeQuadFragShader( document.getElementById( 'fragment-shader-perfect-brush-soft-circle' ).textContent ),
+                    transparent: true
+                } ),
+                hardEllipseMaterial: new THREE.ShaderMaterial( {
+                    uniforms: this.uniforms,
+                    vertexShader: quadVertShader,
+                    fragmentShader: makeQuadFragShader( document.getElementById( 'fragment-shader-perfect-brush-hard-ellipse' ).textContent ),
+                    transparent: true
+                } ),
+                softEllipseMaterial: new THREE.ShaderMaterial( {
+                    uniforms: this.uniforms,
+                    vertexShader: quadVertShader,
+                    fragmentShader: makeQuadFragShader( document.getElementById( 'fragment-shader-perfect-brush-soft-ellipse' ).textContent ),
+                    transparent: true
+                } ),
+                hardRingMaterial: new THREE.ShaderMaterial( {
+                    uniforms: this.uniforms,
+                    vertexShader: quadVertShader,
+                    fragmentShader: makeQuadFragShader( document.getElementById( 'fragment-shader-perfect-brush-hard-ring' ).textContent ),
+                    transparent: true
+                } ),
+                softRingMaterial: new THREE.ShaderMaterial( {
+                    uniforms: this.uniforms,
+                    vertexShader: quadVertShader,
+                    fragmentShader: makeQuadFragShader( document.getElementById( 'fragment-shader-perfect-brush-soft-ring' ).textContent ),
+                    transparent: true
+                } ),
+                sprayCanMaterial: new THREE.ShaderMaterial( {
+                    uniforms: this.uniforms,
+                    vertexShader: quadVertShader,
+                    fragmentShader: makeQuadFragShader( document.getElementById( 'fragment-shader-perfect-brush-spray-can' ).textContent ),
+                    transparent: true
+                } ),
+            };
+            this.brushMesh = new THREE.Mesh( geometry, this.brushMaterials[ 'hardCircleMaterial' ] );
+            this.scene.add( this.brushMesh );
+
+            var scope = this;
+            window.addEventListener( 'resize', function( event ) { scope.resize( event ); }, false );
+            document.addEventListener( 'keydown', function( event ) {
+                switch ( event.key  ) {
+                    case '1':
+                        scope.brushMesh.material = scope.brushMaterials[ 'hardCircleMaterial' ];
+                        break;
+                    case '2':
+                        scope.brushMesh.material = scope.brushMaterials[ 'softCircleMaterial' ];
+                        break;
+                    case '3':
+                        scope.brushMesh.material = scope.brushMaterials[ 'hardRingMaterial' ];
+                        break;
+                    case '4':
+                        scope.brushMesh.material = scope.brushMaterials[ 'softRingMaterial' ];
+                        break;
+                    case '5':
+                        scope.brushMesh.material = scope.brushMaterials[ 'hardEllipseMaterial' ];
+                        break;
+                    case '6':
+                        scope.brushMesh.material = scope.brushMaterials[ 'softEllipseMaterial' ];
+                        break;
+                    case '7':
+                        scope.brushMesh.material = scope.brushMaterials[ 'sprayCanMaterial' ];
+                        break;
+                }
+                scope.brushMesh.material.needsUpdate = true
+            }, false );
+
+            ///
+
+            this.lastTangent = new THREE.Vector2( );
+            this.lastAlpha = 0.0;
+
+            ///
+
+            this.inputs = {
+                time: new Sink( ),
+                frame: new Sink( ),
+
+                brushSize: new Sink( ),
+                brushDown: new Sink( ),
+                brushPosition: new Sink( ),
+                brushPositionPrev: new Sink( ),
+                brushPositionPrevPrev: new Sink( ),
+
+                brushMaterial: new Sink()
+            };
+
+            console.log( this.inputs );
+
+            this.outputs = {
+                texture: new Source( )
+            };
+            this.outputs.texture.setValue( this.renderTarget.texture );
+        }
+
+        BrushBuffer.prototype.resize = function( event ) {
+            var size = getElementSize( this.container );
+            this.rtA.setSize( size.width, size.height );
+            this.rtB.setSize( size.width, size.height );
+            this.uniforms.resolution.value.set( size.width, size.height );
+        }
+
+        BrushBuffer.prototype.setInput = function( inputName, input ) {
+            this.inputs[ inputName ] = input;
+        }
+
+        BrushBuffer.prototype.update = function( ) {
+            this.uniforms.time.value = this.inputs.time.getValue( );
+            this.uniforms.frame.value = this.inputs.frame.getValue( );
+
+            this.uniforms.mouse.value = this.inputs.brushPosition.getValue( );
+            this.uniforms.mousePrev.value = this.inputs.brushPositionPrev.getValue( );
+            this.uniforms.mousedown.value = this.inputs.brushDown.getValue( );
+
+            this.uniforms.brushing.value = this.inputs.brushDown.getValue( );
+            this.uniforms.brushANum.value = 3;
+            this.uniforms.brushA.value = [ this.inputs.brushPosition.getValue( ), this.inputs.brushPositionPrev.getValue( ), this.inputs.brushPositionPrevPrev.getValue( ) ];
+            this.uniforms.brushing.value = this.inputs.brushDown.getValue( );
+
+            this.render( );
+        }
+
+        BrushBuffer.prototype.render = function( ) {
+
+            /* 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 */
+
+            var distance = this.inputs.brushPositionPrev.getValue().distanceTo( this.inputs.brushPosition.getValue() );
+
+            var positions = this.geometry.attributes.instancePosition.array;
+            var heads = this.geometry.attributes.instanceHead.array;
+            var brushColors = this.geometry.attributes.instanceBrushColor.array;
+            var brushSizes = this.geometry.attributes.instanceBrushSize.array;
+
+            var d = this.inputs.brushPosition.getValue( ).distanceTo( this.inputs.brushPositionPrev.getValue( ) );
+
+            var c = new THREE.Vector2( );
+            var tt = this.lastTangent;
+            tt.normalize();
+            tt.multiplyScalar( 0.4*d );
+            c.addVectors( this.inputs.brushPositionPrev.getValue( ), tt );
+
+            var v0 = new THREE.Vector3(this.inputs.brushPositionPrev.getValue( ).x, this.inputs.brushPositionPrev.getValue( ).y, 0.0);
+            var v1 = new THREE.Vector3(c.x, c.y, 0.0);
+            var v2 = new THREE.Vector3(this.inputs.brushPosition.getValue( ).x, this.inputs.brushPosition.getValue( ).y, 0.0);
+            var v3 = new THREE.Vector3(this.inputs.brushPosition.getValue( ).x, this.inputs.brushPosition.getValue( ).y, 0.0);
+
+            var curve = new THREE.CubicBezierCurve3( v0, v1, v2, v3 ); // or new THREE.LineCurve3( this.mousePrev, this.mouse );
+            var points = curve.getSpacedPoints( this.npoints + 1 );
+            var frames = curve.computeFrenetFrames( this.npoints + 1, false);
+            this.lastTangent = frames.tangents[this.npoints].clone();
+
+            var lastAlpha = this.lastAlpha;
+            var alpha = 1 / this.npoints;
+            this.lastAlpha = alpha;
+
+            var time = this.inputs.time.getValue();
+
+            for ( var i = 1; i < points.length; ++i ) {
+
+                positions[i*3+0] = points[i].x;
+                positions[i*3+1] = points[i].y;
+                positions[i*3+2] = 0.0;
+
+                /* spraycan head #1 */
+                // var head = new THREE.Vector3( 0.2*Math.sin(time), 0.2*Math.sin(1.1*time), 0.1 );
+                // head.normalize();
+
+                /* spraycan head #2 */
+                var binormal = new THREE.Vector3( );
+                binormal.crossVectors(v3, v0);
+                var amt = binormal.length();
+                binormal.normalize();
+                var tangent = new THREE.Vector3( );
+                tangent.x = frames.tangents[ i ].x;
+                tangent.y = frames.tangents[ i ].y;
+                var normal = new THREE.Vector3( );
+                normal.crossVectors(binormal, tangent);
+                var head = normal;
+                // head.multiplyScalar(50.0*amt);
+                head.z = 1.0;
+                head.normalize();
+
+                /* spraycan head #3 */
+                // var head = frames.tangents[i].clone();
+                // t1.divideScalar(-1.0);
+                // head =  t1;
+                // head.z = 1.0;
+                // head.normalize();
+
+                // /* spraycan head #4 */
+                // var head = new THREE.Vector3( 0.0, 0.0, 0.1 );
+
+                heads[i*3+0] = head.x;
+                heads[i*3+1] = head.y;
+                heads[i*3+2] = head.z;
+
+                brushColors[i*4+0] = 0.5+0.5*Math.sin(this.inputs.time.getValue());
+                brushColors[i*4+1] = 0.5+0.5*Math.sin(0.9*this.inputs.time.getValue());
+                brushColors[i*4+2] = 0.5+0.5*Math.sin(0.8*this.inputs.time.getValue());
+                brushColors[i*4+3] =  this.inputs.brushDown.getValue( ) ? 1.0 / this.npoints : 0.0;
+                // brushColors[i*4+3] =  this.inputs.brushDown.getValue( ) ? 1.0 : 0.0;
+                // brushColors[i*4+3] = this.inputs.brushDown.getValue( ) ? linear( i / this.npoints, 0.0, 1.0, lastAlpha, alpha) : 0.0;
+                // brushColors[i*4+3] =  this.inputs.brushDown.getValue( ) ? 0.01 : 0.0;
+
+                brushSizes[i] = this.inputs.brushSize.getValue( );// + 100.0*(0.5+0.5*Math.sin(time));
+            }
+
+            this.geometry.attributes.instancePosition.needsUpdate = this.inputs.brushDown.getValue( );
+            this.geometry.attributes.instanceHead.needsUpdate = this.inputs.brushDown.getValue( );
+            this.geometry.attributes.instanceBrushColor.needsUpdate = this.inputs.brushDown.getValue( );
+            this.geometry.attributes.instanceBrushSize.needsUpdate = this.inputs.brushDown.getValue( );
+
+            /* 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 */
+
+            var writeRT = this.current === 0 ? this.rtA : this.rtB;
+            var readRT  = this.current === 0 ? this.rtB : this.rtA;
+
+            this.uniforms.prevTexture.value = readRT.texture;
+            this.renderer.render( this.scene, this.camera, writeRT );
+
+            this.renderTarget = writeRT;
+            this.outputs.texture.setValue( writeRT.texture );
+            this.current = 1 - this.current;
+        }
+
+        var getElementSize = function( element ) {
+            return ( element.getBoundingClientRect != undefined )
+                    ? element.getBoundingClientRect()
+                    : { width: element.offsetWidth, height: element.offsetHeight };
+        }
+
+        var linear = function(x, sn, sx, dn, dx) {
+            return (dx - dn) * ( x - sn ) / ( sx - sn ) + dn;
+        }
+
+        global.BrushBuffer = BrushBuffer;
+
+    })( this );
+
+    /* StateTexture */
+    (function( global ) {
+
+        function StateTexture( container, renderer, size ) {
+            this.container = container;
+            this.renderer = renderer;
+            this.renderTarget = new THREE.WebGLRenderTarget( size.width, size.height, {
+                minFilter: THREE.NearestFilter,
+                magFilter: THREE.NearestFilter,
+                format: THREE.RGBAFormat,
+                type: THREE.FloatType
+            } );
+            this.uniforms = {
+                texture: { type: "t", value: null },
+            };
+            this.material = new THREE.ShaderMaterial( {
+                uniforms: this.uniforms,
+                vertexShader: document.getElementById( 'vertex-shader' ).textContent,
+                fragmentShader: document.getElementById( 'fragment-shader-b' ).textContent,
+            } );
+            this.mesh = new THREE.Mesh( new THREE.PlaneGeometry( 2, 2 ), this.material );
+            this.camera = new THREE.Camera();
+            this.camera.position.z = 1;
+            this.scene = new THREE.Scene();
+            this.scene.add( this.mesh );
+
+            this.inputs = {
+                texture: new Sink( ),
+            };
+
+            this.outputs = {
+                texture: new Source( ),
+            };
+
+            this.outputs.texture.setValue( this.renderTarget.texture );
+
+            var scope = this;
+            window.addEventListener( 'resize', function() { scope.resize(); }, false );
+        }
+
+        StateTexture.prototype.resize = function( ) {
+            var size = getElementSize( this.container );
+            this.renderTarget.setSize( size.width, size.height );
+        };
+
+        StateTexture.prototype.update = function( ) {
+            this.uniforms.texture.value = this.inputs.texture.getValue();
+
+            var size = getElementSize( this.container );
+            this.renderTarget.setSize( size.width, size.height );
+
+            this.renderer.render( this.scene, this.camera, this.renderTarget );
+        }
+
+        var getElementSize = function( element ) {
+            return ( element.getBoundingClientRect != undefined )
+                    ? element.getBoundingClientRect()
+                    : { width: element.offsetWidth, height: element.offsetHeight };
+        }
+
+        global.StateTexture = StateTexture;
+
+    })( this );
+
+    /* App */
+    (function( global ) {
+
+        function App( containerId, config ) {
+            this.config = config;
+            this.domContainer = document.getElementById( containerId) ;
+            this.containers = [ ];
+            this.createDomElements( );
+            this.createRenderer( );
+            return this;
+        }
+
+        App.prototype.createDomElements = function ( ) {
+            var scope = this;
+            var id = 'render';
+
+            this.containers[id] = document.createElement('div');
+
+            var width = getElementSize( this.domContainer ).width;
+            var height = this.config.container.height;
+
+            this.containers[id].style.webkitTouchCallout = 'none';
+            this.containers[id].style.webkitUserSelect = 'none';
+            this.containers[id].style.khtmlUserSelect = 'none';
+            this.containers[id].style.mozUserSelect = 'none';
+            this.containers[id].style.msUserSelect = 'none';
+            this.containers[id].style.oUserSelect = 'none';
+            this.containers[id].style.userSelect = 'none';
+
+            this.containers[id].style.webkitTapHighlightColor = 'transparent';
+            this.containers[id].style.cursor = "none";
+            this.containers[id].style.height = height + 'px';
+            this.containers[id].style.position = 'relative';
+            this.containers[id].style.backgroundColor = 'transparent';  // for debugging
+
+            // this.domContainer.style.position = 'absolute';
+            // this.domContainer.style.height = '100%';
+            // this.domContainer.style.width = '100%';
+            // this.domContainer.style.top = '0px';
+            // this.domContainer.style.left = '0px';
+
+            // this.containers[id].style.position = 'absolute';
+            // this.containers[id].style.height = '100%';
+            // this.containers[id].style.width = '100%';
+            // this.containers[id].style.top = '0px';
+            // this.containers[id].style.left = '0px';
+
+            this.domContainer.appendChild( this.containers[id] )
+        };
+
+        App.prototype.createRenderer = function( ) {
+            var size = {
+                width: getElementSize( this.domContainer ).width ,
+                height: getElementSize( this.domContainer ).height
+            };
+            var psize = {
+                width: size.width * window.devicePixelRatio,
+                height: size.height * window.devicePixelRatio
+            };
+
+            /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+            var renderer = new THREE.WebGLRenderer( {
+                alpha: true,
+                antialias: true
+            } );
+            renderer.setPixelRatio( window.devicePixelRatio );
+            renderer.setSize( size.width, size.height );
+            renderer.setClearColor( 'white' );
+
+            this.containers.render.appendChild( renderer.domElement );
+
+            /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+            this.clock = new Clock( );
+            this.frameCounter = new Counter( );
+            this.mouse = new Mouse( this.domContainer );
+
+            // this.hardCircleBrushMaterial = new HardCircleBrushMaterial( );
+            // this.hardCircleBrushMaterial.inputs.
+
+            this.keyboard = new Keyboard( this.domContainer );
+
+            // this.radioButtonController = new RadioButtons( );
+            // this.radioButtonController.inputs[ 0 ].setSource( this.keyboard.keyIsDown('A') )
+
+            // this.brushMaterialSelector = new BrushMaterialSelector( );
+            // this.brushMaterialSelector.inputs.setSource( function( ) { return this.keyboard.wasPressed('A'); } );
+            // this.brushMaterialSelector.outputs
+
+            this.brush = new Brush( );
+            this.brush.inputs.brushSize.setSource( this.mouse.outputs.wheelY2 );
+            this.brush.inputs.brushDown.setSource( this.mouse.outputs.mousedown );
+            this.brush.inputs.brushPosition.setSource( this.mouse.outputs.position2 );
+
+            this.brushBuffer = new BrushBuffer( this.domContainer, renderer, psize );
+            this.brushBuffer.inputs.time.setSource( this.clock.outputs.time );
+            this.brushBuffer.inputs.frame.setSource( this.frameCounter.outputs.count );
+            this.brushBuffer.inputs.brushSize.setSource( this.mouse.outputs.wheelY2 );
+            this.brushBuffer.inputs.brushDown.setSource( this.mouse.outputs.mousedown );
+
+            this.brushBuffer.inputs.brushPosition.setSource( this.mouse.outputs.position );
+            this.brushBuffer.inputs.brushPositionPrev.setSource( this.mouse.outputs.positionPrev );
+            this.brushBuffer.inputs.brushPositionPrevPrev.setSource( this.mouse.outputs.positionPrevPrev );
+
+            // this.brushBuffer.inputs.brushMaterial.setSource( this.brushMaterialSelector.outputs.material );
+
+            this.stateTexture = new StateTexture( this.domContainer, renderer, psize );
+            this.stateTexture.inputs.texture.setSource( this.brushBuffer.outputs.texture );
+
+            this.mainBuffer = new MainBuffer( this.domContainer, renderer, size );
+            this.mainBuffer.inputs.time.setSource( this.clock.outputs.time );
+            this.mainBuffer.inputs.brushPosition.setSource( this.brush.outputs.brushPosition );
+            this.mainBuffer.inputs.brushSize.setSource( this.brush.outputs.brushSize );
+            this.mainBuffer.inputs.bufferA.setSource( this.brushBuffer.outputs.texture );
+            this.mainBuffer.inputs.bufferB.setSource( this.stateTexture.outputs.texture );
+        }
+
+        App.prototype.render = function() {
+            this.clock.update( );
+            this.frameCounter.update( );
+            this.brush.update( );
+            this.brushBuffer.update( );
+            this.stateTexture.update( );
+            this.mainBuffer.update( );
+        }
+
+        var getElementSize = function( element ) {
+            return ( element.getBoundingClientRect != undefined )
+                    ? element.getBoundingClientRect()
+                    : { width: element.offsetWidth, height: element.offsetHeight };
+        }
+
+        global.App = App;
+
+    })( this );
+
+
+    var config = {
+        container: {
+            height: 600
+        }
+    };
+
+    var t = new App( 'app-container', config );
+
+    var animate = function( ) {
+        t.render();
+        requestAnimationFrame( animate );
+    };
+
+    animate();
+
+    // setInterval(function() { t.render(); }, 100);
+
+</script>
+            </article>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Dylan Holmes</p>
+        </footer>
+    </div>
+</body>
+</html>

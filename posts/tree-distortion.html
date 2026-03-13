@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>tree distortion - dylanholm.es</title>
+    <meta name="description" content="Interactive image distortion using curl noise and mouse input">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        #ugl-container {
+            width: 100%;
+            margin: 1.5rem 0;
+        }
+        #ugl-container canvas {
+            display: block;
+            width: 100% !important;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <h1><a href="/">dylanholm.es</a></h1>
+            <nav>
+                <a href="/about.html">/about</a>
+                <a href="/resume.html">/resume</a>
+            </nav>
+        </header>
+
+        <main>
+            <article>
+                <h1>tree distortion</h1>
+                <p>interactive image distortion using curl noise and mouse input.</p>
+
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/88/three.min.js" integrity="sha256-6fhm481uY9c152qGWIVgE7KbzaCj5WjCi3BGIpZef2E=" crossorigin="anonymous"></script>
+                <div id="ugl-container"></div>
+                <script>
+
+                    document.addEventListener("touchstart", function(){}, true);
+
+                    (function( global ) {
+
+                        function Buffer( options ) {
+                            this.renderer = options.renderer;
+                            this.renderTarget = options.renderTarget;
+                            if ( this.renderTarget )
+                                this.texture = this.renderTarget.texture;
+                            this.uniforms = options.uniforms;
+
+                            this.material = new THREE.ShaderMaterial( {
+                                uniforms: this.uniforms,
+                                vertexShader: options.vertexShader,
+                                fragmentShader: options.fragmentShader
+                            });
+
+                            this.mesh = new THREE.Mesh( new THREE.PlaneGeometry( 2, 2 ), this.material );
+
+                            this.camera = new THREE.Camera();
+                            this.camera.position.z = 1;
+
+                            this.scene = new THREE.Scene();
+                            this.scene.add( this.mesh );
+
+                            this.update( options.size, null );
+
+                            return this;
+                        }
+
+                        Buffer.prototype.update = function( size, uniforms ) {
+                            if ( size ) {
+                                if (this.renderTarget)
+                                    this.renderTarget.setSize( size.width, size.height );
+                                else
+                                    this.renderer.setSize( size.width, size.height );
+                            }
+
+                            if ( uniforms ) {
+                                for ( var uniform in this.uniforms ) {
+                                    if ( uniform in uniforms ) {
+                                        this.uniforms[uniform].value = uniforms[uniform];
+                                    }
+                                }
+                            }
+                        }
+
+                        Buffer.prototype.render = function( size, uniforms ) {
+                            if ( uniforms )
+                                this.update( size, uniforms );
+
+                            if ( this.renderTarget )
+                                this.renderer.render( this.scene, this.camera, this.renderTarget );
+                            else
+                                this.renderer.render( this.scene, this.camera );
+                        }
+
+                        var buffer = function( ...args ) {
+                            return new Buffer( ...args );
+                        }
+
+                        global.buffer = buffer;
+
+                    })( this );
+
+                    (function( global ) {
+
+                        function Ugl( containerId, config ) {
+                            this.config = config;
+                            this.domContainer = document.getElementById( containerId) ;
+                            this.containers = [ ];
+                            this.createDomElements( );
+                            this.createRenderer( );
+                            return this;
+                        }
+
+                        Ugl.prototype.createDomElements = function( ) {
+                            var scope = this;
+                            var id = 'render';
+
+                            this.containers[id] = document.createElement('div');
+
+                            var width = getElementSize( this.domContainer ).width;
+                            var imgAspect = this.config.imgWidth / this.config.imgHeight;
+                            var height = Math.round( width / imgAspect );
+
+                            window.addEventListener( 'resize', function() { scope.resize(); }, false );
+                            this.containers[id].addEventListener( 'mousemove', function(e) { scope.mousemove(e); }, false );
+
+                            this.containers[id].style.webkitTapHighlightColor = 'transparent';
+                            this.containers[id].style.height = height + 'px';
+                            this.containers[id].style.position = 'relative';
+                            this.containers[id].style.backgroundColor = 'transparent';
+
+                            this.domContainer.appendChild( this.containers[id] )
+                        };
+
+                        Ugl.prototype.createRenderer = function( ) {
+                            var scope = this;
+
+                            var width = getElementSize( this.domContainer ).width;
+                            var imgAspect = this.config.imgWidth / this.config.imgHeight;
+                            var height = Math.round( width / imgAspect );
+
+                            var renderer = this.renderer = new THREE.WebGLRenderer( {
+                                alpha: true,
+                                antialias: true
+                            } );
+                            this.renderer.setSize( width, height );
+                            this.renderer.setClearColor( 'orange' );
+                            this.containers.render.appendChild( this.renderer.domElement );
+
+                            var imgTexture = new THREE.TextureLoader( ).load( '../images/tree.jpg', function( tex ) {
+                                var imgW = tex.image.width;
+                                var imgH = tex.image.height;
+                                scope.imgBuffer.uniforms.imgSize.value.set( imgW, imgH );
+                            } );
+                            imgTexture.minFilter = THREE.LinearFilter;
+                            imgTexture.magFilter = THREE.LinearFilter;
+                            imgTexture.format = THREE.RGBFormat;
+
+                            var uvBuffer = scope.uvBuffer = buffer( {
+                                renderer: renderer,
+                                renderTarget: new THREE.WebGLRenderTarget( width, height, {
+                                    minFilter: THREE.LinearFilter,
+                                    magFilter: THREE.LinearFilter,
+                                    format: THREE.RGBAFormat,
+                                    type: THREE.HalfFloatType
+                                } ),
+                                size: { width: width , height: height },
+                                vertexShader: `
+                                    varying vec2 v_uv;
+
+                                    void main() {
+                                        gl_Position = vec4( position, 1.0 );
+                                        v_uv = uv;
+                                    }`,
+                                fragmentShader: `
+                                    varying vec2 v_uv;
+
+                                    uniform float time;
+                                    uniform vec2 mouse;
+                                    uniform vec2 size;
+
+                                    float aspectRatio( vec2 size ) {
+                                        return size.x / size.y;
+                                    }
+
+                                    float circle(vec2 uv, vec2 center, bool fill, float radius, float thickness) {
+                                        float d = distance(uv, center);
+                                        float r = radius;
+                                        float t = thickness;
+                                        return smoothstep(r+t,r,d) - (fill?0.0:smoothstep(r,r-t,d));
+                                    }
+
+                                    vec2 butterfly(float xf, float t) {
+                                        return exp(cos(t))-2.0*cos(4.0*t)-pow(sin(t/12.0),5.0) *
+                                                vec2(xf*sin(t), cos(t));
+                                    }
+
+                                    float brush( vec2 uv ) {
+                                        return sin(time*0.5*3.0)*circle(uv, vec2(0.0, 0.0), true, 0.2, 0.1);
+                                    }
+
+                                    vec2 curlLeft( vec2 p ) {
+                                        return vec2(p.y, -p.x);
+                                    }
+
+                                    void main() {
+                                        float aspect = aspectRatio( size );
+                                        vec2 uv = v_uv;
+                                        uv.x *= aspect;
+                                        vec2 p = uv - vec2( aspect, 1.0)  * mouse;
+                                        float b = brush( p );
+                                        for (int i = 0; i < 50; ++i)
+                                        {
+
+                                            float dt = 0.01;
+                                            uv += b * curlLeft( p ) * dt;
+                                        }
+
+                                        uv.x /= aspect;
+                                        gl_FragColor = vec4(uv, 0.0, 1.0);
+                                    }
+                                    `,
+                                uniforms: {
+                                    time: { type: "f", value: 1.0 },
+                                    size: { type: "v2", value: new THREE.Vector2( width, height ) },
+                                    mouse: { type: "v2", value: new THREE.Vector2(-1, -1) },
+                                }
+                            } );
+
+                            var imgBuffer = scope.imgBuffer = buffer( {
+                                renderer: renderer,
+                                renderTarget: new THREE.WebGLRenderTarget( width, height, {
+                                    minFilter: THREE.LinearFilter,
+                                    magFilter: THREE.LinearFilter
+                                } ),
+                                size: { width: width , height: height },
+                                vertexShader: `
+                                    varying vec2 v_uv;
+
+                                    void main() {
+                                        gl_Position = vec4( position, 1.0 );
+                                        v_uv = uv;
+                                    }`,
+                                fragmentShader: `
+                                    varying vec2 v_uv;
+
+                                    uniform float time;
+                                    uniform vec2 size;
+                                    uniform vec2 imgSize;
+                                    uniform sampler2D imgTexture;
+
+                                    void main() {
+                                        gl_FragColor = texture2D(imgTexture, v_uv);
+                                    }`,
+                                uniforms: {
+                                    time: { type: "f", value: 1.0 },
+                                    size: { type: 'v2', value: new THREE.Vector2( width, height ) },
+                                    imgSize: { type: "v2", value: new THREE.Vector2( 1, 1 ) },
+                                    imgTexture: { type: "t", value: imgTexture }
+                                }
+                            } );
+
+                            var mainBuffer = this.mainBuffer = buffer( {
+                                renderer: renderer,
+                                size: { width: width , height: height },
+                                vertexShader: `
+                                    varying vec2 v_uv;
+
+                                    void main() {
+                                        gl_Position = vec4( position, 1.0 );
+                                        v_uv = uv;
+                                    }`,
+                                fragmentShader: `
+                                    varying vec2 v_uv;
+
+                                    uniform float time;
+                                    uniform vec2 size;
+                                    uniform vec2 uvSize;
+                                    uniform sampler2D uvBuffer;
+                                    uniform sampler2D imgBuffer;
+
+                                    void main() {
+                                        vec2 uv = v_uv;
+                                        uv = texture2D(uvBuffer, uv).xy;
+                                        gl_FragColor = texture2D(imgBuffer, uv);
+                                    }`,
+                                uniforms: {
+                                    time: { type: "f", value: 1.0 },
+                                    size: { type: 'v2', value: new THREE.Vector2( width, height ) },
+                                    uvSize: { type: 'v2', value: new THREE.Vector2( width, height ) },
+                                    uvBuffer: { type: "t", value: uvBuffer.texture },
+                                    imgBuffer: { type: "t", value: imgBuffer.texture },
+                                }
+                            } );
+
+                            this.buffers = [ uvBuffer, imgBuffer, mainBuffer ];
+
+                            this.startTime = Date.now();
+                        }
+
+                        Ugl.prototype.render = function() {
+
+                            var time =  (Date.now() - this.startTime) / 1000.;
+
+                            var uniforms = {
+                                time: time
+                            };
+
+                            for ( var buffer of this.buffers ) {
+                                buffer.render( null, uniforms );
+                            }
+                        }
+
+                        Ugl.prototype.resize = function( ) {
+                            var width = getElementSize( this.domContainer ).width;
+                            var imgAspect = this.config.imgWidth / this.config.imgHeight;
+                            var height = Math.round( width / imgAspect );
+                            var size = { width: width, height: height };
+
+                            this.containers.render.style.height = height + 'px';
+
+                            this.mainBuffer.update( size, {
+                                size: new THREE.Vector2( width, height ),
+                            } );
+
+                            this.imgBuffer.update( null, {
+                                size: new THREE.Vector2( width, height ),
+                            } );
+
+                            this.uvBuffer.update( null, {
+                                size: new THREE.Vector2( width, height ),
+                            } );
+                        };
+
+                        Ugl.prototype.mousemove = function(e) {
+                            var rect = this.containers.render.getBoundingClientRect();
+
+                            var x = (e.clientX - rect.left) / rect.width;
+                            var y = 1.0 - (e.clientY - rect.top) / rect.height;
+
+                            var uniforms = {
+                                mouse: new THREE.Vector2(x, y)
+                            };
+
+                            for ( var buffer of this.buffers ) {
+                                buffer.render( null, uniforms );
+                            }
+                        }
+
+                        var getElementSize = function( element ) {
+                            return ( element.getBoundingClientRect != undefined )
+                                    ? element.getBoundingClientRect()
+                                    : { width: element.offsetWidth, height: element.offsetHeight };
+                        }
+
+                        var ugl = function( ...args ) {
+                            return new Ugl( ...args );
+                        };
+
+                        global.ugl = ugl;
+
+                    })( this );
+
+
+                    var config = {
+                        imgWidth: 1536,
+                        imgHeight: 1536
+                    };
+
+                    var t = ugl( 'ugl-container', config );
+
+                    var animate = function( ) {
+                        requestAnimationFrame( animate );
+                        t.render();
+                    };
+
+                    animate();
+
+                </script>
+            </article>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Dylan Holmes</p>
+        </footer>
+    </div>
+</body>
+</html>
