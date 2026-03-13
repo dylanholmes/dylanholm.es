@@ -3,12 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>shader drawing - dylanholm.es</title>
-    <meta name="description" content="A WebGL drawing tool with multiple GPU-accelerated brush types">
+    <title>ping pong paint - dylanholm.es</title>
+    <meta name="description" content="draw anywhere on the page. hold space and move.">
     <link rel="stylesheet" href="../style.css">
     <style>
-        #app-container { width: 100%; margin: 1.5rem 0; }
-        #app-container canvas { display: block; }
+        #drawing-backdrop {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        #drawing-backdrop canvas { display: block; }
     </style>
 </head>
 <body>
@@ -24,8 +31,19 @@
 
         <main id="main">
             <article>
-                <h2>shader drawing</h2>
-                <p>a WebGL drawing tool with multiple GPU-accelerated brush types. click to paint, scroll to resize brush, keys 1–7 to switch brush types.</p>
+                <h2>ping pong paint</h2>
+                <p>draw anywhere on the page. colors trail and accumulate behind the text.</p>
+                <p style="font-size: 0.8rem; color: #999; line-height: 1.8;">
+                    space: hold to draw<br>
+                    scroll: brush size<br>
+                    1: hard circle<br>
+                    2: soft circle<br>
+                    3: hard ring<br>
+                    4: soft ring<br>
+                    5: hard ellipse<br>
+                    6: soft ellipse<br>
+                    7: spray can
+                </p>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/88/three.min.js" integrity="sha256-6fhm481uY9c152qGWIVgE7KbzaCj5WjCi3BGIpZef2E=" crossorigin="anonymous"></script>
 <div id="app-container"></div>
 <script type='application/json' id='vertex-shader'>
@@ -94,7 +112,9 @@
     }
 
     float hardcircle( vec2 uv, vec2 center, float radius ) {
-        return step( distance(uv, center), radius );
+        float d = distance(uv, center);
+        float fw = fwidth(d);
+        return smoothstep(radius + fw, radius - fw, d);
     }
 
     void main() {
@@ -158,8 +178,8 @@
         float e1 = ( uv.x ) / r1;
         float e2 = ( uv.y ) / r2;
         float d = ( e1 * e1 ) + ( e2 * e2 );
-
-        return step( d, 1.0 );
+        float fw = fwidth(d);
+        return smoothstep(1.0 + fw, 1.0 - fw, d);
     }
 
     void main() {
@@ -199,7 +219,9 @@
     }
 
     float hardcircle( vec2 uv, vec2 center, float radius ) {
-        return step( distance(uv, center), radius );
+        float d = distance(uv, center);
+        float fw = fwidth(d);
+        return smoothstep(radius + fw, radius - fw, d);
     }
 
     float smoothcircle(vec2 uv, vec2 center, float outerRadius, float innerRadius) {
@@ -222,8 +244,8 @@
         float e1 = ( uv.x ) / r1;
         float e2 = ( uv.y ) / r2;
         float d = ( e1 * e1 ) + ( e2 * e2 );
-
-        return step( d, 1.0 );
+        float fw = fwidth(d);
+        return smoothstep(1.0 + fw, 1.0 - fw, d);
     }
 
     float softellipse( vec2 uv, vec2 center, float r1, float r2, float r3, float r4 ) {
@@ -296,7 +318,8 @@
 
     float hardring(vec2 uv, vec2 center, float outerRadius, float innerRadius) {
         float d = distance(uv, center);
-        return step( d, outerRadius ) - step( d, innerRadius );
+        float fw = fwidth(d);
+        return smoothstep(outerRadius + fw, outerRadius - fw, d) - smoothstep(innerRadius + fw, innerRadius - fw, d);
     }
 
     void main() {
@@ -510,7 +533,6 @@
             this.mousePrev = new THREE.Vector2( );
             this.mousePrevPrev = new THREE.Vector2( );
 
-            this.mousePressed = false;
             this.spacePressed = false;
             this.ismousedown = false;
 
@@ -522,17 +544,14 @@
             /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
             var scope = this;
-            window.addEventListener( 'mousedown', function(e) { scope.mousedown(e); }, false );
-            window.addEventListener( 'mouseup', function(e) { scope.mouseup(e); }, false );
             window.addEventListener( 'keydown', function(e) {
                 if ( e.code === 'Space' ) { e.preventDefault(); scope.spacePressed = true; scope.updateDown(); }
             }, false );
             window.addEventListener( 'keyup', function(e) {
                 if ( e.code === 'Space' ) { scope.spacePressed = false; scope.updateDown(); }
             }, false );
-            this.container.addEventListener( 'mouseleave', function(e) { scope.mouseleave(e); }, false );
-            this.container.addEventListener( 'mousemove', function(e) { scope.mousemove(e); }, false );
-            this.container.addEventListener( 'wheel', function(e) { scope.wheel(e); }, false );
+            window.addEventListener( 'mousemove', function(e) { scope.mousemove(e); }, false );
+            window.addEventListener( 'wheel', function(e) { scope.wheel(e); }, { passive: false } );
 
             /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
@@ -556,36 +575,21 @@
         }
 
         Mouse.prototype.updateDown = function( ) {
-            this.ismousedown = this.mousePressed || this.spacePressed;
+            this.ismousedown = this.spacePressed;
             this.outputs.mousedown.setValue( this.ismousedown );
         }
 
-        Mouse.prototype.mousedown = function( e ) {
-            this.mousePressed = true;
-            this.updateDown();
-        }
-
-        Mouse.prototype.mouseup = function( e ) {
-            this.mousePressed = false;
-            this.updateDown();
-        }
-
-        Mouse.prototype.mouseleave = function( e ) {
-        }
-
         Mouse.prototype.mousemove = function( e ) {
-            var size = getElementSize( this.container );
-            var x = ( e.pageX - this.container.offsetLeft ) * window.devicePixelRatio;
-            var y = ( size.height - (e.pageY - this.container.offsetTop))  * window.devicePixelRatio;
+            var w = window.innerWidth;
+            var h = window.innerHeight;
 
             this.mousePrevPrev = this.mousePrev.clone();
             this.mousePrev = this.mouse.clone();
-            this.mouse.x = 2.*( e.pageX - this.container.offsetLeft ) / size.width - 1.0;
-            this.mouse.y = 2.*( ( size.height - (e.pageY - this.container.offsetTop)) ) / size.height  - 1.0;
+            this.mouse.x = 2.0 * e.clientX / w - 1.0;
+            this.mouse.y = 2.0 * ( h - e.clientY ) / h - 1.0;
 
-            var size = getElementSize( this.container );
-            var x = ( e.pageX - this.container.offsetLeft ) * window.devicePixelRatio;
-            var y = ( size.height - ( e.pageY - this.container.offsetTop ) )  * window.devicePixelRatio;
+            var x = e.clientX * window.devicePixelRatio;
+            var y = ( h - e.clientY ) * window.devicePixelRatio;
 
             this.outputs.position.setValue( this.mouse );
             this.outputs.positionPrev.setValue( this.mousePrev );
@@ -633,8 +637,6 @@
 
         Keyboard.prototype.keydown = function( event ) {
             // const keyName = event.key;
-
-            console.log(event.key, event.which);
 
             // if (keyName === 'Control') {
             //     // do not alert when only Control key is pressed.
@@ -819,8 +821,7 @@
         }
 
         MainBuffer.prototype.resize = function( ) {
-            var size = getElementSize( this.container );
-            this.renderer.setSize( size.width, size.height );
+            this.renderer.setSize( window.innerWidth, window.innerHeight );
         };
 
         MainBuffer.prototype.update = function( ) {
@@ -848,7 +849,7 @@
 
         // Adapt point-sprite fragment shaders for instanced quads
         function makeQuadFragShader( source ) {
-            return 'varying vec2 vPointCoord;\n' + source.replace(/gl_PointCoord/g, 'vPointCoord');
+            return '#extension GL_OES_standard_derivatives : enable\nvarying vec2 vPointCoord;\n' + source.replace(/gl_PointCoord/g, 'vPointCoord');
         }
 
         function BrushBuffer( container, renderer, size ) {
@@ -1016,8 +1017,6 @@
                 brushMaterial: new Sink()
             };
 
-            console.log( this.inputs );
-
             this.outputs = {
                 texture: new Source( )
             };
@@ -1025,10 +1024,11 @@
         }
 
         BrushBuffer.prototype.resize = function( event ) {
-            var size = getElementSize( this.container );
-            this.rtA.setSize( size.width, size.height );
-            this.rtB.setSize( size.width, size.height );
-            this.uniforms.resolution.value.set( size.width, size.height );
+            var w = window.innerWidth * window.devicePixelRatio;
+            var h = window.innerHeight * window.devicePixelRatio;
+            this.rtA.setSize( w, h );
+            this.rtB.setSize( w, h );
+            this.uniforms.resolution.value.set( w, h );
         }
 
         BrushBuffer.prototype.setInput = function( inputName, input ) {
@@ -1209,8 +1209,9 @@
         }
 
         StateTexture.prototype.resize = function( ) {
-            var size = getElementSize( this.container );
-            this.renderTarget.setSize( size.width, size.height );
+            var w = window.innerWidth * window.devicePixelRatio;
+            var h = window.innerHeight * window.devicePixelRatio;
+            this.renderTarget.setSize( w, h );
         };
 
         StateTexture.prototype.update = function( ) {
@@ -1245,47 +1246,18 @@
         }
 
         App.prototype.createDomElements = function ( ) {
-            var scope = this;
-            var id = 'render';
+            var container = document.createElement('div');
+            container.id = 'drawing-backdrop';
+            document.body.appendChild( container );
 
-            this.containers[id] = document.createElement('div');
-
-            var width = getElementSize( this.domContainer ).width;
-            var height = this.config.container.height;
-
-            this.containers[id].style.webkitTouchCallout = 'none';
-            this.containers[id].style.webkitUserSelect = 'none';
-            this.containers[id].style.khtmlUserSelect = 'none';
-            this.containers[id].style.mozUserSelect = 'none';
-            this.containers[id].style.msUserSelect = 'none';
-            this.containers[id].style.oUserSelect = 'none';
-            this.containers[id].style.userSelect = 'none';
-
-            this.containers[id].style.webkitTapHighlightColor = 'transparent';
-            this.containers[id].style.cursor = "none";
-            this.containers[id].style.height = height + 'px';
-            this.containers[id].style.position = 'relative';
-            this.containers[id].style.backgroundColor = 'transparent';  // for debugging
-
-            // this.domContainer.style.position = 'absolute';
-            // this.domContainer.style.height = '100%';
-            // this.domContainer.style.width = '100%';
-            // this.domContainer.style.top = '0px';
-            // this.domContainer.style.left = '0px';
-
-            // this.containers[id].style.position = 'absolute';
-            // this.containers[id].style.height = '100%';
-            // this.containers[id].style.width = '100%';
-            // this.containers[id].style.top = '0px';
-            // this.containers[id].style.left = '0px';
-
-            this.domContainer.appendChild( this.containers[id] )
+            this.containers['render'] = container;
+            this.domContainer = container;
         };
 
         App.prototype.createRenderer = function( ) {
             var size = {
-                width: getElementSize( this.domContainer ).width ,
-                height: getElementSize( this.domContainer ).height
+                width: window.innerWidth,
+                height: window.innerHeight
             };
             var psize = {
                 width: size.width * window.devicePixelRatio,
@@ -1300,7 +1272,7 @@
             } );
             renderer.setPixelRatio( window.devicePixelRatio );
             renderer.setSize( size.width, size.height );
-            renderer.setClearColor( 'white' );
+            renderer.setClearColor( '#fafafa' );
 
             this.containers.render.appendChild( renderer.domElement );
 
@@ -1370,11 +1342,7 @@
     })( this );
 
 
-    var config = {
-        container: {
-            height: 600
-        }
-    };
+    var config = { };
 
     var t = new App( 'app-container', config );
 
