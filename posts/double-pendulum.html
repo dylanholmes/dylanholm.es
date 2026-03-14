@@ -4,427 +4,386 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>double pendulum - dylanholm.es</title>
-    <meta name="description" content="Physics analysis of a planar double pendulum with interactive animation">
+    <meta name="description" content="a chaotic double pendulum with live time series">
     <link rel="stylesheet" href="../style.css">
-    <!-- KaTeX CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-    <!-- KaTeX JavaScript -->
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
     <style>
-        .pendulum-container {
-            display: flex;
-            justify-content: center;
-            margin: 2rem 0;
+        #bg-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
         }
-        
-        #doublePendulumSVG {
-            width: 100%;
-            max-width: 600px;
-            height: 400px;
-            border: 1px solid #ddd;
+
+        #live-labels {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1;
         }
-        
-        .katex-display {
-            margin: 1rem 0;
+
+        .band-label {
+            position: absolute;
+            transform: translateY(-50%);
         }
-        
-        .equation {
-            text-align: center;
-            margin: 1rem 0;
-            padding: 1rem;
-            background: #f8f9fa;
+
+        .band-label .katex {
+            font-size: 1.4rem;
+            color: #1a1a1a;
         }
-        
-        blockquote {
-            margin: 1rem 0;
-            padding: 0 1rem;
-            border-left: 4px solid #ddd;
-            background: #f8f9fa;
+
+        .angle-label {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1;
         }
-        
-        .references {
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-        
-        .references a {
-            word-break: break-all;
+
+        .angle-label .katex {
+            font-size: 0.85rem;
+            color: #1a1a1a;
         }
     </style>
 </head>
-<body>
+<body style="position: relative;">
+    <canvas id="bg-canvas"></canvas>
+
+    <div id="live-labels">
+        <div class="band-label" id="label-theta"></div>
+        <div class="band-label" id="label-dtheta"></div>
+        <div class="band-label" id="label-ddtheta"></div>
+    </div>
+
+    <div class="angle-label" id="angle-label-a"></div>
+    <div class="angle-label" id="angle-label-b"></div>
+
     <div class="wrap">
         <header>
             <h1><a href="/">dylanholm.es</a></h1>
             <nav>
                 <a href="/about.html">/about</a>
+                <a href="/resume.html">/resume</a>
             </nav>
         </header>
-        
-        <main>
+
+        <main id="main">
             <article>
-                <h1>double pendulum</h1>
-                <div class="blog-date">2020-10-05</div>
-                
-                <h2>overview</h2>
-                <p>In this post, we take a look at the physics of a planar double pendulum. After defining the details of the system under study using generalized coordinates, we'll derive the kinematics and dynamics of the system from a newtonian perspective (using Newton's second law) and from a lagrangian perspective (using the Euler-lagrange equations). As we'll see, the dynamics of the planar double pendulum are non-linear and not directly solveable with respect to time.</p>
-                
-                <blockquote>
-                    <p><strong>notation</strong></p>
-                    <p>- $\sin\theta_x$ and $\cos\theta_x$ will be denoted $s_x$ and $c_x$, respectively</p>
-                </blockquote>
-
-                <h2>system</h2>
-                <p>The simplest double pendulum system is planar, consisting of massless rods of equal length connecting two point masses. Below is a diagram illustrating this model.</p>
-                
-                <div class="pendulum-container">
-                    <svg id="doublePendulumSVG" viewBox="0 0 100 62" xmlns="http://www.w3.org/2000/svg" overflow="visible">
-                        <g id="pendulum" transform="scale(1 -1) translate(45 -30)">
-                            <!-- Dynamic content will be inserted here -->
-                        </g>
-                    </svg>
-                </div>
-                
-                <p>As illustrated by the random motion imposed on the system $\theta_a, \theta_b \in [-\pi, \pi]$.</p>
-                
-                <p>Point masses $a$ and $b$ are rigidly connected by a massless rod, as is $a$ to the origin, $o$. $m_a$ and $m_b$ are the masses and $l_a$ and $l_b$ are rod lengths. The full configuration can be described by two parameters $\theta_a$, the counter-clockwise angle between vertical and $\overrightarrow{oa}$, and $\theta_b$, the counter-clockwise angle between vertical and $\overrightarrow{ob}$.</p>
-                
-                <p>There are, of course, other way of modeling the system, but this reduces some algebra as you'll see in a moment.</p>
-
-                <h2>kinematics</h2>
-                <p>The basic idea of forward kinematics is simple, compute state of a system in cartesian coordinates of a point in a system given a set of generalized coordinates.</p>
-                
-                $$\mathbf{x} = f(\theta)$$
-                
-                <p>We need to find the cartesian kinematic properties of point masses $a$ and $b$ given their generalized coordinates, $\theta(t)$.</p>
-                
-                <p>The positions of the point masses can be derived using geometry:</p>
-                
-                $$\begin{alignedat}{3}
-                x_a =& &s_al_a& \\
-                y_a =& -&c_al_a&  \\
-                x_b =& &s_al_a& + s_bl_b \\
-                y_b =& -&c_al_a& -c_bl_b 
-                \end{alignedat}$$
-                
-                <p>The velocities can then be derived by taking the derivative of the positions with respect to time:</p>
-                
-                $$\begin{alignedat}{3}
-                \dot{x_a} &= &c_al_a\dot{\theta_a}& \\
-                \dot{y_a} &= &s_al_a\dot{\theta_a}& \\
-                \dot{x_b} &= &c_al_a\dot{\theta_a}& + c_bl_b\dot{\theta_b} \\
-                \dot{y_b} &= &s_al_a\dot{\theta_a}& + s_bl_b\dot{\theta_b}
-                \end{alignedat}$$
-                
-                <p>Deriving again with respect to time, we get the accelerations:</p>
-                
-                $$\begin{alignedat}{3}
-                \ddot{x_a} &= c_al_a\ddot{\theta_a} - s_al_a\dot{\theta_a}^2 \\
-                \ddot{y_a} &= s_al_a\ddot{\theta_a} + c_al_a\dot{\theta_a}^2 \\
-                \ddot{x_b} &= c_al_a\ddot{\theta_a} + c_bl_b\ddot{\theta_b} - s_al_a\dot{\theta_a}^2 - s_bl_b\dot{\theta_b}^2 \\
-                \ddot{y_b} &= s_al_a\ddot{\theta_a} + s_bl_b\ddot{\theta_b} + c_al_a\dot{\theta_a}^2 + c_bl_b\dot{\theta_b}^2
-                \end{alignedat}$$
-
-                <h2>newtonian dynamics</h2>
-                <p>The direct approach uses the kinematic description of the system coupled with newton's second law, $F=ma$ to derive a set of equations that determine the system's motion as a function of time.</p>
-                
-                <p>As depicted in the diagram above, point mass $a$ is being acted on by the tension from the massless rods connect it to the origin and $b$.</p>
-                
-                $$\begin{alignedat}{3}
-                m_a\ddot{x_a} &= -&T_as_a& + T_bs_b \\
-                m_a\ddot{y_a} &= &T_ac_a& - T_bc_b - m_ag \\
-                m_b\ddot{x_b} &= -&T_bs_b&  \\
-                m_b\ddot{y_b} &= &T_bc_b& - m_bg
-                \end{alignedat}$$
-                
-                <p>Now that we have a system of equations that describe the acceleration of the system for a given state given the forces acting on the bodies in the system. After some heavy algebra (see appendix for details), we can solve for $\ddot{\theta}$ using the equations for acceleration along with those derived from newton's second law. The final solution is:</p>
-                
-                $$\begin{alignedat}{1}
-                \ddot{\theta_a} &= \frac{
-                  -g(2m_a + m_b)s_a -m_bgs_{a-2b} - 2s_{a-b}m_b(\dot{\theta_b}^2l_b + \dot{\theta_a}^2l_ac_{a-b})
-                }{
-                  l_a(2m_a + m_b - m_bc_{2a-2b})
-                } \\
-                \\
-                \ddot{\theta_b} &=
-                  \frac{(m_a + m_b)s_{a-b}l_a}{(m_a+m_bs_{a-b}^2)l_b}\dot{\theta_a}^2 
-                  +\frac{m_bs_{a-b}c_{a-b}}{m_a+m_bs_{a-b}^2}\dot{\theta_b}^2
-                  +\frac{(m_a + m_b)s_{a-b}c_ag}{(m_a+m_bs_{a-b}^2)l_b} 
-                \end{alignedat}$$
-
-                <h2>lagrangian dynamics</h2>
-                <blockquote>
-                    <p>TODO</p>
-                </blockquote>
-
-                <h3>numerical integration - euler approach</h3>
-                <blockquote>
-                    <p>TODO</p>
-                </blockquote>
-
-                <h2>appendix</h2>
-                <h3>algebra - solving for $\ddot{\theta}$</h3>
-                <p>Starting from the kinematic equations for acceleration and the equations derived from newton's second law, this section will describe how to solve for the generalized accelerations, $\ddot{\theta}$.</p>
-                
-                <p>We'll start by manipulating the second law equations to eliminate the internal forces:</p>
-                
-                <p>1. Solve eq X for $T_b$, then substitute that into eq Y to eliminate to give us our first equation of motion without the internal forces.</p>
-                
-                $$\begin{alignedat}{1}
-                m_b\ddot{x_b} &= -T_bs_b \\
-                T_b &= -m_b\ddot{x_b}s_b^{-1} \\
-                \\
-                m_b\ddot{y_b} &= T_bc_b - m_bg \\
-                m_b\ddot{y_b} &= -m_b\ddot{x_b}s_b^{-1}c_b - m_bg \\
-                (m_b\ddot{y_b} + m_bg)s_b &= -m_b\ddot{x_b}c_b \\
-                (\ddot{y_b} + g)s_b &= -\ddot{x_b}c_b \\
-                \\
-                0 &= c_b\ddot{x_b} +s_b\ddot{y_b} +s_bg
-                \end{alignedat}$$
-                
-                <p>2. Solve eq Z for $T_b$, substitute $T_a$ and $T_b$ into eq Q, then substitute the LHS of Eq B for $-m_b\ddot{x_b}c_b$ to give us our second equation of motion without the internal forces.</p>
-                
-                $$\begin{alignedat}{1}
-                m_a\ddot{x_a} &= -T_as_a + T_bs_b \\
-                m_a\ddot{x_a} &= -T_as_a - m_b\ddot{x_b}s_b^{-1}s_b \\
-                m_a\ddot{x_a} &= -T_as_a - m_b\ddot{x_b} \\
-                T_a &=  - (m_b\ddot{x_b} + m_a\ddot{x_a})s_a^{-1} \\
-                \\
-                m_a\ddot{y_a} &= T_ac_a - T_bc_b - m_ag \\
-                m_a\ddot{y_a} &= - (m_b\ddot{x_b} + m_a\ddot{x_a})s_a^{-1}c_a + m_b\ddot{x_b}s_b^{-1}c_b - m_ag \\
-                m_a\ddot{y_a} &= - (m_b\ddot{x_b} + m_a\ddot{x_a})s_a^{-1}c_a - (-m_b\ddot{x_b}c_b)s_b^{-1} - m_ag \\
-                m_a\ddot{y_a} &= - (m_b\ddot{x_b} + m_a\ddot{x_a})s_a^{-1}c_a - ((m_b\ddot{y_b} + m_bg)s_b)s_b^{-1} - m_ag \\
-                m_a\ddot{y_a} &= - (m_b\ddot{x_b} + m_a\ddot{x_a})s_a^{-1}c_a - m_b\ddot{y_b} - m_bg - m_ag \\
-                m_as_a\ddot{y_a} &= -m_bc_a\ddot{x_b} - m_ac_a\ddot{x_a} - m_bs_a\ddot{y_b} - (m_a +m_b)s_ag \\
-                \\
-                0 &= m_ac_a\ddot{x_a} +m_as_a\ddot{y_a} +m_bc_a\ddot{x_b} +m_bs_a\ddot{y_b} +(m_a +m_b)s_ag
-                \end{alignedat}$$
-                
-                <p>Now we have the following equations of motions that do not depend on the internal forces.</p>
-                
-                $$\begin{alignedat}{1}
-                0 &= m_ac_a\ddot{x_a} +m_as_a\ddot{y_a} +m_bc_a\ddot{x_b} +m_bs_a\ddot{y_b} +(m_a +m_b)s_ag \\
-                0 &= c_b\ddot{x_b} +s_b\ddot{y_b} +s_bg
-                \end{alignedat}$$
-                
-                <p>Note that the equations still depend on the cartesian accelerations of the point masses. Next, we will use the kinematic equations for acceleration to solve these equations for the generalized accelerations $\ddot{\theta}$. To make this easier, let $s_x=\sin\theta_x$ and $c_x=\cos\theta_x$.</p>
-
-                <h3>learnings</h3>
-                <p>Here are some things I learned while making this article:</p>
-                
-                <ul>
-                    <li>The term "equations of motion" aren't just reserved for dynamics. Any set of equations that describe motion are "equations of motion" (quite obvious in retrospect). So, when talking about "kinematic equations of motions" or "dynamic equations of motion", you can simply say "kinematics" or "dynamics".</li>
-                    <li>In the blog post(link), I was surprised to see the author suggest using a computer algebra program to solve the equations rather than solving them by hand. While my first reaction was "what a cheater!", I realized this is actually a really smart decision to save time when you don't feel like ... I still think you should try to solve equations by hand as a first choice, but using a computer algebra program to just validate your answers or to let you use your time more wisely is a great idea (well at least outside of education).</li>
-                    <li>Choosing the generalized coordinates for the planar double pendulum as the angle between each point mass and vertical was not my first choice when I started this article. I started with $\theta_b$ being the angle between the vectors $\overrightarrow{oa}$ and $\overrightarrow{ob}$, being more similar to recursive kinematic descriptions used in most graphics software. I quickly found that the math is slightly more complex with this choice (try it yourself), and so I decided to keep with the common choice used in this article.</li>
-                </ul>
-
-                <h2>references</h2>
-                <div class="references">
-                    <p><a href="https://diego.assencio.com/?index=1500c66ae7ab27bb0106467c68feebc6">https://diego.assencio.com/?index=1500c66ae7ab27bb0106467c68feebc6</a></p>
-                    <p><a href="https://scienceworld.wolfram.com/physics/DoublePendulum.html">https://scienceworld.wolfram.com/physics/DoublePendulum.html</a></p>
-                    <p><a href="https://www.myphysicslab.com/pendulum/double-pendulum-en.html">https://www.myphysicslab.com/pendulum/double-pendulum-en.html</a></p>
-                    <p><a href="https://en.wikipedia.org/wiki/Equations_of_motion">https://en.wikipedia.org/wiki/Equations_of_motion</a></p>
-                    <p><a href="https://en.wikipedia.org/wiki/Double_pendulum">https://en.wikipedia.org/wiki/Double_pendulum</a></p>
-                </div>
+                <h2>double pendulum</h2>
+                <p>two point masses on massless rods, swinging under gravity. the system is chaotic — small differences in initial conditions diverge exponentially.</p>
             </article>
         </main>
-        
+
         <footer>
-            <p>&copy; 2020 Dylan Holmes</p>
+            <p>&copy; 2025 Dylan Holmes</p>
         </footer>
     </div>
 
     <script>
-        // Double Pendulum Animation (converted from React to vanilla JS)
-        class DoublePendulum {
-            constructor() {
-                this.time = 0;
-                this.dThetaA = 0;
-                this.dThetaB = 0;
-                this.thetaA = 0;
-                this.thetaB = 0;
-                this.animationId = null;
-                this.previousTime = null;
-                
-                this.init();
-                this.animate();
+    (function() {
+        'use strict';
+
+        // --- Physics ---
+        var G = 9.81, M_A = 1, M_B = 1, L_A = 1, L_B = 1;
+        var DT = 1 / 60;
+
+        var theta_a = Math.PI / 3, theta_b = Math.PI / 4;
+        var dtheta_a = 0, dtheta_b = 0;
+        var SUBSTEPS = 4;
+        var ddtheta_a = 0, ddtheta_b = 0;
+
+        // Circular buffer
+        var N = 400;
+        var buf = {
+            ta: new Float32Array(N), tb: new Float32Array(N),
+            da: new Float32Array(N), db: new Float32Array(N),
+            dda: new Float32Array(N), ddb: new Float32Array(N)
+        };
+        var head = 0, bsize = 0;
+
+        function fixRange(x) {
+            return ((x + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+        }
+
+        function substep(dt) {
+            var a = theta_a, b = theta_b;
+            var da = dtheta_a, db = dtheta_b;
+            var s_ab = Math.sin(a - b), c_ab = Math.cos(a - b);
+            var s_a = Math.sin(a), s_b = Math.sin(b), c_a = Math.cos(a);
+            var da2 = da * da, db2 = db * db;
+
+            var denom = M_A + M_B * s_ab * s_ab;
+
+            ddtheta_a = (
+                M_B * s_ab * c_ab * L_A * da2 +
+                M_B * s_ab * L_B * db2 +
+                ((M_A + M_B) * s_a - M_B * s_b * c_ab) * G
+            ) / (-denom * L_A);
+
+            ddtheta_b = (
+                (M_A + M_B) * s_ab * L_A * da2 +
+                M_B * s_ab * c_ab * L_B * db2 +
+                (M_A + M_B) * s_ab * c_a * G
+            ) / (denom * L_B);
+
+            dtheta_a += ddtheta_a * dt;
+            dtheta_b += ddtheta_b * dt;
+            theta_a = fixRange(theta_a + dtheta_a * dt);
+            theta_b = fixRange(theta_b + dtheta_b * dt);
+        }
+
+        function step() {
+            var dt = DT / SUBSTEPS;
+            for (var s = 0; s < SUBSTEPS; s++) {
+                substep(dt);
             }
-            
-            init() {
-                const svg = document.querySelector('#doublePendulumSVG');
-                const pendulumGroup = document.getElementById('pendulum');
-                
-                // Create SVG elements
-                pendulumGroup.innerHTML = `
-                    <line id="vertical-line-a" style="stroke: black; stroke-width: 0.1; stroke-dasharray: 0.4;"/>
-                    <line id="vertical-line-b" style="stroke: black; stroke-width: 0.1; stroke-dasharray: 0.4;"/>
-                    <path id="arc-a" style="fill: none; stroke: black; stroke-width: 0.1; stroke-dasharray: 0.4;"/>
-                    <path id="arc-b" style="fill: none; stroke: black; stroke-width: 0.1; stroke-dasharray: 0.4;"/>
-                    <line id="line-o-a" style="stroke: black; stroke-width: 0.25;"/>
-                    <line id="line-a-b" style="stroke: black; stroke-width: 0.25;"/>
-                    <circle id="point-o" style="fill: black;" r="1"/>
-                    <circle id="point-a" style="fill: black;" r="1"/>
-                    <circle id="point-b" style="fill: black;" r="1"/>
-                    <g id="labels"></g>
-                `;
+
+            buf.ta[head] = theta_a;   buf.tb[head] = theta_b;
+            buf.da[head] = dtheta_a;  buf.db[head] = dtheta_b;
+            buf.dda[head] = ddtheta_a; buf.ddb[head] = ddtheta_b;
+            head = (head + 1) % N;
+            if (bsize < N) bsize++;
+        }
+
+        // --- Layout ---
+        // Time series bands: fraction of page height, positioned below pendulum
+        var BANDS = [
+            { y: 0.58 },  // theta
+            { y: 0.70 },  // dtheta
+            { y: 0.82 }   // ddtheta
+        ];
+        var BAND_HALF = 0.04;
+        var SERIES_WIDTH = 0.45; // fraction of page width for curves
+
+        // --- Canvas ---
+        var canvas = document.getElementById('bg-canvas');
+        var ctx = canvas.getContext('2d');
+
+        var labelTheta = document.getElementById('label-theta');
+        var labelDtheta = document.getElementById('label-dtheta');
+        var labelDdtheta = document.getElementById('label-ddtheta');
+        var angleLabelA = document.getElementById('angle-label-a');
+        var angleLabelB = document.getElementById('angle-label-b');
+
+        function resize() {
+            var dpr = window.devicePixelRatio || 1;
+            var w = document.documentElement.scrollWidth;
+            var h = document.documentElement.scrollHeight;
+            canvas.width = w * dpr;
+            canvas.height = h * dpr;
+            canvas.style.width = w + 'px';
+            canvas.style.height = h + 'px';
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            positionLabels();
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        // --- Draw pendulum ---
+        function getPendulumCenter() {
+            var w = document.documentElement.scrollWidth;
+            var h = document.documentElement.scrollHeight;
+            return { x: w / 2, y: h * 0.38 };
+        }
+
+        function drawAngleArc(cx, cy, radius, theta) {
+            // Canvas angles: 0 = right, PI/2 = down
+            // Vertical (down) = PI/2, rod at angle theta from vertical = PI/2 - theta
+            var vertAngle = Math.PI / 2;
+            var rodAngle = Math.PI / 2 - theta;
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, vertAngle, rodAngle, theta > 0);
+            ctx.stroke();
+        }
+
+        function drawPendulum() {
+            var center = getPendulumCenter();
+            var w = document.documentElement.scrollWidth;
+            var h = document.documentElement.scrollHeight;
+            var scale = Math.min(w, h) * 0.06;
+
+            var xa = scale * L_A * Math.sin(theta_a);
+            var ya = scale * L_A * Math.cos(theta_a);
+            var xb = xa + scale * L_B * Math.sin(theta_b);
+            var yb = ya + scale * L_B * Math.cos(theta_b);
+
+            var rodLen = scale * L_A;
+            var arcRadius = rodLen * 0.4;
+
+            // Dashed vertical reference lines
+            ctx.save();
+            ctx.strokeStyle = '#999';
+            ctx.lineWidth = 0.8;
+            ctx.setLineDash([4, 4]);
+
+            // Vertical from pivot
+            ctx.beginPath();
+            ctx.moveTo(center.x, center.y);
+            ctx.lineTo(center.x, center.y + rodLen * 0.7);
+            ctx.stroke();
+
+            // Vertical from mass A
+            ctx.beginPath();
+            ctx.moveTo(center.x + xa, center.y + ya);
+            ctx.lineTo(center.x + xa, center.y + ya + rodLen * 0.7);
+            ctx.stroke();
+
+            // Angle arcs
+            ctx.lineWidth = 1;
+            drawAngleArc(center.x, center.y, arcRadius, theta_a);
+            drawAngleArc(center.x + xa, center.y + ya, arcRadius, theta_b);
+
+            ctx.restore();
+
+            // Rods
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+
+            ctx.beginPath();
+            ctx.moveTo(center.x, center.y);
+            ctx.lineTo(center.x + xa, center.y + ya);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(center.x + xa, center.y + ya);
+            ctx.lineTo(center.x + xb, center.y + yb);
+            ctx.stroke();
+
+            // Joints
+            ctx.fillStyle = '#1a1a1a';
+            ctx.beginPath();
+            ctx.arc(center.x, center.y, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(center.x + xa, center.y + ya, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(center.x + xb, center.y + yb, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Position angle labels at the midpoint of each arc
+            var labelDist = arcRadius + 12;
+            var midA = theta_a / 2;
+            var labelAx = center.x + labelDist * Math.sin(midA);
+            var labelAy = center.y + labelDist * Math.cos(midA);
+            angleLabelA.style.left = labelAx + 'px';
+            angleLabelA.style.top = labelAy + 'px';
+
+            var midB = theta_b / 2;
+            var labelBx = center.x + xa + labelDist * Math.sin(midB);
+            var labelBy = center.y + ya + labelDist * Math.cos(midB);
+            angleLabelB.style.left = labelBx + 'px';
+            angleLabelB.style.top = labelBy + 'px';
+        }
+
+        // --- Draw time series ---
+        function drawBand(buf_a, buf_b, cy, halfH, left, right) {
+            if (bsize < 2) return;
+
+            var bandW = right - left;
+
+            // Shared min/max
+            var min = Infinity, max = -Infinity;
+            for (var i = 0; i < bsize; i++) {
+                var idx = (head - bsize + i + N) % N;
+                var va = buf_a[idx], vb = buf_b[idx];
+                if (va < min) min = va; if (va > max) max = va;
+                if (vb < min) min = vb; if (vb > max) max = vb;
             }
-            
-            polarToCartesian(centerX, centerY, radius, angleInRadians) {
-                return {
-                    x: centerX + (radius * Math.cos(angleInRadians)),
-                    y: centerY + (radius * Math.sin(angleInRadians))
-                };
-            }
-            
-            describeArc(x, y, radius, startAngle, endAngle) {
-                const start = this.polarToCartesian(x, y, radius, endAngle);
-                const end = this.polarToCartesian(x, y, radius, startAngle);
-                
-                const largeArcFlag = endAngle - startAngle <= Math.PI ? "0" : "1";
-                if (endAngle - startAngle <= -Math.PI) {
-                    largeArcFlag = "1";
+            var range = max - min;
+            if (range < 0.001) range = 1;
+            var mid = (max + min) / 2;
+
+            var colors = ['#1a1a1a', '#999'];
+            var widths = [1.5, 1];
+            var bufs = [buf_a, buf_b];
+
+            for (var c = 0; c < 2; c++) {
+                ctx.strokeStyle = colors[c];
+                ctx.lineWidth = widths[c];
+                ctx.beginPath();
+
+                for (var j = 0; j < bsize; j++) {
+                    var jdx = (head - bsize + j + N) % N;
+                    var v = bufs[c][jdx];
+                    // Left to right: oldest on left, newest on right
+                    var x = left + (j / (N - 1)) * bandW;
+                    var y = cy - ((v - mid) / range) * halfH;
+
+                    if (j === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
                 }
-                const sweepFlag = endAngle - startAngle >= 0 ? 0 : 1;
-                
-                return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} ${sweepFlag} ${end.x} ${end.y}`;
-            }
-            
-            clamp(x, min, max) {
-                return Math.max(min, Math.min(x, max));
-            }
-            
-            update(deltaTime) {
-                this.time += deltaTime + 50 * Math.sin(Math.random() ** 2);
-                
-                // Update angular velocities with some randomness
-                const ddThetaA = 0.01 * (2 * Math.random() - 1) ** 3;
-                const ddThetaB = 0.01 * (2 * Math.random() - 1) ** 3;
-                
-                this.dThetaA = this.clamp(this.dThetaA + ddThetaA, -0.05, 0.05);
-                this.dThetaB = this.clamp(this.dThetaB + ddThetaB, -0.05, 0.05);
-                
-                this.thetaA += this.dThetaA;
-                this.thetaB += this.dThetaB;
-            }
-            
-            render() {
-                const l = 15; // rod length
-                
-                // Normalize angles
-                let theta_a = this.thetaA % (2 * Math.PI);
-                let theta_b = this.thetaB % (2 * Math.PI);
-                
-                if (theta_a < 0) theta_a += 2 * Math.PI;
-                if (theta_b < 0) theta_b += 2 * Math.PI;
-                
-                // Convert to range [-π, π]
-                theta_a -= Math.PI;
-                theta_b -= Math.PI;
-                
-                // Calculate positions
-                const x_a = l * Math.sin(theta_a);
-                const y_a = -l * Math.cos(theta_a);
-                const x_b = l * Math.sin(theta_b) + x_a;
-                const y_b = -l * Math.cos(theta_b) + y_a;
-                
-                // Arc angles for the visual indicators
-                const theta_a_arc_start = 3 * Math.PI / 2 + theta_a;
-                const theta_a_arc_end = 3 * Math.PI / 2;
-                const theta_b_arc_start = 3 * Math.PI / 2 + theta_b;
-                const theta_b_arc_end = 3 * Math.PI / 2;
-                
-                // Update SVG elements
-                const verticalLineA = document.getElementById('vertical-line-a');
-                verticalLineA.setAttribute('x1', 0);
-                verticalLineA.setAttribute('y1', 0);
-                verticalLineA.setAttribute('x2', 0);
-                verticalLineA.setAttribute('y2', -l);
-                
-                const verticalLineB = document.getElementById('vertical-line-b');
-                verticalLineB.setAttribute('x1', x_a);
-                verticalLineB.setAttribute('y1', y_a);
-                verticalLineB.setAttribute('x2', x_a);
-                verticalLineB.setAttribute('y2', y_a - l);
-                
-                const arcA = document.getElementById('arc-a');
-                arcA.setAttribute('d', this.describeArc(0, 0, l/2, theta_a_arc_start, theta_a_arc_end));
-                
-                const arcB = document.getElementById('arc-b');
-                arcB.setAttribute('d', this.describeArc(x_a, y_a, l/2, theta_b_arc_start, theta_b_arc_end));
-                
-                const lineOA = document.getElementById('line-o-a');
-                lineOA.setAttribute('x1', 0);
-                lineOA.setAttribute('y1', 0);
-                lineOA.setAttribute('x2', x_a);
-                lineOA.setAttribute('y2', y_a);
-                
-                const lineAB = document.getElementById('line-a-b');
-                lineAB.setAttribute('x1', x_a);
-                lineAB.setAttribute('y1', y_a);
-                lineAB.setAttribute('x2', x_b);
-                lineAB.setAttribute('y2', y_b);
-                
-                const pointO = document.getElementById('point-o');
-                pointO.setAttribute('cx', 0);
-                pointO.setAttribute('cy', 0);
-                
-                const pointA = document.getElementById('point-a');
-                pointA.setAttribute('cx', x_a);
-                pointA.setAttribute('cy', y_a);
-                
-                const pointB = document.getElementById('point-b');
-                pointB.setAttribute('cx', x_b);
-                pointB.setAttribute('cy', y_b);
-                
-                // Update labels with current angle values
-                const labels = document.getElementById('labels');
-                const pa = (theta_a >= 0) ? "\\hphantom{-}" : "";
-                const pb = (theta_b >= 0) ? "\\hphantom{-}" : "";
-                
-                // You could add KaTeX rendered labels here if needed
-                // For now, keep it simple without the dynamic labels to avoid complexity
-            }
-            
-            animate = (time) => {
-                if (this.previousTime !== null) {
-                    const deltaTime = time - this.previousTime;
-                    this.update(deltaTime);
-                    this.render();
-                }
-                this.previousTime = time;
-                this.animationId = requestAnimationFrame(this.animate);
-            }
-            
-            start() {
-                this.animationId = requestAnimationFrame(this.animate);
-            }
-            
-            stop() {
-                if (this.animationId) {
-                    cancelAnimationFrame(this.animationId);
-                    this.animationId = null;
-                }
+                ctx.stroke();
             }
         }
-        
-        // Initialize the animation when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize KaTeX rendering
-            if (window.renderMathInElement) {
-                renderMathInElement(document.body, {
-                    delimiters: [
-                        {left: "$$", right: "$$", display: true},
-                        {left: "$", right: "$", display: false}
-                    ]
-                });
+
+        function drawTimeSeries() {
+            var w = document.documentElement.scrollWidth;
+            var h = document.documentElement.scrollHeight;
+            var halfH = h * BAND_HALF;
+
+            // Centered horizontally
+            var seriesW = w * SERIES_WIDTH;
+            var left = (w - seriesW) / 2;
+            var right = left + seriesW;
+
+            var pairs = [
+                [buf.ta, buf.tb],
+                [buf.da, buf.db],
+                [buf.dda, buf.ddb]
+            ];
+
+            for (var b = 0; b < 3; b++) {
+                drawBand(pairs[b][0], pairs[b][1], h * BANDS[b].y, halfH, left, right);
             }
-            
-            // Start the double pendulum animation
-            const pendulum = new DoublePendulum();
-            pendulum.start();
-        });
+        }
+
+        // --- Labels ---
+        function positionLabels() {
+            var w = document.documentElement.scrollWidth;
+            var h = document.documentElement.scrollHeight;
+            var seriesW = w * SERIES_WIDTH;
+            var left = (w - seriesW) / 2;
+
+            var labels = [labelTheta, labelDtheta, labelDdtheta];
+            for (var i = 0; i < 3; i++) {
+                labels[i].style.left = (left - 60) + 'px';
+                labels[i].style.top = (h * BANDS[i].y) + 'px';
+            }
+        }
+
+        // Render labels once
+        function renderLabels() {
+            if (!window.katex) return;
+            katex.render('\\theta', labelTheta, {throwOnError: false});
+            katex.render('\\dot{\\theta}', labelDtheta, {throwOnError: false});
+            katex.render('\\ddot{\\theta}', labelDdtheta, {throwOnError: false});
+            katex.render('\\theta_a', angleLabelA, {throwOnError: false});
+            katex.render('\\theta_b', angleLabelB, {throwOnError: false});
+        }
+
+        // --- Main loop ---
+        function frame() {
+            step();
+
+            var w = document.documentElement.scrollWidth;
+            var h = document.documentElement.scrollHeight;
+            ctx.clearRect(0, 0, w, h);
+
+            drawPendulum();
+            drawTimeSeries();
+
+            requestAnimationFrame(frame);
+        }
+
+        // --- Init ---
+        renderLabels();
+        positionLabels();
+        requestAnimationFrame(frame);
+    })();
     </script>
 </body>
 </html>
